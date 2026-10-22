@@ -1,0 +1,26 @@
+{
+  "ext_resources": [
+    {
+      "id": "pmLogo",
+      "uuid": "8f26bf0f-63c3-45ba-8d60-0dc622294921"
+    },
+    {
+      "id": "https://unpkg.com/react@18.3.1/umd/react.production.min.js",
+      "uuid": "c8285f5b-6739-4d23-8599-a7d3b41443a4"
+    },
+    {
+      "id": "https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js",
+      "uuid": "ba1377a9-0c67-4dab-897c-246abd709fbe"
+    }
+  ],
+  "names": {
+    "8f26bf0f-63c3-45ba-8d60-0dc622294921": "assets/8f26bf0f-63c3-45ba-8d60-0dc622294921.png",
+    "c600ed5a-a4ab-4605-b6a0-ac497a69b636": "assets/c600ed5a-a4ab-4605-b6a0-ac497a69b636.js",
+    "6649495b-8bff-41a3-8189-6ce07077a489": "assets/6649495b-8bff-41a3-8189-6ce07077a489.js",
+    "c8285f5b-6739-4d23-8599-a7d3b41443a4": "assets/c8285f5b-6739-4d23-8599-a7d3b41443a4.js",
+    "ba1377a9-0c67-4dab-897c-246abd709fbe": "assets/ba1377a9-0c67-4dab-897c-246abd709fbe.js",
+    "597bbe80-ad56-4155-8fe1-375ba960f63a": "assets/597bbe80-ad56-4155-8fe1-375ba960f63a.woff2",
+    "6498f673-a651-41db-9b71-d3ab3ceeec07": "assets/6498f673-a651-41db-9b71-d3ab3ceeec07.woff2"
+  },
+  "page_order": []
+}

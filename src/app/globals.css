@@ -1,0 +1,263 @@
+@import "tailwindcss";
+
+/* ── Design tokens (from design-reference/Pat Michaels OS) ───────────────────── */
+@theme {
+  --font-sans: var(--font-urbanist), var(--font-urbanist-ext), "Outfit", ui-sans-serif, system-ui, sans-serif;
+
+  /* Blues */
+  --color-navy-950: #001233;
+  --color-navy-900: #002855;
+  --color-navy-800: #023e7d;
+  --color-primary: #023e7d;
+  --color-primary-hover: #002855;
+  --color-primary-active: #001233;
+  --color-steel: #5c7fa8;
+  --color-sky: #9cc3ff;
+  --color-ice: #e8eef6;
+
+  /* Neutrals */
+  --color-frame: #dcdcdc;
+  --color-surface: #e8e8e8;
+  --color-field: #f0f0f0;
+  --color-card: #d1d1d1;
+  --color-chip: #c7c7c7;
+  --color-chip-2: #dcdcdc;
+  --color-chip-3: #e2e2e2;
+  --color-ink: #1c1c1e;
+  --color-muted: #55555a;
+  --color-placeholder: #66666b;
+
+  /* Status */
+  --color-success: #3e9b52;
+  --color-warning: #f5b73b;
+  --color-danger: #c93c37;
+  --color-neutral: #a8a8ad;
+
+  /* Shape */
+  --radius-pill: 999px;
+  --radius-row: 16px;
+  --radius-card: 24px;
+  --radius-panel: 28px;
+
+  /* Elevation */
+  --shadow-raised: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 4px 14px rgba(0, 0, 0, 0.05);
+  --shadow-lifted: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 10px 28px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 10px 28px rgba(0, 0, 0, 0.08);
+  --shadow-primary: 0 8px 20px rgba(2, 62, 125, 0.32);
+  --shadow-inset: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-focus: 0 0 0 1.5px #023e7d, 0 0 0 5.5px rgba(2, 62, 125, 0.14);
+  --shadow-focus-white: 0 0 0 2px #fff, 0 0 0 6px rgba(255, 255, 255, 0.28);
+  --shadow-glass: 0 18px 48px rgba(0, 0, 0, 0.12);
+  --shadow-panel: 0 32px 90px rgba(0, 0, 0, 0.2);
+  --shadow-seg: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-blue: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 10px 28px rgba(0, 18, 51, 0.22);
+  --shadow-blue-lg: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 24px 56px rgba(0, 18, 51, 0.3);
+  --shadow-blue-form: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 18px 40px rgba(0, 18, 51, 0.28);
+  --shadow-frame: 0 30px 80px rgba(0, 18, 51, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  --shadow-avatar: 0 0 0 2px rgba(255, 255, 255, 0.8);
+
+  /* Motion */
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quint: cubic-bezier(0.65, 0, 0.25, 1);
+  --animate-slide-in: pmSlideIn 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-row-in: pmaIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── Keyframes (verbatim from the prototype) ──────────────────────────────────── */
+@keyframes pmSlideIn { from { transform: translateX(40px); opacity: 0 } to { transform: none; opacity: 1 } }
+@keyframes pmlFade { 0% { opacity: 0 } 12% { opacity: 1 } 88% { opacity: 1 } 100% { opacity: 0 } }
+@keyframes pmcBg { from { opacity: 0; transform: scale(1.15) } to { opacity: 1; transform: scale(1) } }
+@keyframes pmcLine { 0% { transform: translate(-50%, -50%) scaleX(0); opacity: 0 } 25% { opacity: 1 } 100% { transform: translate(-50%, -50%) scaleX(1); opacity: 1 } }
+@keyframes pmcUp { 0% { top: 50%; opacity: 1 } 85% { opacity: 0.9 } 100% { top: -2%; opacity: 0 } }
+@keyframes pmcDown { 0% { top: 50%; opacity: 1 } 85% { opacity: 0.9 } 100% { top: 102%; opacity: 0 } }
+@keyframes pmcClip { from { clip-path: inset(50% -2% 50% -2%) } to { clip-path: inset(-10% -2% -10% -2%) } }
+@keyframes pmcLogo { 0% { opacity: 0.4; filter: blur(6px); transform: translate(-50%, -50%) scale(1.06) } 100% { opacity: 1; filter: blur(0); transform: translate(-50%, -50%) scale(1) } }
+@keyframes pmcSpec { from { left: -40% } to { left: 130% } }
+@keyframes pmcGlow { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.6) } 50% { opacity: 0.9 } 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1) } }
+@keyframes pmcRing { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.7) rotate(-40deg) } 40% { opacity: 0.9 } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.25) rotate(40deg) } }
+@keyframes pmcFlare { 0% { opacity: 0; transform: translate(-50%, -50%) scaleX(0.2) } 40% { opacity: 1 } 100% { opacity: 0; transform: translate(-50%, -50%) scaleX(1.6) } }
+@keyframes pmcTag { from { opacity: 0; letter-spacing: 1.2em; filter: blur(4px) } to { opacity: 0.85; letter-spacing: 0.6em; filter: blur(0) } }
+@keyframes pmcRule { from { transform: translateX(-50%) scaleX(0) } to { transform: translateX(-50%) scaleX(1) } }
+@keyframes pmcOut { 0% { opacity: 1; transform: scale(1) } 100% { opacity: 0; transform: scale(1.04) } }
+@keyframes pmcCard { from { opacity: 0; transform: translateY(28px) scale(0.97); filter: blur(8px) } to { opacity: 1; transform: none; filter: blur(0) } }
+@keyframes pmcBuild { from { opacity: 0; transform: translateX(40px) } to { opacity: 0.9; transform: none } }
+@keyframes pmaIn { from { opacity: 0; transform: translateX(24px) } to { opacity: 1; transform: none } }
+@keyframes pmaPop { 0% { transform: scale(0.6) } 55% { transform: scale(1.18) } 100% { transform: scale(1) } }
+@keyframes pmaShine { from { transform: translateX(-120%) skewX(-18deg) } to { transform: translateX(320%) skewX(-18deg) } }
+@keyframes pmaGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0) } 50% { box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.14) } }
+@keyframes pmaC0 { 0% { opacity: 1; transform: translate(0, 0) rotate(0) } 100% { opacity: 0; transform: translate(-70px, 190px) rotate(420deg) } }
+@keyframes pmaC1 { 0% { opacity: 1; transform: translate(0, 0) rotate(0) } 100% { opacity: 0; transform: translate(10px, 230px) rotate(-360deg) } }
+@keyframes pmaC2 { 0% { opacity: 1; transform: translate(0, 0) rotate(0) } 100% { opacity: 0; transform: translate(80px, 200px) rotate(520deg) } }
+@keyframes pmaTicker { from { transform: translateY(0) } to { transform: translateY(-50%) } }
+
+/* ── Base ─────────────────────────────────────────────────────────────────────── */
+@layer base {
+  html,
+  body {
+    margin: 0;
+    height: 100%;
+  }
+  body {
+    font-family: var(--font-sans);
+    color: var(--color-ink);
+    background: linear-gradient(180deg, #001233 0%, #002855 50%, #023e7d 100%);
+    background-attachment: fixed;
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+  }
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+  a {
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+  a:hover {
+    color: var(--color-navy-950);
+  }
+  button,
+  input,
+  select,
+  textarea {
+    font-family: inherit;
+    color: inherit;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-placeholder);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+/* ── Utilities ────────────────────────────────────────────────────────────────── */
+@utility pm-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+}
+
+/* Frosted glass surfaces used by drawers, menus, toasts and the login card. */
+@utility glass {
+  background: rgba(244, 244, 244, 0.62);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+}
+@utility glass-strong {
+  background: rgba(244, 244, 244, 0.86);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+}
+@utility glass-menu {
+  background: rgba(244, 244, 244, 0.82);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+}
+
+/* Blue gradient cards (Target, Finance KPIs, Invoice form). */
+@utility bg-blue-card {
+  background: linear-gradient(160deg, #023e7d 0%, #002855 100%);
+}
+@utility bg-blue-hero {
+  background: linear-gradient(150deg, #023e7d 0%, #002855 55%, #001233 100%);
+}
+@utility bg-blue-chip {
+  background: linear-gradient(160deg, #023e7d 0%, #002855 60%, #001233 100%);
+}
+
+/* Keep the prototype's 40 px look while giving pointers and fingers a 44 px target. */
+@utility hit-44 {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+}
+
+@utility sr-only-focusable {
+  position: absolute;
+  left: -9999px;
+  &:focus {
+    left: 12px;
+    top: 12px;
+    z-index: 100;
+  }
+}
+
+/* ── Intro gating (see components/intro/logo-intro.tsx) ───────────────────────── */
+.pm-intro {
+  display: none;
+}
+html[data-intro] .pm-intro {
+  display: block;
+}
+/* Elements that enter after the intro: immediate normally, choreographed while it plays. */
+.pm-after-intro {
+  animation-delay: 0.05s;
+}
+html[data-intro="1"] .pm-after-intro {
+  animation-delay: 3.4s;
+}
+html[data-intro="1"] .pm-after-intro-late {
+  animation-delay: 3.6s;
+}
+
+/* ── Print: only the branded document (#pm-doc) prints ───────────────────────── */
+@page {
+  margin: 12mm;
+}
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  #pm-doc,
+  #pm-doc * {
+    visibility: visible !important;
+  }
+  #pm-doc {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+  }
+}

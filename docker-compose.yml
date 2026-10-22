@@ -1,0 +1,80 @@
+# Local development stack: PostgreSQL 17, MinIO (S3), Mailpit (SMTP catcher) and the app.
+#
+#   docker compose up -d db minio mailpit      # services only; run `pnpm dev` on the host
+#   docker compose up --build                  # everything, production image
+#
+# Without Docker: `pnpm db:local` (embedded PostgreSQL) + STORAGE_DRIVER=local + MAIL_DRIVER=file.
+
+name: pat-michaels-os
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: patmichaels
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      TZ: UTC
+    ports: ["54329:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d patmichaels"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # MinIO build maintained by Coolify (MinIO stopped publishing community images in 2025).
+  minio:
+    image: ghcr.io/coollabsio/minio:RELEASE.2025-10-15T17-29-55Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin-local
+    ports: ["9000:9000", "9001:9001"]
+    volumes: [miniodata:/data]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9000/minio/health/live || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  mailpit:
+    image: axllent/mailpit:v1.31.6
+    ports: ["1025:1025", "8025:8025"]
+
+  app:
+    build:
+      context: .
+      args:
+        APP_VERSION: local
+    depends_on:
+      db: { condition: service_healthy }
+      minio: { condition: service_started }
+      mailpit: { condition: service_started }
+    ports: ["3000:3000"]
+    environment:
+      NODE_ENV: production
+      APP_URL: http://localhost:3000
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/patmichaels
+      AUTH_SECRET: local-only-secret-change-me-0123456789abcdef
+      ENCRYPTION_KEY: bG9jYWwtb25seS1lbmNyeXB0aW9uLWtleS0zMmJ5dGU=
+      STORAGE_DRIVER: s3
+      S3_ENDPOINT: http://minio:9000
+      S3_BUCKET: pat-michaels-os
+      S3_ACCESS_KEY_ID: minioadmin
+      S3_SECRET_ACCESS_KEY: minioadmin-local
+      S3_FORCE_PATH_STYLE: "true"
+      MAIL_DRIVER: smtp
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+      SMTP_SECURE: "false"
+      COMPANY_BANK_NAME: HDFC Bank
+      COMPANY_BANK_ACCOUNT_NAME: Pat Michaels Developers LLP
+      COMPANY_BANK_ACCOUNT_NUMBER: "50200000000000"
+      COMPANY_BANK_IFSC: HDFC0000001
+      COMPANY_BANK_BRANCH: Lavelle Road, Bengaluru
+      SEED_OWNER_PASSWORD: ChangeMe!2026-local
+
+volumes:
+  pgdata:
+  miniodata:

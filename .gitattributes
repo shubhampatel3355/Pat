@@ -1,0 +1,7 @@
+* text=auto eol=lf
+*.png binary
+*.woff2 binary
+*.ico binary
+*.pdf binary
+*.html linguist-documentation
+design-reference/** -diff linguist-generated

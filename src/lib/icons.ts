@@ -1,0 +1,50 @@
+/** 24×24 stroke icon paths, verbatim from the prototype's icon set. */
+export const ICONS = {
+  dashboard: "M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z",
+  leads: "M16 20v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 20v-1a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8",
+  pipeline: "M5 4h4v16H5zM10 4h4v11h-4zM15 4h4v7h-4z",
+  followups: "M9 11l3 3 8-8M20 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11",
+  visits: "M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5",
+  whatsapp: "M21 12a8.5 8.5 0 0 1-12.6 7.4L3 21l1.6-5.4A8.5 8.5 0 1 1 21 12z",
+  email: "M3 6h18v12H3zM3 7l9 6 9-6",
+  finance: "M6 4h12M6 9h12M6 4c5 0 7 2 7 5s-2 5-7 5h1l7 7",
+  teams: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8M4 21c.8-3.8 4-6 8-6s7.2 2.2 8 6",
+  payroll: "M2 6h20v12H2zM2 10h20M6 15h4",
+  vault: "M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM10 14h4v3h-4zM11 14v-1a1 1 0 0 1 2 0v1",
+  reports: "M21 12A9 9 0 1 1 12 3v9zM15 3.5A9 9 0 0 1 20.5 9H15z",
+  settings: "M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M16 4v4M10 10v4M18 16v4",
+  user: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8M4 21c.8-3.8 4-6 8-6s7.2 2.2 8 6",
+  spark: "M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6",
+  star: "M12 3l2.7 5.6 6.1.8-4.4 4.3 1 6.1L12 17l-5.4 2.8 1-6.1-4.4-4.3 6.1-.8z",
+  target: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8",
+  key: "M8 15a4 4 0 1 1 3.5-6H21v3h-2v2h-3v-2h-4.5A4 4 0 0 1 8 15z",
+  check: "M20 6 9 17l-5-5",
+  trend: "M3 17l6-6 4 4 8-8M15 7h6v6",
+  clock: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18M12 7v5l3 2",
+  calendar: "M4 6h16v14H4zM4 10h16M8 3v4M16 3v4",
+  trophy: "M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 21h8",
+  phone: "M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2",
+  car: "M5 17h14M6 17v2M18 17v2M4 13l2-6h12l2 6v4H4zM4 13h16",
+  more: "M5 12h.01M12 12h.01M19 12h.01",
+  invoice: "M7 3h10v18l-2.5-1.5L12 21l-2.5-1.5L7 21zM10 8h4M10 12h4M10 16h2",
+  bizdev: "M3 17l6-6 4 4 8-8M15 7h6v6",
+  // Utility glyphs used in the shell
+  search: "M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14M20 20l-4-4",
+  back: "M19 12H5M11 6l-6 6 6 6",
+  plus: "M12 5v14M5 12h14",
+  bell: "M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15zM10 21h4",
+  logout: "M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3M14 7l5 5-5 5M19 12H9",
+  arrowUpRight: "M7 17 17 7M8 7h9v9",
+  chevronDown: "m6 9 6 6 6-6",
+  print: "M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a1 1 0 0 1-1 1h-2M7 14h10v7H7z",
+  upload: "M12 16V4M7 9l5-5 5 5M5 20h14",
+  download: "M12 4v12M7 11l5 5 5-5M5 20h14",
+  close: "M6 6l12 12M18 6 6 18",
+  mail: "M3 6h18v12H3zM3 7l9 6 9-6",
+  folder: "M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z",
+} as const;
+
+export type IconName = keyof typeof ICONS;
+
+/** The four-point star brand mark used on the login card and the top bar. */
+export const BRAND_MARK = "M12 1 13.6 10.4 23 12 13.6 13.6 12 23 10.4 13.6 1 12 10.4 10.4Z";
