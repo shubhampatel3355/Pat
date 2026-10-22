@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { headers } from "next/headers";
-import { INTRO_BOOT_SCRIPT, LogoIntro } from "@/components/intro/logo-intro";
+import { cookies } from "next/headers";
+import { LogoIntro } from "@/components/intro/logo-intro";
+import { INTRO_COOKIE } from "@/lib/intro";
 import { urbanist, urbanistExt } from "./fonts";
 import "./globals.css";
 
@@ -18,17 +19,13 @@ export const viewport: Viewport = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  // Per-request CSP nonce from src/proxy.ts (every page is dynamically rendered).
-  const nonce = (await headers()).get("x-nonce") ?? undefined;
+  // The brand intro plays once per browser session (session cookie set by the intro itself).
+  const playIntro = !(await cookies()).has(INTRO_COOKIE);
   return (
-    <html lang="en-IN" className={`${urbanist.variable} ${urbanistExt.variable}`} suppressHydrationWarning>
-      <head>
-        {/* Decides before first paint whether the brand intro plays (once per session, not with reduced motion). */}
-        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: INTRO_BOOT_SCRIPT }} />
-      </head>
+    <html lang="en-IN" className={`${urbanist.variable} ${urbanistExt.variable}`} data-intro={playIntro ? "1" : undefined} suppressHydrationWarning>
       <body>
         {children}
-        <LogoIntro />
+        {playIntro && <LogoIntro />}
       </body>
     </html>
   );

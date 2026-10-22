@@ -6,7 +6,7 @@ invoicing, finance, payroll, team and documents in one place.
 - Design source of truth: `design-reference/Pat Michaels OS (offline).html` (unpacked copy in `design-reference/unpacked/`).
 - Architecture, stack and data model: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
-> Status: milestone 1 — foundation (auth, RBAC, audit, shell, deployment). Modules arrive in milestones 2–5.
+> Status: milestones 1–2 — foundation, WIP, Teams and Dashboard. Invoicing, finance, payroll, vault, vehicles, business development, tasks and settings arrive in milestones 3–5.
 
 ## Quick start (local)
 
@@ -60,3 +60,14 @@ Sign in as `pat@patmichaels.in` with the temporary password; you'll be asked to 
 | **Employee** | Own WIP rows, own tasks/follow-ups, own BD meetings (client contact info hidden), Vehicle Management, own payslips/CTC, own Employee Documents |
 
 Permissions are enforced on the server (`src/server/policy`) and editable per role in Settings → Roles & permissions.
+
+## Demo data (development only)
+
+`pnpm db:seed:demo` loads the design prototype's sample team, WIP rows, targets and to-dos (dates shifted so
+they stay current) so screens can be compared side by side with `design-reference/`. It refuses to run with
+`NODE_ENV=production`. Demo users sign in with `SEED_DEMO_PASSWORD` (default `Demo-Password-2026`),
+e.g. `neha@patmichaels.in` (employee) or `anita@patmichaels.in` (admin).
+
+> **Design review needed:** the Employee dashboard (own target, own pipeline, today's follow-ups, upcoming
+> cabs) and the Dashboard **Pipeline** card were not in the prototype; both are built from existing
+> components and should be reviewed by design.

@@ -206,11 +206,11 @@
 }
 
 /* ── Intro gating (see components/intro/logo-intro.tsx) ───────────────────────── */
-.pm-intro {
-  display: none;
-}
-html[data-intro] .pm-intro {
-  display: block;
+@keyframes pmHide {
+  to {
+    visibility: hidden;
+    pointer-events: none;
+  }
 }
 /* Elements that enter after the intro: immediate normally, choreographed while it plays. */
 .pm-after-intro {
@@ -219,8 +219,13 @@ html[data-intro] .pm-intro {
 html[data-intro="1"] .pm-after-intro {
   animation-delay: 3.4s;
 }
-html[data-intro="1"] .pm-after-intro-late {
-  animation-delay: 3.6s;
+@media (prefers-reduced-motion: reduce) {
+  .pm-intro {
+    display: none !important;
+  }
+  html[data-intro="1"] .pm-after-intro {
+    animation-delay: 0s;
+  }
 }
 
 /* ── Print: only the branded document (#pm-doc) prints ───────────────────────── */

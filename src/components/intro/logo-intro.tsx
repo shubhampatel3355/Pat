@@ -1,18 +1,17 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
+import { INTRO_COOKIE } from "@/lib/intro";
 
 /**
  * Brand intro (~4.4 s), recreated from the prototype's mountIntro():
  * light line → split reveal of the logo → glow, ring, flare and specular sweep → "OPERATING SYSTEM" → fade.
  *
- * Whether it plays is decided before first paint by INTRO_BOOT_SCRIPT (sets html[data-intro="1"]):
- * once per browser session, never with prefers-reduced-motion. Click anywhere to skip.
+ * The root layout renders it only when the `pm_intro` session cookie is absent (once per browser
+ * session) and marks <html data-intro="1"> so content can wait for it. prefers-reduced-motion hides it
+ * in CSS. The fade-out and hide are CSS animations too, so it never blocks the page even before
+ * hydration; script only adds click-to-skip and sets the cookie.
  */
-
-export const INTRO_STORAGE_KEY = "pm_intro_played";
-
-export const INTRO_BOOT_SCRIPT = `try{if(!sessionStorage.getItem("${INTRO_STORAGE_KEY}")&&!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)){document.documentElement.dataset.intro="1";sessionStorage.setItem("${INTRO_STORAGE_KEY}","1")}}catch(e){}`;
 
 const E = "cubic-bezier(.65,0,.25,1)";
 const O = "cubic-bezier(.16,1,.3,1)";
@@ -38,37 +37,33 @@ const LINE: React.CSSProperties = {
   boxShadow: "0 0 18px 3px rgba(120,170,255,.75)",
 };
 
-const noSubscribe = () => () => {};
-
 export function LogoIntro() {
-  // "1" = playing, "skip" = skipped, null = not this session. "ssr" while server-rendering
-  // (the overlay is then hidden by CSS unless the boot script marked <html data-intro>).
-  const intro = useSyncExternalStore(
-    noSubscribe,
-    () => document.documentElement.dataset.intro ?? null,
-    () => "ssr",
-  );
-  const [phase, setPhase] = useState<"playing" | "fading" | "gone">("playing");
+  const [phase, setPhase] = useState<"playing" | "skipped" | "gone">("playing");
 
   useEffect(() => {
-    if (intro !== "1" || phase !== "playing") return;
-    const end = setTimeout(() => setPhase("fading"), 3700);
-    return () => clearTimeout(end);
-  }, [intro, phase]);
+    document.cookie = `${INTRO_COOKIE}=1; path=/; samesite=lax${location.protocol === "https:" ? "; secure" : ""}`;
+    const done = setTimeout(() => setPhase("gone"), 4400);
+    return () => clearTimeout(done);
+  }, []);
 
   useEffect(() => {
-    if (phase !== "fading") return;
+    if (phase === "gone") {
+      // Screens mounted from now on (client navigations) should not wait for the intro any more.
+      document.documentElement.dataset.intro = "done";
+      return;
+    }
+    if (phase !== "skipped") return;
     const t = setTimeout(() => setPhase("gone"), 650);
     return () => clearTimeout(t);
   }, [phase]);
 
-  if (phase === "gone" || intro === null) return null;
+  if (phase === "gone") return null;
 
   const skip = () => {
     if (phase !== "playing") return;
     // Let the page underneath appear straight away instead of waiting for its choreographed delay.
     document.documentElement.dataset.intro = "skip";
-    setPhase("fading");
+    setPhase("skipped");
   };
 
   return (
@@ -85,7 +80,7 @@ export function LogoIntro() {
         overflow: "hidden",
         cursor: "pointer",
         background: "#001233",
-        animation: phase === "fading" ? `pmcOut .6s ${E} forwards` : undefined,
+        animation: phase === "skipped" ? `pmcOut .6s ${E} forwards, pmHide 0s linear .6s forwards` : `pmcOut .6s ${E} 3.7s forwards, pmHide 0s linear 4.3s forwards`,
       }}
     >
       <div style={{ position: "absolute", inset: "-10%", background: "radial-gradient(60% 55% at 50% 48%,#023E7D 0%,#002855 45%,#001233 85%)", opacity: 0, animation: `pmcBg 1s ${O} forwards` }} />

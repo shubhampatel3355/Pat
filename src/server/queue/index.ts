@@ -28,6 +28,8 @@ export interface EmailJob {
 export interface ReminderJob {
   kind: "todo" | "task";
   id: string;
+  /** The due instant this job was scheduled for (ISO); stale jobs are ignored. */
+  at?: string;
 }
 
 interface Payloads {

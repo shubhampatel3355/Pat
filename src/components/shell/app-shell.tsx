@@ -8,7 +8,9 @@ import { BRAND_MARK } from "@/lib/icons";
 import { markNotificationsReadAction, setViewAction, signOutAction } from "@/server/actions/shell";
 import { cn } from "../ui/cn";
 import { Icon } from "../ui/icon";
+import { SvgDefs } from "../ui/ring";
 import { ToastProvider } from "../ui/toast";
+import { CelebrationWatcher } from "./celebration-watcher";
 import { CommandPalette } from "./command-palette";
 import { LiveProvider, useLive, type LiveSnapshot } from "./live";
 import type { ShellNavGroup, ShellQuickItem, ShellUser, ShellView } from "./types";
@@ -55,6 +57,7 @@ export function AppShell({ user, nav, quickCreate, view, live, children }: AppSh
     <LiveProvider initial={live}>
       <div className="flex h-dvh p-[clamp(12px,3.5vw,56px)]">
         <div id="pm-frame" className="relative min-w-0 flex-1 overflow-hidden rounded-xl bg-frame shadow-frame">
+          <SvgDefs />
           <a href="#pm-content" className="sr-only-focusable rounded-pill bg-white px-4 py-2 text-sm">
             Skip to content
           </a>
@@ -65,6 +68,7 @@ export function AppShell({ user, nav, quickCreate, view, live, children }: AppSh
               {children}
             </main>
             <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} nav={nav} />
+            <CelebrationWatcher />
           </ToastProvider>
         </div>
       </div>

@@ -30,9 +30,10 @@ export function HeadCell({ children, align = "left" }: { children?: React.ReactN
   );
 }
 
-export function Row({ children, highlighted, className, style, onClick }: { children: React.ReactNode; highlighted?: boolean; className?: string; style?: React.CSSProperties; onClick?: () => void }) {
+export function Row({ id, children, highlighted, className, style, onClick }: { id?: string; children: React.ReactNode; highlighted?: boolean; className?: string; style?: React.CSSProperties; onClick?: () => void }) {
   return (
     <div
+      id={id}
       role="row"
       onClick={onClick}
       className={cn(

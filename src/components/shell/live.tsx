@@ -47,6 +47,13 @@ const POLL_MS = 15_000;
 /** Polls /api/live (notifications + team activity) while the tab is visible. */
 export function LiveProvider({ initial, children }: { initial: LiveSnapshot; children: React.ReactNode }) {
   const [snap, setSnap] = useState<LiveSnapshot>(initial);
+  // A server action's refresh() re-renders the layout with a fresh snapshot: adopt it immediately
+  // (e.g. the celebration after "Payment Collected") instead of waiting for the next poll.
+  const [seenInitial, setSeenInitial] = useState(initial);
+  if (initial !== seenInitial) {
+    setSeenInitial(initial);
+    setSnap(initial);
+  }
   const inflight = useRef(false);
 
   const refresh = useCallback(async () => {

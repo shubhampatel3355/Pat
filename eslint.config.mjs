@@ -20,5 +20,6 @@ export default defineConfig([
     ".local/**",
     "playwright-report/**",
     "test-results/**",
+    "dist/**",
   ]),
 ]);
