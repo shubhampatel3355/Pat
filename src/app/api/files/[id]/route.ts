@@ -1,5 +1,5 @@
 import { writeAudit } from "@/server/audit";
-import { getSessionUser } from "@/server/auth/session";
+import { getApiUser } from "@/server/auth/session";
 import { db } from "@/server/db";
 import { isSameOrigin, metaFromHeaders } from "@/server/request";
 import { canDeleteFile, canViewFile } from "@/server/services/files";
@@ -12,7 +12,7 @@ async function load(id: string) {
 
 /** Download: permission check, audit, then a 60-second presigned redirect. Never streams from the app disk in production. */
 export async function GET(req: Request, ctx: RouteContext<"/api/files/[id]">) {
-  const user = await getSessionUser();
+  const user = await getApiUser();
   if (!user) return Response.json({ error: "Please sign in again." }, { status: 401 });
   const { id } = await ctx.params;
   const file = await load(id);
@@ -33,7 +33,7 @@ export async function GET(req: Request, ctx: RouteContext<"/api/files/[id]">) {
 
 export async function DELETE(req: Request, ctx: RouteContext<"/api/files/[id]">) {
   if (!isSameOrigin(req.headers)) return Response.json({ error: "Request blocked (cross-site)." }, { status: 403 });
-  const user = await getSessionUser();
+  const user = await getApiUser();
   if (!user) return Response.json({ error: "Please sign in again." }, { status: 401 });
   const { id } = await ctx.params;
   const file = await load(id);

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { LandlordType, PricingBasis, WipRemark } from "@/generated/prisma/enums";
 import { WIP_REMARKS } from "@/lib/constants";
@@ -109,6 +110,7 @@ interface WipDrawerProps {
   users: UserOption[];
   me: string;
   defaultClosure: string;
+  canInvoice: boolean;
   onSaved: (id: string | null) => void;
 }
 
@@ -118,7 +120,7 @@ export function WipDrawer(props: WipDrawerProps) {
   return <WipDrawerForm key={props.row?.id ?? "new"} {...props} />;
 }
 
-function WipDrawerForm({ open, onClose, row, users, me, defaultClosure, onSaved }: WipDrawerProps) {
+function WipDrawerForm({ open, onClose, row, users, me, defaultClosure, canInvoice, onSaved }: WipDrawerProps) {
   const [f, setF] = useState<FormState>(() => initialState(row, me, defaultClosure));
   const [error, setError] = useState<string | null>(null);
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) => {
@@ -158,9 +160,14 @@ function WipDrawerForm({ open, onClose, row, users, me, defaultClosure, onSaved 
       footer={
         <>
           {row?.canDelete && (
-            <Button variant="danger-soft" className="mr-auto" disabled={pending} onClick={() => confirm(`Remove ${row.tenantName} from WIP?`) && void remove.run({ id: row.id })}>
+            <Button variant="danger-soft" className={canInvoice ? undefined : "mr-auto"} disabled={pending} onClick={() => confirm(`Remove ${row.tenantName} from WIP?`) && void remove.run({ id: row.id })}>
               Delete
             </Button>
+          )}
+          {row && canInvoice && (
+            <Link href={`/invoices?lead=${row.id}`} className="hit-44 mr-auto inline-flex h-10 items-center rounded-pill bg-surface px-[18px] text-[13px] font-medium text-ink hover:bg-white hover:text-ink">
+              Raise invoice
+            </Link>
           )}
           <Button variant="secondary" onClick={onClose}>
             Cancel

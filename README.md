@@ -6,7 +6,9 @@ invoicing, finance, payroll, team and documents in one place.
 - Design source of truth: `design-reference/Pat Michaels OS (offline).html` (unpacked copy in `design-reference/unpacked/`).
 - Architecture, stack and data model: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
-> Status: milestones 1–2 — foundation, WIP, Teams and Dashboard. Invoicing, finance, payroll, vault, vehicles, business development, tasks and settings arrive in milestones 3–5.
+> Status: milestones 1–3 — foundation, WIP, Teams, Dashboard, Invoice/Proforma (PDF, print, email, payments,
+> credit notes) and the Finance overview (XLSX/PDF export). Payroll, vault, vehicles, business development,
+> tasks and settings arrive in milestones 4–5.
 
 ## Quick start (local)
 
@@ -61,12 +63,30 @@ Sign in as `pat@patmichaels.in` with the temporary password; you'll be asked to 
 
 Permissions are enforced on the server (`src/server/policy`) and editable per role in Settings → Roles & permissions.
 
+## Finance definitions
+
+Shared by the Dashboard, the Finance overview and its exports (`src/lib/finance.ts`):
+
+- **Revenue** — fees (excl. GST) on tax invoices issued in the period, net of credit notes. Proformas are not revenue.
+- **Expenses** — ledger expenses dated in the period. **Payroll** is the Salaries category (payroll runs post there).
+- **Profit** — revenue + other income (ledger receipts not tied to an invoice payment) − expenses.
+- **Collections** — receipts including GST. **Receivables** — unpaid today on invoices issued up to the period end.
+- While a financial year is running, figures are year to date and compared with the same dates last year.
+
+Invoice payments post to the ledger automatically; other income and expenses are added on Finance → Add entry
+(or quick-create → Expense) and can be voided there with a reason (kept in the audit log).
+
 ## Demo data (development only)
 
 `pnpm db:seed:demo` loads the design prototype's sample team, WIP rows, targets and to-dos (dates shifted so
-they stay current) so screens can be compared side by side with `design-reference/`. It refuses to run with
-`NODE_ENV=production`. Demo users sign in with `SEED_DEMO_PASSWORD` (default `Demo-Password-2026`),
-e.g. `neha@patmichaels.in` (employee) or `anita@patmichaels.in` (admin).
+they stay current) so screens can be compared side by side with `design-reference/`, plus invoices, proformas,
+payments, credit notes and ledger entries from the start of the previous financial year (the finance part only
+runs on a database without invoices). It refuses to run with `NODE_ENV=production`. Demo users sign in with
+`SEED_DEMO_PASSWORD` (default `Demo-Password-2026`), e.g. `neha@patmichaels.in` (employee) or
+`anita@patmichaels.in` (admin).
+
+To keep demo data apart from your working database, point `DATABASE_URL` at a separate database (for example
+`…/patmichaels_demo`) when running `db:deploy`, `db:seed`, `db:seed:demo` and `pnpm dev`.
 
 > **Design review needed:** the Employee dashboard (own target, own pipeline, today's follow-ups, upcoming
 > cabs) and the Dashboard **Pipeline** card were not in the prototype; both are built from existing

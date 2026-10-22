@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addDaysIso, financialYear, fyMonths, fyOfIso, fyQuarterOfIso, formatDate, formatTime12, isoDateIST, relativeDayLabel } from "@/lib/dates";
+import { addDaysIso, financialYear, formatDate, formatDateTime, formatTime12, fyMonths, fyOfIso, fyQuarterOfIso, isoDateIST, relativeDayLabel, sameDayLastYear } from "@/lib/dates";
 
 describe("financial year (April–March)", () => {
   it("starts in April", () => {
@@ -34,4 +34,10 @@ describe("IST helpers", () => {
     expect(relativeDayLabel(addDaysIso("2026-10-22", 1), "2026-10-22")).toBe("Tomorrow");
     expect(relativeDayLabel("2026-10-30", "2026-10-22")).toBe("30 Oct");
   });
+});
+
+describe("year-on-year dates", () => {
+  it("steps back one year", () => expect(sameDayLastYear("2026-10-22")).toBe("2025-10-22"));
+  it("maps 29 Feb to 28 Feb", () => expect(sameDayLastYear("2028-02-29")).toBe("2027-02-28"));
+  it("stamps reports in IST", () => expect(formatDateTime(new Date("2026-10-22T11:18:00Z"))).toBe("22 Oct 2026, 4:48 pm"));
 });

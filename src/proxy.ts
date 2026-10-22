@@ -44,6 +44,8 @@ export function proxy(request: NextRequest) {
   const policy = csp(nonce, process.env.NODE_ENV === "development");
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);
+  // Lets the root layout render /print/* pages bare (no intro, white page).
+  requestHeaders.set("x-pm-path", pathname);
   requestHeaders.set("Content-Security-Policy", policy);
   const response = NextResponse.next({ request: { headers: requestHeaders } });
   response.headers.set("Content-Security-Policy", policy);

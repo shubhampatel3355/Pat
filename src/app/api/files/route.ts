@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { getSessionUser } from "@/server/auth/session";
+import { getApiUser } from "@/server/auth/session";
 import { db } from "@/server/db";
 import { can, has } from "@/server/policy";
 import { LIMITS, rateLimit } from "@/server/rate-limit";
@@ -17,7 +17,7 @@ const MAX_FILES = 10;
 /** Multipart upload: `files` (1–10), plus `folder`, optional `ownerUserId` (Employee Documents) or `invoiceId`. */
 export async function POST(req: Request) {
   if (!isSameOrigin(req.headers)) return Response.json({ error: "Request blocked (cross-site)." }, { status: 403 });
-  const user = await getSessionUser();
+  const user = await getApiUser();
   if (!user) return Response.json({ error: "Please sign in again." }, { status: 401 });
 
   const limit = await rateLimit(`upload:${user.id}`, LIMITS.uploadPerUser.limit, LIMITS.uploadPerUser.windowSec);

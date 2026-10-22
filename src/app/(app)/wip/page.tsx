@@ -4,7 +4,7 @@ import { WipScreen, type WipCard } from "@/components/wip/wip-screen";
 import { addDaysIso, isoDateIST } from "@/lib/dates";
 import { formatCompactINR } from "@/lib/money";
 import { requireUser } from "@/server/auth/session";
-import { can } from "@/server/policy";
+import { can, has } from "@/server/policy";
 import { activeUserOptions, listWip, wipCards, wipTarget } from "@/server/services/wip";
 
 export const metadata: Metadata = { title: "WIP" };
@@ -67,6 +67,7 @@ export default async function WipPage() {
       monthEnd={lastDayOfMonth(today)}
       defaultClosure={lastDayOfMonth(addDaysIso(today, 1), 1)}
       canCreate={can(user, "create", { type: "wip" })}
+      canInvoice={has(user, "invoices.create")}
     />
   );
 }

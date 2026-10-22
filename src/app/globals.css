@@ -62,10 +62,17 @@
   --ease-in-out-quint: cubic-bezier(0.65, 0, 0.25, 1);
   --animate-slide-in: pmSlideIn 0.32s cubic-bezier(0.22, 1, 0.36, 1);
   --animate-row-in: pmaIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  /* Finance KPI charts grow in from zero (each animates to its own inline height / offset). */
+  --animate-bar-in: pmBarIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-knob-in: pmKnobIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-draw: pmDraw 1s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* ── Keyframes (verbatim from the prototype) ──────────────────────────────────── */
 @keyframes pmSlideIn { from { transform: translateX(40px); opacity: 0 } to { transform: none; opacity: 1 } }
+@keyframes pmBarIn { from { height: 0 } }
+@keyframes pmKnobIn { from { bottom: -5px } }
+@keyframes pmDraw { from { stroke-dashoffset: 100 } }
 @keyframes pmlFade { 0% { opacity: 0 } 12% { opacity: 1 } 88% { opacity: 1 } 100% { opacity: 0 } }
 @keyframes pmcBg { from { opacity: 0; transform: scale(1.15) } to { opacity: 1; transform: scale(1) } }
 @keyframes pmcLine { 0% { transform: translate(-50%, -50%) scaleX(0); opacity: 0 } 25% { opacity: 1 } 100% { transform: translate(-50%, -50%) scaleX(1); opacity: 1 } }
@@ -228,6 +235,11 @@ html[data-intro="1"] .pm-after-intro {
   }
 }
 
+/* ── /print/* pages (Chromium PDFs): plain white page ─────────────────────────── */
+html[data-print] body {
+  background: #fff;
+}
+
 /* ── Print: only the branded document (#pm-doc) prints ───────────────────────── */
 @page {
   margin: 12mm;
@@ -253,6 +265,10 @@ html[data-intro="1"] .pm-after-intro {
     margin: 0 !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+  }
+  /* /print/* pages hold only the document: let it flow so multi-page payslips and reports aren't clipped. */
+  html[data-print] #pm-doc {
+    position: static !important;
   }
 }
 

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useOptimistic, useRef, useState, useSyncExternalStore, useTransition } from "react";
+import { useCallback, useEffect, useOptimistic, useState, useSyncExternalStore, useTransition } from "react";
 import { formatDayMonth, formatTime12, isoDateIST, addDaysIso, timeIST } from "@/lib/dates";
 import { BRAND_MARK } from "@/lib/icons";
 import { markNotificationsReadAction, setViewAction, signOutAction } from "@/server/actions/shell";
@@ -10,25 +10,13 @@ import { cn } from "../ui/cn";
 import { Icon } from "../ui/icon";
 import { SvgDefs } from "../ui/ring";
 import { ToastProvider } from "../ui/toast";
+import { useDismiss } from "../ui/use-dismiss";
 import { CelebrationWatcher } from "./celebration-watcher";
 import { CommandPalette } from "./command-palette";
 import { LiveProvider, useLive, type LiveSnapshot } from "./live";
 import type { ShellNavGroup, ShellQuickItem, ShellUser, ShellView } from "./types";
 
 const RAISED = "bg-surface shadow-raised";
-
-function useDismiss(open: boolean, close: () => void) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) close();
-    };
-    document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
-  }, [open, close]);
-  return ref;
-}
 
 interface AppShellProps {
   user: ShellUser;

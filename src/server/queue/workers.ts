@@ -55,12 +55,18 @@ export async function startWorkers(): Promise<void> {
   // Side-effect imports register PDF attachment renderers and reminder handlers.
   await import("../workers-registry");
   const boss = await getBoss();
-  await boss.work<EmailJob>(QUEUES.email, { batchSize: 1 }, async ([job]) => {
-    if (job) await handleEmail(job.data);
-  });
-  await boss.work<ReminderJob>(QUEUES.reminder, { batchSize: 1 }, async ([job]) => {
-    if (job && reminderHandler) await reminderHandler(job.data);
-  });
+  /** pg-boss retries failed jobs; log every failure so it is visible in the container logs. */
+  const logged = <T>(queue: string, fn: (data: T) => Promise<void>) => async ([job]: { id: string; data: T; retryCount: number }[]) => {
+    if (!job) return;
+    try {
+      await fn(job.data);
+    } catch (err) {
+      logger.error({ queue, jobId: job.id, retry: job.retryCount, err: err instanceof Error ? err.message : err }, "job failed");
+      throw err;
+    }
+  };
+  await boss.work<EmailJob>(QUEUES.email, { batchSize: 1 }, logged<EmailJob>(QUEUES.email, handleEmail));
+  await boss.work<ReminderJob>(QUEUES.reminder, { batchSize: 1 }, logged<ReminderJob>(QUEUES.reminder, async (data) => reminderHandler?.(data)));
   await boss.work(QUEUES.maintenance, async () => maintenance());
   await boss.schedule(QUEUES.maintenance, "0 3 * * *", {}, { tz: "Asia/Kolkata" });
   logger.info("job workers started");

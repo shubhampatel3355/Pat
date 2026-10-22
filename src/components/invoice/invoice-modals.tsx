@@ -1,0 +1,121 @@
+"use client";
+
+import { useState } from "react";
+import { computeGst } from "@/lib/gstin";
+import { PAYMENT_MODES } from "@/lib/invoice";
+import { formatCompactINR, formatINR, paiseToInput, parseRupeesToPaise } from "@/lib/money";
+import { issueCreditNoteAction, recordPaymentAction } from "@/server/actions/invoices";
+import { Button } from "../ui/button";
+import { FormError, inputClass } from "../ui/field";
+import { Modal } from "../ui/overlay";
+import { ChoiceChips } from "../ui/segmented";
+import { useAction } from "../ui/toast";
+
+type Mode = (typeof PAYMENT_MODES)[number]["value"];
+
+export function PaymentModal({ invoice, today, onClose }: { invoice: { id: string; number: string; payeeName: string; outstandingPaise: number }; today: string; onClose: () => void }) {
+  const [amount, setAmount] = useState(paiseToInput(invoice.outstandingPaise));
+  const [date, setDate] = useState(today);
+  const [mode, setMode] = useState<Mode>("NEFT");
+  const [reference, setReference] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const action = useAction(recordPaymentAction, { onSuccess: onClose, onError: (r) => setError(r.error) });
+  const paise = parseRupeesToPaise(amount) ?? 0;
+  const submit = () => {
+    if (!paise) return setError("Enter the amount received");
+    if (paise > invoice.outstandingPaise) return setError(`That's more than the ${formatINR(invoice.outstandingPaise)} outstanding`);
+    void action.run({ invoiceId: invoice.id, amountPaise: paise, receivedOn: date, mode, reference });
+  };
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      title="Record payment"
+      subtitle={`${invoice.payeeName} · ${invoice.number}`}
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button onClick={submit} loading={action.pending}>
+            Record payment
+          </Button>
+        </>
+      }
+    >
+      <div className="flex items-baseline justify-between rounded-[20px] bg-surface p-3.5">
+        <span className="text-[13px] text-muted">Amount due</span>
+        <span className="text-[28px] font-light">{formatINR(invoice.outstandingPaise)}</span>
+      </div>
+      <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-2">
+        <label className="flex flex-col gap-1.5">
+          <span className="text-xs font-medium text-muted">Amount received</span>
+          <div className="flex h-11 items-center gap-2 rounded-[14px] bg-surface px-3.5 shadow-inset focus-within:shadow-focus">
+            <span className="text-sm text-muted">₹</span>
+            <input data-autofocus inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^\d,.]/g, ""))} className="min-w-0 flex-1 border-0 bg-transparent text-sm outline-none" />
+          </div>
+          <span className="text-[11px] text-placeholder">{paise ? `${formatINR(paise)} · ${formatCompactINR(paise)}` : "Indian format, no decimals"}</span>
+        </label>
+        <label className="flex flex-col gap-1.5">
+          <span className="text-xs font-medium text-muted">Date received</span>
+          <input type="date" max={today} value={date} onChange={(e) => setDate(e.target.value)} className={inputClass("light", "h-11 px-3.5")} />
+        </label>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <span className="text-xs font-medium text-muted">Mode</span>
+        <ChoiceChips label="Payment mode" options={PAYMENT_MODES} value={mode} onChange={(v) => setMode(v)} />
+      </div>
+      <label className="flex flex-col gap-1.5">
+        <span className="text-xs font-medium text-muted">Reference / UTR</span>
+        <input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="e.g. HDFCN52026100612345" className={inputClass("light", "h-11 px-3.5")} />
+      </label>
+      <FormError message={error} />
+    </Modal>
+  );
+}
+
+export function CreditNoteModal({ invoice, companyStateCode, onClose }: { invoice: { id: string; number: string; payeeName: string; creditablePaise: number; gstin: string }; companyStateCode: string; onClose: () => void }) {
+  const [amount, setAmount] = useState(paiseToInput(invoice.creditablePaise));
+  const [reason, setReason] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const action = useAction(issueCreditNoteAction, { onSuccess: onClose, onError: (r) => setError(r.error) });
+  const paise = parseRupeesToPaise(amount) ?? 0;
+  const gst = computeGst(paise, invoice.gstin.slice(0, 2), companyStateCode);
+  const submit = () => {
+    if (!paise) return setError("Enter the amount to credit");
+    if (paise > invoice.creditablePaise) return setError(`At most ${formatINR(invoice.creditablePaise)} can be credited`);
+    if (reason.trim().length < 2) return setError("Give a reason for the credit note");
+    void action.run({ invoiceId: invoice.id, feesPaise: paise, reason });
+  };
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      title="Issue credit note"
+      subtitle={`Against ${invoice.number} · ${invoice.payeeName}. Issued invoices can't be edited; a credit note reverses all or part of one.`}
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button onClick={submit} loading={action.pending}>
+            Issue credit note
+          </Button>
+        </>
+      }
+    >
+      <label className="flex flex-col gap-1.5">
+        <span className="text-xs font-medium text-muted">Amount to credit (₹, before GST)</span>
+        <input data-autofocus inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^\d,.]/g, ""))} className={inputClass("light", "h-11 px-3.5")} />
+        <span className="text-[11px] text-muted">
+          {gst.intraState ? "CGST 9% + SGST 9%" : "IGST 18%"} · total credit {formatINR(gst.totalPaise)} · up to {formatINR(invoice.creditablePaise)} before GST
+        </span>
+      </label>
+      <label className="flex flex-col gap-1.5">
+        <span className="text-xs font-medium text-muted">Reason</span>
+        <input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. Fee revised after LOI renegotiation" className={inputClass("light", "h-11 px-3.5")} />
+      </label>
+      <FormError message={error} />
+    </Modal>
+  );
+}

@@ -2,7 +2,7 @@ import "server-only";
 import type { Prisma } from "@/generated/prisma/client";
 import type { CabStatus, CarType, FollowUpType, WipRemark } from "@/generated/prisma/enums";
 import { CLOSED_REMARKS, WIP_REMARKS } from "@/lib/constants";
-import { addDaysIso, currentFy, dateToIso, financialYear, fyToDateLabel, isoDateIST, isoToDate, istToInstant, timeIST } from "@/lib/dates";
+import { addDaysIso, currentFy, dateToIso, financialYear, fyToDateLabel, isoDateIST, isoToDate, istToInstant, sameDayLastYear, timeIST } from "@/lib/dates";
 import { toPaise } from "@/lib/money";
 import { db } from "../db";
 import { has, isAdminOrOwner, type SessionUser } from "../policy";
@@ -94,7 +94,7 @@ async function achievementsSince(fromIso: string, userIds: string[] | null): Pro
 async function revenueBlock(today: string, teamIds: string[] | null) {
   const fy = currentFy();
   const ytd = teamIds ? await teamRevenue(fy.start, today, teamIds) : await companyRevenue(fy.start, today);
-  const lastYearToday = `${Number(today.slice(0, 4)) - 1}${today.slice(4)}`;
+  const lastYearToday = sameDayLastYear(today);
   const prevFy = financialYear(fy.startYear - 1);
   const lastYtd = teamIds ? await teamRevenue(prevFy.start, lastYearToday, teamIds) : await companyRevenue(prevFy.start, lastYearToday);
   const elapsed = Math.max(1, (Date.parse(today) - Date.parse(fy.start)) / 86_400_000 + 1);

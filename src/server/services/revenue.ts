@@ -11,13 +11,39 @@ import { db } from "../db";
 
 const toNumber = (v: bigint | number | string | null | undefined) => (v === null || v === undefined ? 0 : Number(v));
 
-export async function companyRevenue(fromIso: string, toIso: string): Promise<number> {
-  const rows = await db.$queryRaw<{ total: bigint | null }[]>`
-    SELECT COALESCE(SUM(CASE WHEN type = 'CREDIT_NOTE' THEN -fees_paise ELSE fees_paise END), 0)::bigint AS total
+export interface BillingTotals {
+  invoiceCount: number;
+  invoiceFeesPaise: number;
+  invoiceTotalPaise: number;
+  creditCount: number;
+  creditFeesPaise: number;
+  creditTotalPaise: number;
+}
+
+/** Tax invoices and credit notes issued in the period: fees (excl. GST) and totals (incl. GST). */
+export async function billingTotals(fromIso: string, toIso: string): Promise<BillingTotals> {
+  const rows = await db.$queryRaw<{ type: string; n: number; fees: bigint | null; total: bigint | null }[]>`
+    SELECT type::text AS type, COUNT(*)::int AS n, SUM(fees_paise)::bigint AS fees, SUM(total_paise)::bigint AS total
     FROM invoices
     WHERE type IN ('INVOICE', 'CREDIT_NOTE') AND status <> 'CANCELLED'
-      AND issue_date BETWEEN ${isoToDate(fromIso)} AND ${isoToDate(toIso)}`;
-  return toNumber(rows[0]?.total);
+      AND issue_date BETWEEN ${isoToDate(fromIso)} AND ${isoToDate(toIso)}
+    GROUP BY 1`;
+  const inv = rows.find((r) => r.type === "INVOICE");
+  const cn = rows.find((r) => r.type === "CREDIT_NOTE");
+  return {
+    invoiceCount: inv?.n ?? 0,
+    invoiceFeesPaise: toNumber(inv?.fees),
+    invoiceTotalPaise: toNumber(inv?.total),
+    creditCount: cn?.n ?? 0,
+    creditFeesPaise: toNumber(cn?.fees),
+    creditTotalPaise: toNumber(cn?.total),
+  };
+}
+
+export const revenueOf = (b: BillingTotals) => b.invoiceFeesPaise - b.creditFeesPaise;
+
+export async function companyRevenue(fromIso: string, toIso: string): Promise<number> {
+  return revenueOf(await billingTotals(fromIso, toIso));
 }
 
 /** Revenue attributed to each team member in the period (paise, rounded per invoice line). */

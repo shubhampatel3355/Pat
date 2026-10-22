@@ -13,6 +13,7 @@ import { ARGON2_OPTIONS } from "../src/server/auth/argon-options";
 import { addDaysIso, currentFy, formatDate, fyQuarterOfIso, isoDateIST, isoToDate, istToInstant } from "../src/lib/dates";
 import { estimatedFeesPaise } from "../src/lib/wip";
 import { createSeedClient, seedBase } from "./seed";
+import { seedDemoFinance } from "./seed-demo-finance";
 
 if (process.env.NODE_ENV === "production") {
   console.error("seed-demo refuses to run with NODE_ENV=production");
@@ -230,6 +231,8 @@ export async function seedDemo(prisma: PrismaClient, log: (m: string) => void = 
       }),
     });
   }
+
+  await seedDemoFinance(prisma, ids, TODAY, shift, log);
   return ids;
 }
 

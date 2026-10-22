@@ -2,18 +2,17 @@
 
 import { refresh } from "next/cache";
 import { z } from "zod";
-import type { WipRemark } from "@/generated/prisma/enums";
 import { ok } from "@/lib/action-result";
 import { WIP_REMARK } from "@/lib/constants";
-import { formatDate, isoDateIST, isoToDate } from "@/lib/dates";
-import { formatCompactINR, toPaise } from "@/lib/money";
+import { isoToDate } from "@/lib/dates";
 import { leadInputSchema, WIP_REMARK_VALUES } from "@/lib/schemas/wip";
 import { estimatedFeesPaise } from "@/lib/wip";
 import { writeAudit } from "../audit";
-import { db, type Tx } from "../db";
-import { assertCan, can, has, type SessionUser } from "../policy";
+import { db } from "../db";
+import { assertCan, can, has } from "../policy";
 import { notify } from "../services/notify";
 import { brokerUserIds, leadInclude } from "../services/wip";
+import { onRemarkChanged } from "../services/wip-effects";
 import { defineAction, UserError } from "./define";
 
 type LeadInput = z.infer<typeof leadInputSchema>;
@@ -54,24 +53,6 @@ function leadData(input: LeadInput) {
     estFeesPaise: BigInt(estimatedFeesPaise(input.pricingBasis, input.ratePaise, input.areaSqft, input.seats)),
     closureDate: isoToDate(input.closureDate),
   };
-}
-
-/** Side effects of entering "Payment Collected": an achievement and a note to the brokers. */
-async function onRemarkChanged(tx: Tx, user: SessionUser, lead: { id: string; tenantName: string; building: string | null; location: string; estFeesPaise: bigint; brokers: { role: string; userId: string | null; user: { name: string } | null; externalName: string | null }[] }, from: WipRemark, to: WipRemark) {
-  if (from === to || to !== "PAYMENT_COLLECTED") return;
-  const primaries = lead.brokers.filter((b) => b.role === "PRIMARY");
-  const names = primaries.map((b) => b.user?.name ?? b.externalName).filter(Boolean);
-  await tx.achievement.create({
-    data: {
-      kind: "DEAL_CLOSED",
-      userId: primaries.find((b) => b.userId)?.userId ?? null,
-      leadId: lead.id,
-      title: `${names.join(" & ") || user.name} closed ${lead.tenantName}`,
-      meta: `${lead.building || lead.location} · ${formatDate(isoDateIST())}`,
-      valuePaise: lead.estFeesPaise,
-    },
-  });
-  await notify(tx, brokerUserIds(lead), { kind: "deal", text: `Payment collected — ${lead.tenantName} · ${formatCompactINR(toPaise(lead.estFeesPaise))}`, href: `/wip?focus=${lead.id}` });
 }
 
 export const createLeadAction = defineAction({

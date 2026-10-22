@@ -38,9 +38,10 @@ interface WipScreenProps {
   monthEnd: string;
   defaultClosure: string;
   canCreate: boolean;
+  canInvoice: boolean;
 }
 
-export function WipScreen({ rows, cards, users, me, today, monthEnd, defaultClosure, canCreate }: WipScreenProps) {
+export function WipScreen({ rows, cards, users, me, today, monthEnd, defaultClosure, canCreate, canInvoice }: WipScreenProps) {
   const router = useRouter();
   const params = useSearchParams();
   const [query, setQuery] = useState("");
@@ -244,6 +245,7 @@ export function WipScreen({ rows, cards, users, me, today, monthEnd, defaultClos
         users={users}
         me={me}
         defaultClosure={defaultClosure}
+        canInvoice={canInvoice}
         onClose={() => setDrawer({ open: false, row: null })}
         onSaved={(id) => {
           setDrawer({ open: false, row: null });

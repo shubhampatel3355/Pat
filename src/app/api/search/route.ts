@@ -2,14 +2,14 @@ import type { NextRequest } from "next/server";
 import { WIP_REMARK } from "@/lib/constants";
 import { formatDate, dateToIso } from "@/lib/dates";
 import { formatINR, toPaise } from "@/lib/money";
-import { getSessionUser } from "@/server/auth/session";
+import { getApiUser } from "@/server/auth/session";
 import { db } from "@/server/db";
 import { can } from "@/server/policy";
 import { bdScope, wipScope } from "@/server/policy/scopes";
 
 /** ⌘K search. Every group is permission-scoped server-side. */
 export async function GET(req: NextRequest) {
-  const user = await getSessionUser();
+  const user = await getApiUser();
   if (!user) return Response.json({ error: "unauthorised" }, { status: 401 });
   const q = (req.nextUrl.searchParams.get("q") ?? "").trim().slice(0, 80);
   if (q.length < 2) return Response.json({ groups: [] });

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { LogoIntro } from "@/components/intro/logo-intro";
 import { INTRO_COOKIE } from "@/lib/intro";
 import { urbanist, urbanistExt } from "./fonts";
@@ -19,10 +19,17 @@ export const viewport: Viewport = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const isPrint = (await headers()).get("x-pm-path")?.startsWith("/print/") ?? false;
   // The brand intro plays once per browser session (session cookie set by the intro itself).
-  const playIntro = !(await cookies()).has(INTRO_COOKIE);
+  const playIntro = !isPrint && !(await cookies()).has(INTRO_COOKIE);
   return (
-    <html lang="en-IN" className={`${urbanist.variable} ${urbanistExt.variable}`} data-intro={playIntro ? "1" : undefined} suppressHydrationWarning>
+    <html
+      lang="en-IN"
+      className={`${urbanist.variable} ${urbanistExt.variable}`}
+      data-intro={playIntro ? "1" : undefined}
+      data-print={isPrint ? "1" : undefined}
+      suppressHydrationWarning
+    >
       <body>
         {children}
         {playIntro && <LogoIntro />}

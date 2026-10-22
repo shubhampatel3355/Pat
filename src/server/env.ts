@@ -72,6 +72,8 @@ const schema = z
     COMPANY_BANK_ACCOUNT_NUMBER: optionalString,
     COMPANY_BANK_IFSC: optionalString,
     COMPANY_BANK_BRANCH: optionalString,
+    /** GST services accounting code printed on invoices (9972 = real estate services). */
+    COMPANY_SAC_CODE: z.string().regex(/^\d{4,8}$/).default("9972"),
     COMPANY_SIGNATORY_NAME: z.string().default("Pat Michaels"),
     COMPANY_SIGNATORY_TITLE: z.string().default("Designated Partner"),
 

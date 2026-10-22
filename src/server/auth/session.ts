@@ -42,6 +42,12 @@ export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
   };
 });
 
+/** For route handlers and print pages: null when signed out or still on a first-login password. */
+export async function getApiUser(): Promise<SessionUser | null> {
+  const user = await getSessionUser();
+  return user && !user.mustChangePassword ? user : null;
+}
+
 /** For pages and layouts: redirect to /login (or to the forced password change) when needed. */
 export async function requireUser(opts: { allowPasswordChange?: boolean } = {}): Promise<SessionUser> {
   const user = await getSessionUser();

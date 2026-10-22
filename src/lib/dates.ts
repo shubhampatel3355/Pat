@@ -40,6 +40,13 @@ export function istToInstant(iso: string, hhmm = "00:00"): Date {
   return new Date(`${iso}T${hhmm}:00.000+05:30`);
 }
 
+/** Same calendar day a year earlier (29 Feb → 28 Feb), for year-on-year windows. */
+export function sameDayLastYear(iso: string): string {
+  const year = Number(iso.slice(0, 4)) - 1;
+  const monthDay = iso.slice(5);
+  return `${year}-${monthDay === "02-29" ? "02-28" : monthDay}`;
+}
+
 export function addDaysIso(iso: string, days: number): string {
   const d = isoToDate(iso);
   d.setUTCDate(d.getUTCDate() + days);
@@ -73,6 +80,11 @@ export function formatTime12(hhmm: string): string {
 /** "8 Oct, 9:12 am" in IST for an instant. */
 export function formatDateTimeShort(at: Date): string {
   return `${formatDayMonth(isoDateIST(at))}, ${formatTime12(timeIST(at))}`;
+}
+
+/** "8 Oct 2026, 9:12 am" in IST for an instant (report and export stamps). */
+export function formatDateTime(at: Date): string {
+  return `${formatDate(isoDateIST(at))}, ${formatTime12(timeIST(at))}`;
 }
 
 export function monthLabel(month: number): string {
