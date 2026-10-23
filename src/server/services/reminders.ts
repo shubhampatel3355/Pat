@@ -29,8 +29,20 @@ export async function scheduleTaskReminder(tx: Tx, task: { id: string; dueAt: Da
   await enqueue(QUEUES.reminder, { kind: "task", id: task.id, at: task.dueAt.toISOString() }, { tx, startAfter: task.dueAt, singletonKey: `task:${task.id}:${task.dueAt.toISOString()}` });
 }
 
+export async function scheduleFollowUpReminder(tx: Tx, followUp: { id: string; dueAt: Date; completedAt: Date | null }) {
+  if (followUp.completedAt || followUp.dueAt.getTime() < Date.now() - 60_000) return;
+  await enqueue(QUEUES.reminder, { kind: "followup", id: followUp.id, at: followUp.dueAt.toISOString() }, { tx, startAfter: followUp.dueAt, singletonKey: `followup:${followUp.id}:${followUp.dueAt.toISOString()}` });
+}
+
 export async function handleReminder(job: ReminderJob) {
   const appUrl = env().APP_URL.replace(/\/$/, "");
+  if (job.kind === "followup") {
+    const f = await db.followUp.findUnique({ where: { id: job.id } });
+    if (!f || f.deletedAt || f.completedAt) return;
+    if (job.at && f.dueAt.toISOString() !== job.at) return; // rescheduled since
+    await db.notification.create({ data: { userId: f.ownerId, kind: "reminder", text: `Follow-up due: ${f.contactName}${f.note ? ` · ${f.note}` : ""}`, href: `/follow-ups?followup=${f.id}` } });
+    return;
+  }
   if (job.kind === "todo") {
     const todo = await db.todo.findUnique({ where: { id: job.id }, include: { user: true } });
     if (!todo || todo.done || !todo.remind) return;

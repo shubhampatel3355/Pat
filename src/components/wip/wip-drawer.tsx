@@ -11,6 +11,7 @@ import { createLeadAction, deleteLeadAction, updateLeadAction } from "@/server/a
 import type { UserOption, WipRowDto } from "@/server/services/wip";
 import { BrokerRows, draftsFromChips, type BrokerDraft } from "../brokers/broker-rows";
 import { Button } from "../ui/button";
+import { ConfirmDialog } from "../ui/confirm-dialog";
 import { FormError, inputClass } from "../ui/field";
 import { Drawer } from "../ui/overlay";
 import { Segmented } from "../ui/segmented";
@@ -123,6 +124,7 @@ export function WipDrawer(props: WipDrawerProps) {
 function WipDrawerForm({ open, onClose, row, users, me, defaultClosure, canInvoice, onSaved }: WipDrawerProps) {
   const [f, setF] = useState<FormState>(() => initialState(row, me, defaultClosure));
   const [error, setError] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) => {
     setF((s) => ({ ...s, [k]: v }));
     setError(null);
@@ -160,7 +162,7 @@ function WipDrawerForm({ open, onClose, row, users, me, defaultClosure, canInvoi
       footer={
         <>
           {row?.canDelete && (
-            <Button variant="danger-soft" className={canInvoice ? undefined : "mr-auto"} disabled={pending} onClick={() => confirm(`Remove ${row.tenantName} from WIP?`) && void remove.run({ id: row.id })}>
+            <Button variant="danger-soft" className={canInvoice ? undefined : "mr-auto"} disabled={pending} onClick={() => setConfirmDelete(true)}>
               Delete
             </Button>
           )}
@@ -289,6 +291,17 @@ function WipDrawerForm({ open, onClose, row, users, me, defaultClosure, canInvoi
         </label>
       </div>
       <FormError message={error} />
+      {row && (
+        <ConfirmDialog
+          open={confirmDelete}
+          title={`Remove ${row.tenantName}?`}
+          body="The row disappears from WIP for everyone. The audit log keeps a copy."
+          confirmLabel="Remove"
+          pending={remove.pending}
+          onConfirm={() => void remove.run({ id: row.id })}
+          onClose={() => setConfirmDelete(false)}
+        />
+      )}
     </Drawer>
   );
 }

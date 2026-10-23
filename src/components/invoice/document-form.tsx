@@ -6,7 +6,7 @@ import { checkGstin, computeGst, gstinErrorMessage, normaliseGstin, STATE_NAMES 
 import { draftDocData } from "@/lib/invoice-draft";
 import { formatINR, parseRupeesToPaise } from "@/lib/money";
 import type { InvoiceInput } from "@/lib/schemas/invoice";
-import { uploadFiles } from "@/lib/upload-client";
+import { UPLOAD_ACCEPT, uploadFiles } from "@/lib/upload-client";
 import { createProformaAction, raiseInvoiceAction } from "@/server/actions/invoices";
 import { NEW_BROKER } from "../brokers/broker-rows";
 import { Icon } from "../ui/icon";
@@ -303,7 +303,7 @@ function Form({ variant, nextNumber, today, users, company, prefill, onCreated, 
           ref={fileInput}
           type="file"
           multiple
-          accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx,.zip"
+          accept={UPLOAD_ACCEPT}
           className="hidden"
           onChange={(e) => {
             const picked = Array.from(e.target.files ?? []);

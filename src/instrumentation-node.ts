@@ -1,6 +1,6 @@
 import type { Instrumentation } from "next";
 import { env } from "./server/env";
-import { logger } from "./server/logger";
+import { errorText, logger } from "./server/logger";
 import { captureError, initSentry } from "./server/sentry";
 
 /** Validate configuration (fail fast), enable error tracking and start background workers. */
@@ -16,7 +16,7 @@ export async function registerNode() {
       try {
         await startWorkers();
       } catch (err) {
-        logger.error({ err: err instanceof Error ? err.message : err, attempt }, "could not start job workers; retrying in 30 s");
+        logger.error({ err: errorText(err), attempt }, "could not start job workers; retrying in 30 s");
         setTimeout(() => void start(attempt + 1), 30_000);
       }
     };

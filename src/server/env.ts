@@ -48,6 +48,8 @@ const schema = z
     S3_ACCESS_KEY_ID: optionalString,
     S3_SECRET_ACCESS_KEY: optionalString,
     S3_FORCE_PATH_STYLE: bool(true),
+    /** Server-side encryption for uploads ("AES256" = SSE-S3; MinIO needs KMS configured, see docs/DEPLOY.md). */
+    S3_SSE: z.enum(["", "AES256"]).default(""),
     UPLOAD_MAX_MB: z.coerce.number().positive().max(100).default(25),
 
     MAIL_DRIVER: z.enum(["smtp", "file"]).default("smtp"),

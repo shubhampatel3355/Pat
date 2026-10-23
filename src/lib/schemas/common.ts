@@ -26,6 +26,15 @@ export const indianMobile = z
 
 export const email = z.string().trim().toLowerCase().email("Enter a valid email").max(200);
 
+/** Optional phone (mobile or landline with STD code): digits only, 8–13 long, or empty. */
+export const optionalPhone = z
+  .string()
+  .transform((s) => s.replace(/\D/g, "").replace(/^91(?=\d{10}$)/, ""))
+  .pipe(z.union([z.literal(""), z.string().regex(/^\d{8,13}$/, "Enter a valid phone number")]));
+
+/** Optional email, or empty. */
+export const optionalEmail = z.union([z.literal(""), email]);
+
 /** Format a 10-digit mobile as "98450 21734". */
 export function formatMobile(digits: string): string {
   return digits.replace(/^(\d{5})(\d{5})$/, "$1 $2");

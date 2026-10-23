@@ -330,8 +330,8 @@ export async function seedDemoFinance(prisma: PrismaClient, ids: Ids, today: str
       ON CONFLICT (kind, fy) DO UPDATE SET next_value = GREATEST(document_sequences.next_value, EXCLUDED.next_value), updated_at = now()`;
   }
 
-  // Ledger: monthly running costs, quarterly items and interest income. Salaries are posted on the 1st
-  // for the month before (Payroll will attach its runs to these entries by period).
+  // Ledger: monthly running costs, quarterly items and interest income. Salaries come from the payroll
+  // runs in seed-demo-payroll.ts, which post them when each run is disbursed.
   const prevFy = financialYear(fyOfIso(today).startYear - 1);
   const entries: { type: "INCOME" | "EXPENSE"; category: string; description: string; party: string; mode: PaymentMode; amount: number; date: string }[] = [];
   const MARKETING: [string, string, PaymentMode][] = [
@@ -355,7 +355,6 @@ export async function seedDemoFinance(prisma: PrismaClient, ids: Ids, today: str
       if (date <= today) entries.push({ ...e, date });
     };
     add(5, { type: "EXPENSE", category: "Rent", description: `Office rent — ${label}`, party: "Lavelle Road Estates LLP", mode: "NEFT", amount: current ? 340000 : 310000 });
-    add(1, { type: "EXPENSE", category: "Salaries", description: `Salaries — ${monthLabel(((Number(ym.slice(5)) + 10) % 12) + 1)} payroll`, party: "9 employees", mode: "NEFT", amount: current ? 484000 : 431000 });
     add(26, { type: "EXPENSE", category: "Office", description: "Pantry and housekeeping", party: "Sodexo", mode: "NEFT", amount: 24500 });
     add(28, { type: "EXPENSE", category: "Cab", description: `Cabs — ${12 + (m % 9)} site-visit trips`, party: "Skyline Cabs", mode: "UPI", amount: 25000 + (m % 5) * 5600 });
     add(20, { type: "EXPENSE", category: "Software", description: "CRM and workspace subscriptions", party: "Zoho Corp", mode: "CARD", amount: 42000 });

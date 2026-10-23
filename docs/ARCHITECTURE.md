@@ -37,6 +37,12 @@ The visual source of truth is `design-reference/Pat Michaels OS (offline).html` 
 6. **Lead temperature** label is "Lukewarm" (brief) rather than "Luke Warm" (prototype).
 7. **Login OTP step** shown in the prototype ("Verify it's you") is not in the brief; implemented as optional email OTP for Owners/Admins behind `AUTH_OTP_FOR_ADMINS` (default off) if time allows in milestone 5.
 8. **Employee dashboard** has no design yet — built from existing components, flagged in the README for design review.
+9. **Payroll** follows the prototype's arithmetic (PF 12 % of basic = 50 % of fixed pay; TDS 10 % above ₹ 50,000) and adds **Karnataka professional tax** (₹ 200 a month, ₹ 300 in February), so the demo October run nets ₹ 6,41,160 instead of the prototype's ₹ 6,42,960. Payslips split fixed pay Basic 50 % / HRA 20 % / Special 30 %; TDS is an editable estimate. The **Payslips** button opens the run's review drawer; approval and disbursal ask for confirmation. Partners are not on payroll.
+10. **Follow-ups** are their own records (contact, type, note, owner, due time, optional WIP row) instead of the prototype's per-lead "next action", so they can be created from quick-create and **+ New follow-up**, reminded and rescheduled; the agenda, week view and "Move to" choices follow the prototype.
+11. **Business Development**: the tenant name opens an edit drawer (with delete for people who see all meetings); client contact info is write-only for people who can't see it.
+12. **Contracts & Vault** says "encrypted at rest" only when uploads are written with server-side encryption (`S3_SSE`); the root **Upload** modal asks whose documents they are when filing Employee Documents for someone else; folders open at `/vault/[folder]`.
+13. **Vehicle Management**: people with *Manage cab bookings* get **Confirm** / **Complete** on each row; pick-up chips are the office (from `COMPANY_ADDRESS`), the airport and the most-used recent pick-up.
+14. **Task reminders**: the WhatsApp channel toggle is shown but disabled until the WhatsApp integration is connected.
 
 ---
 

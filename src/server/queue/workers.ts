@@ -2,7 +2,7 @@ import "server-only";
 import { writeAudit } from "../audit";
 import { db } from "../db";
 import { sendMail, type MailAttachment } from "../email/mailer";
-import { logger } from "../logger";
+import { errorText, logger } from "../logger";
 import { purgeRateLimits } from "../rate-limit";
 import { getBoss, QUEUES, type AttachmentSpec, type EmailJob, type ReminderJob } from "./index";
 
@@ -46,12 +46,21 @@ async function maintenance() {
   logger.info({ purged, tokens: tokens.count }, "maintenance done");
 }
 
-let started = false;
+let started: Promise<void> | undefined;
 
-/** Starts job workers in this process (WORKER_ENABLED=true). Safe to call more than once. */
-export async function startWorkers(): Promise<void> {
-  if (started) return;
-  started = true;
+/**
+ * Starts job workers in this process (WORKER_ENABLED=true). Safe to call more than once; a failed
+ * start (e.g. the database was still booting) is forgotten so the next call tries again.
+ */
+export function startWorkers(): Promise<void> {
+  started ??= runWorkers().catch((err) => {
+    started = undefined;
+    throw err;
+  });
+  return started;
+}
+
+async function runWorkers(): Promise<void> {
   // Side-effect imports register PDF attachment renderers and reminder handlers.
   await import("../workers-registry");
   const boss = await getBoss();
@@ -61,7 +70,7 @@ export async function startWorkers(): Promise<void> {
     try {
       await fn(job.data);
     } catch (err) {
-      logger.error({ queue, jobId: job.id, retry: job.retryCount, err: err instanceof Error ? err.message : err }, "job failed");
+      logger.error({ queue, jobId: job.id, retry: job.retryCount, err: errorText(err) }, "job failed");
       throw err;
     }
   };

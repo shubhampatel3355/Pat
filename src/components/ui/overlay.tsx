@@ -18,15 +18,21 @@ function useOverlayRoot(): HTMLElement | null {
   );
 }
 
+/** Open dialogs, oldest first: only the topmost one reacts to Escape and traps Tab (e.g. a confirm over a drawer). */
+const openDialogs: symbol[] = [];
+
 function useDialogBehaviour(open: boolean, onClose: () => void, panel: React.RefObject<HTMLDivElement | null>) {
   useEffect(() => {
     if (!open) return;
+    const token = Symbol("dialog");
+    openDialogs.push(token);
     const previous = document.activeElement as HTMLElement | null;
     const el = panel.current;
     const first = el?.querySelector<HTMLElement>("[data-autofocus]") ?? el?.querySelector<HTMLElement>(FOCUSABLE);
     (first ?? el)?.focus({ preventScroll: true });
 
     const onKey = (e: KeyboardEvent) => {
+      if (openDialogs[openDialogs.length - 1] !== token) return;
       if (e.key === "Escape") {
         e.stopPropagation();
         onClose();
@@ -47,6 +53,7 @@ function useDialogBehaviour(open: boolean, onClose: () => void, panel: React.Ref
     };
     document.addEventListener("keydown", onKey, true);
     return () => {
+      openDialogs.splice(openDialogs.indexOf(token), 1);
       document.removeEventListener("keydown", onKey, true);
       previous?.focus?.({ preventScroll: true });
     };
@@ -76,6 +83,8 @@ interface OverlayProps {
   footer?: React.ReactNode;
   width?: number;
   className?: string;
+  /** Modal only: sit above drawers (confirmations opened from a drawer). */
+  stacked?: boolean;
 }
 
 /** Right-side frosted-glass drawer (prototype: 520 px, inset 12 px, radius 28, slide-in). */
@@ -115,14 +124,14 @@ export function Drawer({ open, onClose, title, subtitle, children, footer, width
 }
 
 /** Centred frosted-glass modal (prototype: max 640 px, radius 28). */
-export function Modal({ open, onClose, title, subtitle, children, footer, width = 640, className }: OverlayProps) {
+export function Modal({ open, onClose, title, subtitle, children, footer, width = 640, className, stacked = false }: OverlayProps) {
   const root = useOverlayRoot();
   const panel = useRef<HTMLDivElement>(null);
   const titleId = useId();
   useDialogBehaviour(open, onClose, panel);
   if (!open || !root) return null;
   return createPortal(
-    <div className="absolute inset-0 z-[55] flex items-center justify-center bg-[rgba(2,62,125,.06)] p-4 backdrop-blur-[6px]" onClick={onClose}>
+    <div className={cn("absolute inset-0 flex items-center justify-center bg-[rgba(2,62,125,.06)] p-4 backdrop-blur-[6px]", stacked ? "z-[59]" : "z-[55]")} onClick={onClose}>
       <div
         ref={panel}
         role="dialog"

@@ -14,6 +14,9 @@ import { addDaysIso, currentFy, formatDate, fyQuarterOfIso, isoDateIST, isoToDat
 import { estimatedFeesPaise } from "../src/lib/wip";
 import { createSeedClient, seedBase } from "./seed";
 import { seedDemoFinance } from "./seed-demo-finance";
+import { seedDemoOps } from "./seed-demo-ops";
+import { seedDemoPayroll } from "./seed-demo-payroll";
+import { seedDemoVault } from "./seed-demo-vault";
 
 if (process.env.NODE_ENV === "production") {
   console.error("seed-demo refuses to run with NODE_ENV=production");
@@ -233,6 +236,9 @@ export async function seedDemo(prisma: PrismaClient, log: (m: string) => void = 
   }
 
   await seedDemoFinance(prisma, ids, TODAY, shift, log);
+  await seedDemoPayroll(prisma, ids, TODAY, log);
+  await seedDemoOps(prisma, ids, shift, log);
+  await seedDemoVault(prisma, ids, shift, log);
   return ids;
 }
 

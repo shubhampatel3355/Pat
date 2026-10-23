@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useRef, useState } from "react";
-import { fileExt, formatBytes } from "@/lib/upload-client";
+import { fileExt, formatBytes, UPLOAD_ACCEPT } from "@/lib/upload-client";
 import { cn } from "../ui/cn";
 import { Icon } from "../ui/icon";
 
@@ -9,7 +9,7 @@ import { Icon } from "../ui/icon";
 export function Dropzone({
   files,
   onChange,
-  accept = ".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx,.zip",
+  accept = UPLOAD_ACCEPT,
   title = "Add documents",
   hint = "PDF, JPG or PNG · select several at once",
 }: {

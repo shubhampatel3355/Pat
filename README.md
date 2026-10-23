@@ -6,9 +6,10 @@ invoicing, finance, payroll, team and documents in one place.
 - Design source of truth: `design-reference/Pat Michaels OS (offline).html` (unpacked copy in `design-reference/unpacked/`).
 - Architecture, stack and data model: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
-> Status: milestones 1–3 — foundation, WIP, Teams, Dashboard, Invoice/Proforma (PDF, print, email, payments,
-> credit notes) and the Finance overview (XLSX/PDF export). Payroll, vault, vehicles, business development,
-> tasks and settings arrive in milestones 4–5.
+> Status: milestones 1–4 — foundation, WIP, Teams, Dashboard, Invoice/Proforma (PDF, print, email, payments,
+> credit notes), the Finance overview (XLSX/PDF export), Payroll (runs, payslips), Contracts & Vault, Vehicle
+> Management, Business Development and Follow-ups & Tasks. Settings, notification polish, end-to-end tests and
+> the deployment runbooks arrive in milestone 5.
 
 ## Quick start (local)
 
@@ -76,12 +77,33 @@ Shared by the Dashboard, the Finance overview and its exports (`src/lib/finance.
 Invoice payments post to the ledger automatically; other income and expenses are added on Finance → Add entry
 (or quick-create → Expense) and can be voided there with a reason (kept in the audit log).
 
+## Payroll
+
+One run per month: **Review → Approved → Disbursed** (owners/admins with *Run payroll*). Opening a run drafts a
+payslip for everyone with a CTC (partners are not on payroll; joiners are prorated by days). In Review, the
+Payslips drawer edits commission, incentive, TDS, other deductions, a note, or holds a payslip. Approval locks
+the payslips; disbursal posts the gross salary cost to the ledger (Finance → Payroll) and emails each payslip.
+
+Structure (`src/lib/payroll.ts`): CTC is gross fixed pay — Basic 50 %, HRA 20 %, Special allowance 30 %.
+Deductions: employee PF 12 % of basic, Karnataka professional tax (₹ 200, ₹ 300 in February, from ₹ 25,000),
+and a TDS estimate (10 % above ₹ 50,000 a month) that reviewers can override. Employees download their own
+payslips (monthly) and statements (quarterly, yearly) from Payroll; managers can download anyone's.
+
+## Documents
+
+Uploads are checked by content (PDF, images, Office, ZIP, CSV/TXT only), size-limited (`UPLOAD_MAX_MB`),
+virus-scanned when `CLAMAV_HOST` is set, and stored in S3/MinIO; downloads are 60-second signed URLs. Set
+`S3_SSE=AES256` (with KMS configured on MinIO) to encrypt uploads at rest — the Vault only says "encrypted at
+rest" when it is on. Employee Documents are visible to the employee they belong to and to people with
+*All employee documents*.
+
 ## Demo data (development only)
 
 `pnpm db:seed:demo` loads the design prototype's sample team, WIP rows, targets and to-dos (dates shifted so
 they stay current) so screens can be compared side by side with `design-reference/`, plus invoices, proformas,
-payments, credit notes and ledger entries from the start of the previous financial year (the finance part only
-runs on a database without invoices). It refuses to run with `NODE_ENV=production`. Demo users sign in with
+payments, credit notes, ledger entries and monthly payroll from the start of the previous financial year (the
+current month open for review), cab bookings, BD meetings, tasks, follow-ups and vault documents. Each part only
+runs when its tables are empty. It refuses to run with `NODE_ENV=production`. Demo users sign in with
 `SEED_DEMO_PASSWORD` (default `Demo-Password-2026`), e.g. `neha@patmichaels.in` (employee) or
 `anita@patmichaels.in` (admin).
 

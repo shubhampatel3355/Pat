@@ -69,7 +69,8 @@ class S3Storage implements StorageDriver {
 
   async put(key: string, body: Buffer, contentType: string) {
     await this.ensureBucket();
-    await this.client.send(new PutObjectCommand({ Bucket: this.bucket, Key: key, Body: body, ContentType: contentType }));
+    const sse = env().S3_SSE;
+    await this.client.send(new PutObjectCommand({ Bucket: this.bucket, Key: key, Body: body, ContentType: contentType, ...(sse ? { ServerSideEncryption: sse } : {}) }));
   }
 
   async get(key: string) {
@@ -124,6 +125,12 @@ let driver: StorageDriver | undefined;
 export function storage(): StorageDriver {
   driver ??= env().STORAGE_DRIVER === "s3" ? new S3Storage() : new LocalStorage();
   return driver;
+}
+
+/** True only when uploads are written with server-side encryption (shown as "encrypted at rest"). */
+export function storageEncrypted(): boolean {
+  const e = env();
+  return e.STORAGE_DRIVER === "s3" && e.S3_SSE !== "";
 }
 
 export { contentDisposition };

@@ -87,3 +87,37 @@ export function toPaise(value: bigint | number | null | undefined): number {
 export function sharePaise(amountPaise: number, pct: number): number {
   return Math.round((amountPaise * pct) / 100);
 }
+
+const ONES = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+const TENS = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+
+function belowHundred(n: number): string {
+  return n < 20 ? ONES[n]! : `${TENS[Math.floor(n / 10)]}${n % 10 ? `-${ONES[n % 10]}` : ""}`;
+}
+
+function belowThousand(n: number): string {
+  const h = Math.floor(n / 100);
+  const rest = n % 100;
+  return [h ? `${ONES[h]} Hundred` : "", rest ? belowHundred(rest) : ""].filter(Boolean).join(" ");
+}
+
+/** Indian-system words for a rupee amount: "Rupees Six Lakh Forty-Two Thousand Nine Hundred Sixty Only". */
+export function amountInWords(paise: number): string {
+  const negative = paise < 0;
+  const total = Math.round(Math.abs(paise));
+  let rupees = Math.floor(total / 100);
+  const p = total % 100;
+  const parts: string[] = [];
+  const crore = Math.floor(rupees / 1_00_00_000);
+  rupees %= 1_00_00_000;
+  if (crore) parts.push(`${crore >= 1000 ? amountInWords(crore * 100).replace(/^Rupees |\sOnly$/g, "") : belowThousand(crore)} Crore`);
+  const lakh = Math.floor(rupees / 1_00_000);
+  rupees %= 1_00_000;
+  if (lakh) parts.push(`${belowHundred(lakh)} Lakh`);
+  const thousand = Math.floor(rupees / 1000);
+  rupees %= 1000;
+  if (thousand) parts.push(`${belowHundred(thousand)} Thousand`);
+  if (rupees) parts.push(belowThousand(rupees));
+  const words = parts.join(" ") || "Zero";
+  return `${negative ? "Minus " : ""}Rupees ${words}${p ? ` and ${belowHundred(p)} Paise` : ""} Only`;
+}
