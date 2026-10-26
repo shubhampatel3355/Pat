@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "../zod";
 import { isoDate, requiredText, text } from "./common";
 
 export const WIP_REMARK_VALUES = ["VISITS", "MEETINGS", "FOLLOW_UP_MEETINGS", "NEGOTIATIONS", "ON_HOLD", "LOST", "INVOICE_RAISED", "PAYMENT_COLLECTED"] as const;

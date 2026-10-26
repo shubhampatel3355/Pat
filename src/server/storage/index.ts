@@ -32,18 +32,21 @@ const contentDisposition = (filename: string) => `attachment; filename*=UTF-8''$
 
 class S3Storage implements StorageDriver {
   private client: S3Client;
+  /** Signs download links for the address browsers use (S3_PUBLIC_ENDPOINT), which may differ from the internal one. */
+  private signer: S3Client;
   private bucket: string;
   private ready: Promise<void> | undefined;
 
   constructor() {
     const e = env();
     this.bucket = e.S3_BUCKET!;
-    this.client = new S3Client({
-      endpoint: e.S3_ENDPOINT,
+    const options = {
       region: e.S3_REGION,
       forcePathStyle: e.S3_FORCE_PATH_STYLE,
       credentials: { accessKeyId: e.S3_ACCESS_KEY_ID!, secretAccessKey: e.S3_SECRET_ACCESS_KEY! },
-    });
+    };
+    this.client = new S3Client({ ...options, endpoint: e.S3_ENDPOINT });
+    this.signer = e.S3_PUBLIC_ENDPOINT ? new S3Client({ ...options, endpoint: e.S3_PUBLIC_ENDPOINT }) : this.client;
   }
 
   /** Creates the bucket (with versioning) on first use if it does not exist yet. */
@@ -85,7 +88,7 @@ class S3Storage implements StorageDriver {
   }
 
   async signedDownloadUrl(key: string, filename: string, ttlSeconds = 60) {
-    return getSignedUrl(this.client, new GetObjectCommand({ Bucket: this.bucket, Key: key, ResponseContentDisposition: contentDisposition(filename) }), {
+    return getSignedUrl(this.signer, new GetObjectCommand({ Bucket: this.bucket, Key: key, ResponseContentDisposition: contentDisposition(filename) }), {
       expiresIn: ttlSeconds,
     });
   }

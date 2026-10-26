@@ -59,7 +59,8 @@ model User {
   cabsStatusChanged  CabBooking[]    @relation("CabStatusChangedBy")
   invoicesCreated    Invoice[]       @relation("InvoiceCreatedBy")
   invoiceBrokerships InvoiceBroker[]
-  paymentsRecorded   Payment[]
+  paymentsRecorded   Payment[]       @relation("PaymentRecordedBy")
+  paymentsVoided     Payment[]       @relation("PaymentVoidedBy")
   ledgerEntries      LedgerEntry[]
   payrollCreated     PayrollRun[]    @relation("PayrollCreatedBy")
   payrollApproved    PayrollRun[]    @relation("PayrollApprovedBy")
@@ -527,11 +528,16 @@ model Payment {
   reference    String?
   notes        String?
   recordedById String      @map("recorded_by_id") @db.Uuid
+  /// Payments recorded in error are voided (never deleted); the invoice and ledger are recalculated.
+  voidedAt     DateTime?   @map("voided_at") @db.Timestamptz(3)
+  voidedById   String?     @map("voided_by_id") @db.Uuid
+  voidReason   String?     @map("void_reason")
   createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt    DateTime    @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   invoice      Invoice       @relation(fields: [invoiceId], references: [id])
-  recordedBy   User          @relation(fields: [recordedById], references: [id])
+  recordedBy   User          @relation("PaymentRecordedBy", fields: [recordedById], references: [id])
+  voidedBy     User?         @relation("PaymentVoidedBy", fields: [voidedById], references: [id])
   ledgerEntry  LedgerEntry?
 
   @@index([invoiceId])

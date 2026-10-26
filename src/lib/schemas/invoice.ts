@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "../zod";
 import { checkGstin, gstinErrorMessage, normaliseGstin } from "../gstin";
 import { email, indianMobile, isoDate, requiredText, text } from "./common";
 
@@ -53,6 +53,11 @@ export const paymentInputSchema = z.object({
   receivedOn: isoDate,
   mode: z.enum(["NEFT", "RTGS", "IMPS", "UPI", "CHEQUE", "CARD", "CASH", "OTHER"]),
   reference: text(80),
+});
+
+export const paymentReverseSchema = z.object({
+  paymentId: z.uuid(),
+  reason: requiredText(200, "Say why this payment is being reversed"),
 });
 
 export const creditNoteInputSchema = z.object({

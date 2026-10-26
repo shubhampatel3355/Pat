@@ -43,6 +43,8 @@ const schema = z
 
     STORAGE_DRIVER: z.enum(["s3", "local"]).default("s3"),
     S3_ENDPOINT: optionalString,
+    /** Address browsers use for presigned download links when S3_ENDPOINT is internal (e.g. http://minio:9000). */
+    S3_PUBLIC_ENDPOINT: optionalString,
     S3_REGION: z.string().default("us-east-1"),
     S3_BUCKET: optionalString,
     S3_ACCESS_KEY_ID: optionalString,
@@ -84,6 +86,11 @@ const schema = z
     CLAMAV_PORT: z.coerce.number().int().positive().default(3310),
     SENTRY_DSN: optionalString,
 
+    /** Comma-separated feature flags, e.g. "integrations-preview" shows planned integrations in Settings. */
+    FEATURES: z
+      .string()
+      .default("")
+      .transform((s) => new Set(s.split(",").map((f) => f.trim()).filter(Boolean))),
     WORKER_ENABLED: bool(true),
     SEED_OWNERS: z.string().default("Pat Michaels <pat@patmichaels.in>;Arjun Rao <arjun@patmichaels.in>"),
     SEED_OWNER_PASSWORD: optionalString,
@@ -94,6 +101,11 @@ const schema = z
       for (const key of ["S3_ENDPOINT", "S3_BUCKET", "S3_ACCESS_KEY_ID", "S3_SECRET_ACCESS_KEY"] as const) {
         if (!env[key]) ctx.addIssue({ code: "custom", path: [key], message: `${key} is required when STORAGE_DRIVER=s3` });
       }
+    }
+    // An internal storage name (http://minio:9000) can't be opened by browsers following a download link.
+    const storageHost = env.S3_ENDPOINT && URL.canParse(env.S3_ENDPOINT) ? new URL(env.S3_ENDPOINT).hostname : "";
+    if (isProd && env.STORAGE_DRIVER === "s3" && storageHost && !storageHost.includes(".") && !env.S3_PUBLIC_ENDPOINT) {
+      ctx.addIssue({ code: "custom", path: ["S3_PUBLIC_ENDPOINT"], message: `S3_ENDPOINT (${storageHost}) is internal; set S3_PUBLIC_ENDPOINT to the address browsers use for downloads` });
     }
     if (isProd && env.STORAGE_DRIVER === "local") {
       ctx.addIssue({ code: "custom", path: ["STORAGE_DRIVER"], message: "STORAGE_DRIVER=local is for development only; use s3 in production" });

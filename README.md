@@ -5,11 +5,13 @@ invoicing, finance, payroll, team and documents in one place.
 
 - Design source of truth: `design-reference/Pat Michaels OS (offline).html` (unpacked copy in `design-reference/unpacked/`).
 - Architecture, stack and data model: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+- Production: [`docs/DEPLOY.md`](docs/DEPLOY.md) (Hostinger VPS + Coolify) and [`docs/RUNBOOK.md`](docs/RUNBOOK.md) (operations).
+- Side-by-side screenshots of the prototype and the app: [`docs/parity/`](docs/parity/).
 
-> Status: milestones 1–4 — foundation, WIP, Teams, Dashboard, Invoice/Proforma (PDF, print, email, payments,
-> credit notes), the Finance overview (XLSX/PDF export), Payroll (runs, payslips), Contracts & Vault, Vehicle
-> Management, Business Development and Follow-ups & Tasks. Settings, notification polish, end-to-end tests and
-> the deployment runbooks arrive in milestone 5.
+> Status: all five milestones. Foundation, WIP, Teams, Dashboard, Invoice/Proforma (PDF, print, email,
+> payments and reversals, credit notes), Finance (XLSX/PDF export), Payroll, Contracts & Vault, Vehicle
+> Management, Business Development, Follow-ups & Tasks, Settings (targets, roles & permissions, integrations,
+> audit log), optional sign-in codes for owners/admins, unit and end-to-end tests, and the deployment docs.
 
 ## Quick start (local)
 
@@ -48,11 +50,31 @@ Sign in as `pat@patmichaels.in` with the temporary password; you'll be asked to 
 |---|---|
 | `pnpm dev` / `build` / `start` | Next.js dev server / production build / production server |
 | `pnpm typecheck` · `lint` · `test` | TypeScript, ESLint, Vitest unit tests |
-| `pnpm test:e2e` | Playwright end-to-end tests |
+| `pnpm test:e2e` | Playwright end-to-end tests (see below) |
+| `pnpm parity` | Regenerates `docs/parity/` from the prototype and a running app with demo data |
 | `pnpm db:local` | Docker-less PostgreSQL 17 (data in `.local/pg`) |
 | `pnpm db:migrate` · `db:deploy` | Create/apply migrations (dev) · apply migrations (prod) |
 | `pnpm db:seed` | Idempotent production seed |
 | `pnpm db:studio` | Prisma Studio |
+
+## Tests
+
+- **Unit** (`pnpm test`): money, GST/GSTIN, dates and financial years, WIP fees, invoice numbering and status,
+  finance definitions, payroll arithmetic, permissions, schemas, storage link signing.
+- **End to end** (`pnpm test:e2e`): sign-in (wrong password, first sign-in password change, sign-out,
+  return to the requested page), **create a WIP lead → raise its invoice → print → server PDF → email with the
+  PDF attached**, and **an employee downloads their own payslip** but gets a 404 for anyone else's. They run
+  against a production build and a throwaway database whose name must end in `_test` or `_e2e`. The global setup
+  loads the demo data into it.
+
+  ```bash
+  pnpm build
+  DATABASE_URL=postgresql://postgres:postgres@localhost:54329/patmichaels_e2e pnpm exec prisma migrate deploy
+  NODE_ENV=test DATABASE_URL=postgresql://postgres:postgres@localhost:54329/patmichaels_e2e \
+    STORAGE_DRIVER=local MAIL_DRIVER=file pnpm test:e2e
+  ```
+
+  CI runs the same suite against Postgres, MinIO and Mailpit, and checks that the invoice email arrives with its PDF.
 
 ## Roles
 
@@ -62,7 +84,14 @@ Sign in as `pat@patmichaels.in` with the temporary password; you'll be asked to 
 | **Admin** | Everything except changing owners and role definitions |
 | **Employee** | Own WIP rows, own tasks/follow-ups, own BD meetings (client contact info hidden), Vehicle Management, own payslips/CTC, own Employee Documents |
 
-Permissions are enforced on the server (`src/server/policy`) and editable per role in Settings → Roles & permissions.
+Permissions are enforced on the server (`src/server/policy`) and editable per role in Settings → Roles &
+permissions (owners only). Settings also holds company and per-person **targets** (they drive the Dashboard,
+WIP and Teams), the state of each **integration** (planned ones appear with `FEATURES=integrations-preview`),
+and the **audit log**, filterable by module, with before/after values.
+
+**Sign-in codes**: with `AUTH_OTP_FOR_ADMINS=true`, owners and admins enter a 6-digit code emailed after their
+password. Codes expire after 10 minutes, work once, and are cancelled after 5 wrong tries. Employees sign in
+with their password only.
 
 ## Finance definitions
 

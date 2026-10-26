@@ -35,7 +35,7 @@ The visual source of truth is `design-reference/Pat Michaels OS (offline).html` 
 4. **Finance** in the prototype shows 4 KPI cards in 2 columns; built as the brief asks: 6 blue KPI cards, 3 per row, all computed — the prototype's Revenue, Expenses, Profit and Receivables plus Collections and Payroll. Additions needed to make it usable (in the prototype's own styles, for design review): a financial-year selector and period line under the title, an **Add entry** button opening the prototype's income/expense modal (with a date field), and a **Recent entries** list in the prototype's ledger-row style where manual entries can be voided with a reason.
 5. **Business Development "View as" switch** is a prototype demo affordance; production uses the signed-in role.
 6. **Lead temperature** label is "Lukewarm" (brief) rather than "Luke Warm" (prototype).
-7. **Login OTP step** shown in the prototype ("Verify it's you") is not in the brief; implemented as optional email OTP for Owners/Admins behind `AUTH_OTP_FOR_ADMINS` (default off) if time allows in milestone 5.
+7. **Login OTP step** shown in the prototype ("Verify it's you") is not in the brief; implemented as an optional emailed 6-digit code for Owners/Admins behind `AUTH_OTP_FOR_ADMINS` (default off). The prototype sends it to a phone and offers "Use backup code"; the app emails it (masked address shown) and has no backup codes, so that link is left out. Codes are stored hashed, expire in 10 minutes, are single-use and are cancelled after 5 wrong tries; Google sign-in skips the code.
 8. **Employee dashboard** has no design yet — built from existing components, flagged in the README for design review.
 9. **Payroll** follows the prototype's arithmetic (PF 12 % of basic = 50 % of fixed pay; TDS 10 % above ₹ 50,000) and adds **Karnataka professional tax** (₹ 200 a month, ₹ 300 in February), so the demo October run nets ₹ 6,41,160 instead of the prototype's ₹ 6,42,960. Payslips split fixed pay Basic 50 % / HRA 20 % / Special 30 %; TDS is an editable estimate. The **Payslips** button opens the run's review drawer; approval and disbursal ask for confirmation. Partners are not on payroll.
 10. **Follow-ups** are their own records (contact, type, note, owner, due time, optional WIP row) instead of the prototype's per-lead "next action", so they can be created from quick-create and **+ New follow-up**, reminded and rescheduled; the agenda, week view and "Move to" choices follow the prototype.
@@ -43,6 +43,10 @@ The visual source of truth is `design-reference/Pat Michaels OS (offline).html` 
 12. **Contracts & Vault** says "encrypted at rest" only when uploads are written with server-side encryption (`S3_SSE`); the root **Upload** modal asks whose documents they are when filing Employee Documents for someone else; folders open at `/vault/[folder]`.
 13. **Vehicle Management**: people with *Manage cab bookings* get **Confirm** / **Complete** on each row; pick-up chips are the office (from `COMPANY_ADDRESS`), the airport and the most-used recent pick-up.
 14. **Task reminders**: the WhatsApp channel toggle is shown but disabled until the WhatsApp integration is connected.
+15. **Teams** shows every active member, including admin and operations staff without targets ("No target set"), because it is where members are added, edited and deactivated; the prototype shows only the six sales cards.
+16. **Settings → General**: company identity (legal name, GSTIN, RERA, address, bank, signatory) comes from the server configuration (`COMPANY_*`) and is read-only, so the prototype's per-row **Edit** buttons are left out; the preference rows describe what the app actually does (the prototype's "Working days" and "Lead assignment" are not features). A **Targets** editor (company, partners, members, by financial year and quarter) is added below. **Integrations** shows the real state of email, storage, virus scanning, Google sign-in and error tracking; the prototype's planned integrations appear only with `FEATURES=integrations-preview`.
+17. **Payment reversal** is not in the prototype: an invoice's **Payments (n)** action lists its payments, and people who can record payments can reverse one with a reason. The invoice status, the Finance receipt and the WIP stage ("Payment Collected" → "Invoice Raised") follow in one transaction.
+18. **Colour contrast**: small text on the grey chips and cards uses slightly darker shades than the prototype (`muted-strong` #4D4D52 instead of #55555A on #C7C7C7; YoY green #216A36 / red #A8302C instead of #3E9B52 / #C93C37 on #DCDCDC) to meet WCAG AA 4.5:1. Lighthouse (desktop) scores Dashboard and WIP 100 for performance, accessibility and best practices.
 
 ---
 
@@ -184,8 +188,13 @@ credit notes (`CN/26-27/0001`). Proforma → "Convert to invoice" copies the bro
   explicit same-origin check on mutating route handlers, rate limits (login, upload, PDF) stored in Postgres,
   argon2id, encrypted PII, least-privilege DB role for runtime vs. migration role, dependency audit in CI.
 - **Observability**: pino JSON logs with request ids, slow-query log (> 500 ms), `/api/health`, optional Sentry.
-- **CI**: GitHub Actions — typecheck, lint, unit tests, build, e2e against a Postgres service, `pnpm audit`;
-  Coolify deploys `main` through its webhook.
+- **Storage addresses**: the app talks to MinIO on the internal network (`S3_ENDPOINT`) and signs 60-second
+  download links for the address browsers use (`S3_PUBLIC_ENDPOINT`); production refuses to start with an internal
+  endpoint and no public one.
+- **CI**: GitHub Actions — typecheck, lint, unit tests, build, then Playwright e2e against a production build with
+  Postgres, MinIO and Mailpit, `pnpm audit`; Coolify deploys `main` through its webhook.
+- **Visual parity**: `pnpm parity` screenshots each prototype module and the same app screen (demo data) into
+  `docs/parity/`.
 
 ---
 

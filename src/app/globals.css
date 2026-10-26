@@ -32,6 +32,10 @@
   --color-warning: #f5b73b;
   --color-danger: #c93c37;
   --color-neutral: #a8a8ad;
+  /* Small text on the grey chips/cards needs ≥ 4.5:1; these are the closest shades that pass. */
+  --color-muted-strong: #4d4d52;
+  --color-success-ink: #216a36;
+  --color-danger-ink: #a8302c;
 
   /* Shape */
   --radius-pill: 999px;

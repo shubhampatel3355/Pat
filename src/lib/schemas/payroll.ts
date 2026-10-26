@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "../zod";
 import { isoDate, text } from "./common";
 
 /** ₹ 1 Cr a month — far above any line on a payslip; catches a mistyped extra zero or three. */

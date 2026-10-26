@@ -71,7 +71,7 @@ function RevenueCard({ revenue, canOpenFinance }: { revenue: NonNullable<Dashboa
         <div className="flex flex-col gap-0.5 rounded-row bg-chip-2 px-3 py-2.5">
           <span className="text-[11px] text-muted">{revenue.ytdLabel}</span>
           <span className="text-2xl font-light leading-[30px]">{formatCompactINR(revenue.ytdPaise)}</span>
-          <span className="text-[11px]" style={{ color: revenue.yoyPct === null ? "#55555A" : revenue.yoyPct >= 0 ? "#3E9B52" : "#C93C37" }}>
+          <span className={`text-[11px] ${revenue.yoyPct === null ? "text-muted" : revenue.yoyPct >= 0 ? "text-success-ink" : "text-danger-ink"}`}>
             {revenue.yoyPct === null ? "No data last year" : `${revenue.yoyPct >= 0 ? "+" : "−"}${Math.abs(revenue.yoyPct)}% YoY`}
           </span>
         </div>
@@ -193,9 +193,9 @@ export function DashboardScreen({ data, greeting, dateLabel }: { data: Dashboard
           <div className="flex items-center gap-2">
             <span
               className="flex h-6 items-center gap-1.5 rounded-pill px-2.5 text-[11px] font-medium"
-              style={{ background: partnerView ? "rgba(2,62,125,.14)" : "#C7C7C7", color: partnerView ? "#001233" : "#55555A" }}
+              style={{ background: partnerView ? "rgba(2,62,125,.14)" : "#C7C7C7", color: partnerView ? "#001233" : "var(--color-muted-strong)" }}
             >
-              <span className="h-1.5 w-1.5 rounded-pill" style={{ background: partnerView ? "#001233" : "#55555A" }} />
+              <span className="h-1.5 w-1.5 rounded-pill" style={{ background: partnerView ? "#001233" : "var(--color-muted-strong)" }} />
               {data.viewLabel}
             </span>
             <span className="text-xs text-muted">{dateLabel}</span>

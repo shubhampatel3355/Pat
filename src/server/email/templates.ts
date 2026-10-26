@@ -81,3 +81,15 @@ export function reminderEmail(input: { name: string; what: string; when: string;
     }),
   };
 }
+
+export function loginCodeEmail(input: { name: string; code: string; minutes: number }) {
+  return {
+    subject: "Your Pat Michaels OS sign-in code",
+    ...render({
+      preheader: `Your sign-in code expires in ${input.minutes} minutes`,
+      heading: "Verify it's you",
+      paragraphs: [`Hi ${input.name.split(" ")[0]}, your sign-in code is ${input.code}.`, `It expires in ${input.minutes} minutes and works once. Owner and admin accounts need it after the password.`],
+      footnote: "If you didn't just try to sign in, change your password — someone may know it.",
+    }),
+  };
+}

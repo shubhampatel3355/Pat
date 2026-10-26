@@ -22,9 +22,13 @@ const loginSchema = z.object({
   email: z.string().trim().toLowerCase().email("Enter a valid work email"),
   password: z.string().min(1, "Enter your password").max(200),
   remember: z.boolean(),
+  otp: z.string().regex(/^\d{6}$/, "Enter the 6-digit code").optional(),
 });
 
-export async function loginAction(input: z.input<typeof loginSchema>): Promise<ActionResult> {
+/** "pa••••@patmichaels.in" — enough to recognise the inbox. */
+const maskEmail = (email: string) => email.replace(/^([^@]{1,2})[^@]*@/, (_, head: string) => `${head}••••@`);
+
+export async function loginAction(input: z.input<typeof loginSchema>): Promise<ActionResult<{ otpSentTo: string }>> {
   const h = await headers();
   if (!isSameOrigin(h)) return fail("Request blocked (cross-site).");
   const parsed = loginSchema.safeParse(input);
@@ -34,6 +38,7 @@ export async function loginAction(input: z.input<typeof loginSchema>): Promise<A
       email: parsed.data.email,
       password: parsed.data.password,
       remember: parsed.data.remember ? "1" : "0",
+      ...(parsed.data.otp ? { otp: parsed.data.otp } : {}),
       redirect: false,
     });
     return ok();
@@ -41,6 +46,8 @@ export async function loginAction(input: z.input<typeof loginSchema>): Promise<A
     if (error instanceof AuthError) {
       const code = (error as AuthError & { code?: string }).code;
       if (code === "rate_limited") return fail("Too many attempts. Wait 15 minutes and try again.");
+      if (code === "otp_required") return ok(undefined, { otpSentTo: maskEmail(parsed.data.email) });
+      if (code === "otp_invalid") return fail("That code is wrong or has expired. Check it, or send a new one.");
       if (error.type === "CredentialsSignin") return fail("That email and password don't match.");
       logger.warn({ type: error.type }, "sign-in error");
       return fail("Couldn't sign you in. Please try again.");

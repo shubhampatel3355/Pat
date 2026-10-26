@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "../zod";
 import { isoDate, optionalEmail, optionalPhone, requiredText, text } from "./common";
 
 const meetingFields = {

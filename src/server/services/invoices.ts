@@ -17,6 +17,7 @@ export const invoiceInclude = {
   creditNotes: { select: { feesPaise: true, totalPaise: true } },
   convertedTo: { select: { id: true, number: true } },
   files: { where: { deletedAt: null }, select: { id: true, name: true, sizeBytes: true } },
+  payments: { where: { voidedAt: null }, orderBy: { receivedOn: "asc" as const }, include: { recordedBy: { select: { name: true } } } },
 } satisfies Prisma.InvoiceInclude;
 
 export type InvoiceRow = Prisma.InvoiceGetPayload<{ include: typeof invoiceInclude }>;
@@ -180,6 +181,7 @@ export interface InvoiceListRow {
   email: string;
   files: { id: string; name: string; sizeBytes: number }[];
   creditablePaise: number;
+  payments: { id: string; amountPaise: number; receivedOn: string; mode: string; reference: string | null; recordedBy: string }[];
 }
 
 export async function listDocuments(user: SessionUser, kinds: InvoiceType[]): Promise<InvoiceListRow[]> {
@@ -207,6 +209,7 @@ export async function listDocuments(user: SessionUser, kinds: InvoiceType[]): Pr
       email: r.email,
       files: r.files,
       creditablePaise: r.type === "INVOICE" && r.status !== "CREDITED" ? Math.max(0, toPaise(r.feesPaise) - creditedFees) : 0,
+      payments: r.payments.map((p) => ({ id: p.id, amountPaise: toPaise(p.amountPaise), receivedOn: dateToIso(p.receivedOn), mode: p.mode, reference: p.reference, recordedBy: p.recordedBy.name })),
     };
   });
 }

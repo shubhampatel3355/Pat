@@ -7,7 +7,7 @@ import { formatDate, fyOfIso, isoDateIST, isoToDate } from "@/lib/dates";
 import { computeGst } from "@/lib/gstin";
 import { settledStatus } from "@/lib/invoice";
 import { formatINR, toPaise } from "@/lib/money";
-import { creditNoteInputSchema, invoiceInputSchema, paymentInputSchema, proformaInputSchema } from "@/lib/schemas/invoice";
+import { creditNoteInputSchema, invoiceInputSchema, paymentInputSchema, paymentReverseSchema, proformaInputSchema } from "@/lib/schemas/invoice";
 import { writeAudit } from "../audit";
 import { db, type Tx } from "../db";
 import { documentEmail } from "../email/templates";
@@ -17,7 +17,7 @@ import { can, has, type SessionUser } from "../policy";
 import type { RequestMeta } from "../request";
 import { allocateNumber, brokerName, createDocument, creditedPaise, invoiceInclude, type DocumentDraft, type InvoiceRow } from "../services/invoices";
 import { managerIds, notify } from "../services/notify";
-import { advanceLeadRemark } from "../services/wip-effects";
+import { advanceLeadRemark, revertPaymentCollected } from "../services/wip-effects";
 import { defineAction, UserError } from "./define";
 
 const brokerUserIdsOf = (inv: { brokers: { userId: string | null }[] }) => inv.brokers.flatMap((b) => (b.userId ? [b.userId] : []));
@@ -182,6 +182,45 @@ export const recordPaymentAction = defineAction({
     });
     refresh();
     return ok(`${formatINR(input.amountPaise)} recorded against ${result.inv.number}${result.status === "PAID" ? " · fully paid" : ""}`);
+  },
+});
+
+export const reversePaymentAction = defineAction({
+  schema: paymentReverseSchema,
+  authorize: (user) => can(user, "record", { type: "invoice" }),
+  handler: async ({ user, input, meta }) => {
+    const result = await db.$transaction(async (tx) => {
+      const pay = await tx.payment.findUnique({ where: { id: input.paymentId } });
+      if (!pay || pay.voidedAt) throw new UserError("That payment has already been reversed");
+      // Lock the invoice so a payment and a reversal can't interleave.
+      await tx.$queryRaw`SELECT id FROM invoices WHERE id = ${pay.invoiceId}::uuid FOR UPDATE`;
+      const inv = await tx.invoice.findFirstOrThrow({ where: { id: pay.invoiceId }, include: invoiceInclude });
+      const voided = await tx.payment.updateMany({ where: { id: pay.id, voidedAt: null }, data: { voidedAt: new Date(), voidedById: user.id, voidReason: input.reason } });
+      if (!voided.count) throw new UserError("That payment has already been reversed");
+      await tx.ledgerEntry.updateMany({ where: { paymentId: pay.id, deletedAt: null }, data: { deletedAt: new Date() } });
+      const paid = Math.max(0, toPaise(inv.amountPaidPaise) - toPaise(pay.amountPaise));
+      const creditedFees = inv.creditNotes.reduce((a, c) => a + toPaise(c.feesPaise), 0);
+      const status = settledStatus(toPaise(inv.totalPaise), paid, creditedPaise(inv), creditedFees, toPaise(inv.feesPaise));
+      await tx.invoice.update({ where: { id: inv.id }, data: { amountPaidPaise: BigInt(paid), status } });
+      if (inv.status === "PAID" && status !== "PAID" && inv.leadId) await revertPaymentCollected(tx, user, inv.leadId, `${inv.number} payment reversed`, meta);
+      await writeAudit(tx, {
+        actor: user,
+        module: "Finance",
+        action: "delete",
+        text: `${user.name} reversed the ${formatINR(toPaise(pay.amountPaise))} payment on ${inv.number} (${inv.payeeName}). Reason: ${input.reason}`,
+        entityType: "Payment",
+        entityId: pay.id,
+        before: pay,
+        after: { voided: true, reason: input.reason, invoiceStatus: status },
+        meta,
+        visibility: "RESTRICTED",
+        subjectUserIds: brokerUserIdsOf(inv),
+      });
+      await notify(tx, [...brokerUserIdsOf(inv), ...(await managerIds(tx))], { kind: "payment", text: `Payment reversed — ${inv.number} · ${inv.payeeName} (${input.reason})`, href: `/invoices?focus=${inv.id}` }, user.id);
+      return { inv, amount: toPaise(pay.amountPaise) };
+    });
+    refresh();
+    return ok(`${formatINR(result.amount)} payment on ${result.inv.number} reversed`);
   },
 });
 

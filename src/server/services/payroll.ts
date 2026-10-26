@@ -108,10 +108,9 @@ export async function runById(id: string): Promise<RunDto | null> {
  * other deductions, TDS overrides, holds, notes) on existing payslips are kept.
  */
 export async function generatePayslips(tx: Tx, runId: string, period: string): Promise<number> {
-  const [users, existing] = await Promise.all([
-    tx.user.findMany({ where: { ...ON_PAYROLL, ctcAnnualPaise: { gt: 0 } }, select: { id: true, ctcAnnualPaise: true, dateOfJoining: true } }),
-    tx.payslip.findMany({ where: { runId } }),
-  ]);
+  // One connection per transaction: queries run one after another.
+  const users = await tx.user.findMany({ where: { ...ON_PAYROLL, ctcAnnualPaise: { gt: 0 } }, select: { id: true, ctcAnnualPaise: true, dateOfJoining: true } });
+  const existing = await tx.payslip.findMany({ where: { runId } });
   let count = 0;
   for (const u of users) {
     const joined = u.dateOfJoining ? dateToIso(u.dateOfJoining) : null;

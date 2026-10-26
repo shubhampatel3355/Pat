@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./zod";
 import { addDaysIso, formatDayMonth, formatTime12, isoToDate } from "./dates";
 import { hhmm, isoDate, text } from "./schemas/common";
 

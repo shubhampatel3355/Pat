@@ -149,7 +149,7 @@ function ViewSwitch({ view }: { view: ShellView }) {
         >
           <span
             className="flex h-[26px] w-[26px] items-center justify-center rounded-pill text-[11px] font-medium shadow-avatar"
-            style={{ background: index === i ? "#023E7D" : "#C7C7C7", color: index === i ? "#fff" : "#55555A" }}
+            style={{ background: index === i ? "#023E7D" : "#C7C7C7", color: index === i ? "#fff" : "var(--color-muted-strong)" }}
           >
             {p.initials}
           </span>

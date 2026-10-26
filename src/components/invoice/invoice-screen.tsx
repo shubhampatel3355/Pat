@@ -16,7 +16,7 @@ import { useAction } from "../ui/toast";
 import { useDownload } from "../ui/use-download";
 import { DocViewer, type DocAction } from "./doc-viewer";
 import { DocumentForm, type FormPrefill } from "./document-form";
-import { CreditNoteModal, PaymentModal } from "./invoice-modals";
+import { CreditNoteModal, PaymentModal, PaymentsModal } from "./invoice-modals";
 
 const INV_COLS = "150px minmax(220px,1.6fr) 170px minmax(140px,1fr) 150px 110px 120px 90px";
 const PF_COLS = "150px minmax(200px,1.5fr) minmax(200px,1.4fr) 130px 130px 110px 120px 160px 90px";
@@ -66,6 +66,7 @@ export function InvoiceScreen({ mode, invoices, proformas, nextInvoice, nextProf
   const [viewing, setViewing] = useState<string | null>(() => params.get("focus"));
   const [paying, setPaying] = useState<InvoiceListRow | null>(null);
   const [crediting, setCrediting] = useState<InvoiceListRow | null>(null);
+  const [payments, setPayments] = useState<InvoiceListRow | null>(null);
   const [fresh, setFresh] = useState<string | null>(null);
   const email = useAction(emailDocumentAction);
   const pdf = useDownload();
@@ -103,6 +104,14 @@ export function InvoiceScreen({ mode, invoices, proformas, nextInvoice, nextProf
         onClick: () => {
           setViewing(null);
           setPaying(row);
+        },
+      });
+    if (row.type === "INVOICE" && row.payments.length)
+      list.push({
+        label: `Payments (${row.payments.length})`,
+        onClick: () => {
+          setViewing(null);
+          setPayments(row);
         },
       });
     if (row.type === "INVOICE" && can.creditNote && row.creditablePaise > 0)
@@ -245,6 +254,7 @@ export function InvoiceScreen({ mode, invoices, proformas, nextInvoice, nextProf
       {doc && <DocViewer data={doc.doc} company={company} onClose={() => setViewing(null)} actions={docActions(doc)} />}
       {paying && <PaymentModal invoice={paying} today={today} onClose={() => setPaying(null)} />}
       {crediting && <CreditNoteModal invoice={crediting} companyStateCode={companyState} onClose={() => setCrediting(null)} />}
+      {payments && <PaymentsModal invoice={payments} canReverse={can.record} onClose={() => setPayments(null)} />}
     </Page>
   );
 }

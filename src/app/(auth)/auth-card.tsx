@@ -1,7 +1,16 @@
 import { BRAND_MARK } from "@/lib/icons";
 
-/** The prototype's sign-in card: frosted glass, 420 px, enters after the brand intro. */
-export function AuthScreen({ title, subtitle, children }: { title: string; subtitle: React.ReactNode; children: React.ReactNode }) {
+export function AuthHeading({ title, subtitle }: { title: string; subtitle: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <h1 className="m-0 text-[32px] font-light leading-[38px] tracking-[-.015em]">{title}</h1>
+      <p className="m-0 text-sm text-muted">{subtitle}</p>
+    </div>
+  );
+}
+
+/** The prototype's sign-in card: frosted glass, 420 px, enters after the brand intro. Without a title the children render their own heading. */
+export function AuthScreen({ title, subtitle, children }: { title?: string; subtitle?: React.ReactNode; children: React.ReactNode }) {
   return (
     <main className="relative flex min-h-dvh items-center justify-center overflow-hidden p-6">
       <div className="glass pm-after-intro relative flex w-full max-w-[420px] animate-[pmcCard_1s_cubic-bezier(.22,1,.36,1)_both] flex-col gap-5 rounded-panel p-8 shadow-panel">
@@ -16,10 +25,7 @@ export function AuthScreen({ title, subtitle, children }: { title: string; subti
             <span className="text-xs text-muted">Business Operating System</span>
           </div>
         </div>
-        <div className="flex flex-col gap-1.5">
-          <h1 className="m-0 text-[32px] font-light leading-[38px] tracking-[-.015em]">{title}</h1>
-          <p className="m-0 text-sm text-muted">{subtitle}</p>
-        </div>
+        {title && <AuthHeading title={title} subtitle={subtitle} />}
         {children}
       </div>
     </main>

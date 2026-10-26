@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "../zod";
 import { hhmm, isoDate, requiredText, text } from "./common";
 
 const taskFields = {

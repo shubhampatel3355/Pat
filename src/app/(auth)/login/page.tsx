@@ -20,7 +20,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   // Only same-site paths ("/wip", not "//evil.com" or "https://…").
   const next = typeof sp.next === "string" && /^\/(?!\/)[\w\-/?=&%.]*$/.test(sp.next) ? sp.next : "/dashboard";
   return (
-    <AuthScreen title="Sign in" subtitle="Every lead, unit and rupee in one place.">
+    <AuthScreen>
       <LoginForm googleEnabled={googleAuthEnabled()} notice={key ? (NOTICES[key] ?? null) : null} next={next} />
     </AuthScreen>
   );

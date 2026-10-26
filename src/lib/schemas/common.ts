@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "../zod";
 
 /** "YYYY-MM-DD" calendar date. */
 export const isoDate = z

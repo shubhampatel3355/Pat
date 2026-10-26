@@ -62,3 +62,28 @@ export async function advanceLeadRemark(tx: Tx, user: SessionUser, leadId: strin
   });
   await onRemarkChanged(tx, user, lead, lead.remark, to);
 }
+
+/**
+ * Undoes "Payment Collected" when the payment behind it is reversed — unless another invoice for the row
+ * is still fully paid. The deal-closed achievement goes with it; the audit log keeps the history.
+ */
+export async function revertPaymentCollected(tx: Tx, user: SessionUser, leadId: string, reason: string, meta?: RequestMeta) {
+  const lead = await tx.lead.findFirst({ where: { id: leadId, deletedAt: null }, include: leadInclude });
+  if (!lead || lead.remark !== "PAYMENT_COLLECTED") return;
+  if (await tx.invoice.count({ where: { leadId, type: "INVOICE", status: "PAID" } })) return;
+  await tx.lead.update({ where: { id: lead.id }, data: { remark: "INVOICE_RAISED", remarkChangedAt: new Date() } });
+  await tx.achievement.deleteMany({ where: { leadId: lead.id, kind: "DEAL_CLOSED" } });
+  await writeAudit(tx, {
+    actor: user,
+    module: "WIP",
+    action: "update",
+    text: `${user.name} moved ${lead.tenantName} back to ${WIP_REMARK.INVOICE_RAISED.label} (${reason})`,
+    entityType: "Lead",
+    entityId: lead.id,
+    before: { remark: lead.remark },
+    after: { remark: "INVOICE_RAISED" },
+    meta,
+    visibility: "RESTRICTED",
+    subjectUserIds: brokerUserIds(lead),
+  });
+}

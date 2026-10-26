@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "../zod";
 import { email, indianMobile, isoDate, requiredText, text } from "./common";
 
 export const memberInputSchema = z.object({

@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "../zod";
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from "../finance";
 import { isoDate, requiredText, text } from "./common";
 

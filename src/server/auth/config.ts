@@ -10,6 +10,7 @@ import { logger } from "../logger";
 import { LIMITS, rateLimit } from "../rate-limit";
 import { metaFromHeaders } from "../request";
 import { verifyPassword } from "./password";
+import { issueLoginOtp, verifyLoginOtp } from "./tokens";
 
 export class InvalidCredentials extends CredentialsSignin {
   code = "invalid";
@@ -17,18 +18,26 @@ export class InvalidCredentials extends CredentialsSignin {
 export class TooManyAttempts extends CredentialsSignin {
   code = "rate_limited";
 }
+/** Password was right; an owner/admin must now enter the emailed sign-in code. */
+export class OtpRequired extends CredentialsSignin {
+  code = "otp_required";
+}
+export class InvalidOtp extends CredentialsSignin {
+  code = "otp_invalid";
+}
 
 const credentialsSchema = z.object({
   email: z.string().trim().toLowerCase().email().max(200),
   password: z.string().min(1).max(200),
   remember: z.enum(["1", "0"]).optional(),
+  otp: z.string().regex(/^\d{6}$/).optional(),
 });
 
 async function authorizeWithPassword(raw: Partial<Record<string, unknown>>, request: Request) {
   const meta = metaFromHeaders(request.headers);
   const parsed = credentialsSchema.safeParse(raw);
   if (!parsed.success) throw new InvalidCredentials();
-  const { email, password, remember } = parsed.data;
+  const { email, password, remember, otp } = parsed.data;
 
   const [byIp, byEmail] = await Promise.all([
     rateLimit(`login:ip:${meta.ip ?? "unknown"}`, LIMITS.loginPerIp.limit, LIMITS.loginPerIp.windowSec),
@@ -54,8 +63,21 @@ async function authorizeWithPassword(raw: Partial<Record<string, unknown>>, requ
     throw new InvalidCredentials();
   }
 
+  // Second factor for owners and admins: an emailed six-digit code.
+  if (env().AUTH_OTP_FOR_ADMINS && (user.role === "OWNER" || user.role === "ADMIN")) {
+    if (!otp) {
+      await issueLoginOtp(user);
+      await writeAudit(db, { actor: user, module: "Auth", action: "login", text: `Sign-in code sent to ${user.name}`, entityType: "User", entityId: user.id, meta });
+      throw new OtpRequired();
+    }
+    if (!(await verifyLoginOtp(user.id, otp))) {
+      await writeAudit(db, { actor: user, module: "Auth", action: "login_failed", text: `Wrong or expired sign-in code for ${user.name}`, entityType: "User", entityId: user.id, meta });
+      throw new InvalidOtp();
+    }
+  }
+
   await db.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
-  await writeAudit(db, { actor: user, module: "Auth", action: "login", text: `${user.name} signed in`, entityType: "User", entityId: user.id, meta });
+  await writeAudit(db, { actor: user, module: "Auth", action: "login", text: `${user.name} signed in${otp ? " (with a sign-in code)" : ""}`, entityType: "User", entityId: user.id, meta });
   return { id: user.id, email: user.email, name: user.name, remember: remember === "1", sessionVersion: user.sessionVersion };
 }
 
@@ -64,7 +86,7 @@ function buildConfig(): NextAuthConfig {
   const providers: NextAuthConfig["providers"] = [
     Credentials({
       id: "credentials",
-      credentials: { email: {}, password: {}, remember: {} },
+      credentials: { email: {}, password: {}, remember: {}, otp: {} },
       authorize: authorizeWithPassword,
     }),
   ];
