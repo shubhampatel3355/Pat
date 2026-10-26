@@ -90,7 +90,7 @@ function MoneyCell({ label, value, onChange, disabled }: { label: string; value:
   return (
     <label className="flex min-w-0 flex-col gap-1">
       <span className="sr-only">{label}</span>
-      <span className="flex h-10 items-center gap-1.5 rounded-[12px] bg-white px-3 shadow-inset focus-within:shadow-focus">
+      <span className="flex h-10 items-center gap-1.5 rounded-[12px] bg-raised px-3 shadow-inset focus-within:shadow-focus">
         <span className="text-sm text-muted">₹</span>
         <input aria-label={label} inputMode="decimal" value={value} disabled={disabled} placeholder="Not set" onChange={(e) => onChange(e.target.value.replace(/[^\d,.]/g, ""))} className="min-w-0 flex-1 border-0 bg-transparent text-sm outline-none disabled:text-muted" />
       </span>
@@ -141,7 +141,7 @@ function TargetsEditor({ targets, canEdit }: { targets: TargetsView; canEdit: bo
           </select>
           <span role="tablist" aria-label="Quarter" className="flex gap-0.5 rounded-pill bg-surface p-0.5">
             {[1, 2, 3, 4].map((q) => (
-              <button key={q} type="button" role="tab" aria-selected={q === targets.quarter} onClick={() => go(targets.fy.startYear, q)} className={cn("hit-44 h-7 rounded-pill border-0 px-3 text-xs font-medium", q === targets.quarter ? "bg-white text-ink shadow-seg" : "bg-transparent text-muted")}>
+              <button key={q} type="button" role="tab" aria-selected={q === targets.quarter} onClick={() => go(targets.fy.startYear, q)} className={cn("hit-44 h-7 rounded-pill border-0 px-3 text-xs font-medium", q === targets.quarter ? "bg-raised text-ink shadow-seg" : "bg-transparent text-muted")}>
                 Q{q}
               </button>
             ))}
@@ -303,7 +303,7 @@ export function AuditTab({ modules, module, rows, next }: { modules: readonly st
         {[null, ...modules].map((m) => {
           const active = (m ?? null) === module;
           return (
-            <Link key={m ?? "all"} href={href(m)} aria-current={active ? "true" : undefined} className={cn("hit-44 flex h-8 items-center rounded-pill px-3 text-xs", active ? "bg-primary text-white hover:text-white" : "bg-chip text-ink hover:bg-[#bdbdc0] hover:text-ink")}>
+            <Link key={m ?? "all"} href={href(m)} aria-current={active ? "true" : undefined} className={cn("hit-44 flex h-8 items-center rounded-pill px-3 text-xs", active ? "bg-primary text-white hover:text-white" : "bg-chip text-ink hover:bg-track hover:text-ink")}>
               {m ?? "All"}
             </Link>
           );
@@ -319,7 +319,7 @@ export function AuditTab({ modules, module, rows, next }: { modules: readonly st
                 <Avatar initials={a.initials} size={28} ring={false} />
                 <span className="flex min-w-0 flex-col">
                   {details ? (
-                    <button type="button" aria-expanded={open === a.id} onClick={() => setOpen(open === a.id ? null : a.id)} className="truncate border-0 bg-transparent p-0 text-left text-[13px] text-ink hover:text-primary">
+                    <button type="button" aria-expanded={open === a.id} onClick={() => setOpen(open === a.id ? null : a.id)} className="truncate border-0 bg-transparent p-0 text-left text-[13px] text-ink hover:text-link">
                       {a.text}
                     </button>
                   ) : (
@@ -347,7 +347,7 @@ export function AuditTab({ modules, module, rows, next }: { modules: readonly st
                   ).map(([label, json]) => (
                     <div key={label} className="flex min-w-0 flex-col gap-1">
                       <span className="text-[11px] font-medium text-muted">{label}</span>
-                      <pre className="pm-scroll m-0 max-h-60 overflow-auto rounded-[12px] bg-white p-2.5 text-[11px] leading-4">{json ?? "—"}</pre>
+                      <pre className="pm-scroll m-0 max-h-60 overflow-auto rounded-[12px] bg-raised p-2.5 text-[11px] leading-4">{json ?? "—"}</pre>
                     </div>
                   ))}
                 </div>
@@ -357,7 +357,7 @@ export function AuditTab({ modules, module, rows, next }: { modules: readonly st
         })}
       </div>
       {next && (
-        <Link href={href(module, next)} className="hit-44 inline-flex h-10 items-center self-center rounded-pill bg-surface px-5 text-[13px] font-medium text-ink shadow-raised hover:bg-white hover:text-ink">
+        <Link href={href(module, next)} className="hit-44 inline-flex h-10 items-center self-center rounded-pill bg-surface px-5 text-[13px] font-medium text-ink shadow-raised hover:bg-raised hover:text-ink">
           Older entries
         </Link>
       )}

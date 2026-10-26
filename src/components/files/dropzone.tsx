@@ -46,7 +46,7 @@ export function Dropzone({
         )}
       >
         <span className="flex h-10 w-10 items-center justify-center rounded-pill bg-chip-2">
-          <Icon name="upload" size={18} strokeWidth={1.6} color="#023E7D" />
+          <Icon name="upload" size={18} strokeWidth={1.6} color="var(--color-link)" />
         </span>
         <span className="text-[13px] font-medium">{title}</span>
         <span className="text-[11px] text-muted">{hint}</span>
@@ -75,7 +75,7 @@ export function Dropzone({
             title="Remove"
             aria-label={`Remove ${f.name}`}
             onClick={() => onChange(files.filter((_, j) => j !== i))}
-            className="hit-44 h-7 w-7 flex-none rounded-pill border-0 bg-chip-2 text-sm text-muted hover:bg-white"
+            className="hit-44 h-7 w-7 flex-none rounded-pill border-0 bg-chip-2 text-sm text-muted hover:bg-raised"
           >
             ×
           </button>

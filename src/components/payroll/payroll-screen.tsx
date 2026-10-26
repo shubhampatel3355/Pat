@@ -77,8 +77,8 @@ export function PayrollScreen({ run, next, employees, manager, canRun }: Payroll
           <div className="flex flex-col gap-3 rounded-[20px] bg-card px-4 pb-3 pt-4 shadow-raised">
             <span className="text-sm font-medium">{run.label} run</span>
             <div className="relative py-1">
-              <span className="absolute left-[16.6%] right-[16.6%] top-[18px] h-0.5 rounded-pill bg-[#BDBDC0]" />
-              <span className="absolute left-[16.6%] top-[18px] h-0.5 rounded-pill bg-[linear-gradient(90deg,#5C7FA8,#023E7D)] transition-[width] duration-500" style={{ width: `${(step / 2) * 66.8}%` }} />
+              <span className="absolute left-[16.6%] right-[16.6%] top-[18px] h-0.5 rounded-pill bg-track" />
+              <span className="absolute left-[16.6%] top-[18px] h-0.5 rounded-pill bg-[linear-gradient(90deg,light-dark(#5C7FA8,#7EA7D8),var(--color-primary))] transition-[width] duration-500" style={{ width: `${(step / 2) * 66.8}%` }} />
               <ol className="relative m-0 grid list-none grid-cols-3 p-0">
                 {[
                   ["Review", `Opened ${formatDayMonth(run.openedOn)}`],
@@ -91,11 +91,11 @@ export function PayrollScreen({ run, next, employees, manager, canRun }: Payroll
                     <li key={label} className="flex flex-col items-center gap-1.5" aria-current={i === step ? "step" : undefined}>
                       <span
                         className="flex h-7 w-7 items-center justify-center rounded-pill transition-colors duration-300"
-                        style={{ background: done ? "#023E7D" : current ? "#fff" : "#E8E8E8", border: current ? "1.5px solid #023E7D" : "none", boxShadow: i === step ? "0 0 0 4px rgba(2,62,125,.14)" : "none" }}
+                        style={{ background: done ? "var(--color-primary)" : current ? "var(--color-raised)" : "var(--color-surface)", border: current ? "1.5px solid var(--color-primary)" : "none", boxShadow: i === step ? "0 0 0 4px var(--color-primary-tint)" : "none" }}
                       >
-                        {(done || current) && <CheckGlyph color={done ? "#fff" : "#023E7D"} />}
+                        {(done || current) && <CheckGlyph color={done ? "#fff" : "var(--color-link)"} />}
                       </span>
-                      <span className="text-[11px]" style={{ color: i <= step ? "#1C1C1E" : "#55555A" }}>
+                      <span className="text-[11px]" style={{ color: i <= step ? "var(--color-ink)" : "var(--color-muted)" }}>
                         {label}
                       </span>
                       <span className="text-center text-[10px] text-muted">{when}</span>

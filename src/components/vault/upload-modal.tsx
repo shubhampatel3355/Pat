@@ -70,7 +70,7 @@ export function UploadModal({
               aria-checked={active}
               onClick={() => setTarget(f.key)}
               className="flex min-h-12 items-center gap-2.5 rounded-row border-0 px-3 py-1.5 text-left text-sm"
-              style={{ background: active ? "#fff" : "#E8E8E8", boxShadow: active ? "0 0 0 1.5px #023E7D" : "none" }}
+              style={{ background: active ? "var(--color-raised)" : "var(--color-surface)", boxShadow: active ? "0 0 0 1.5px var(--color-primary)" : "none" }}
             >
               <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-primary">
                 <Icon name="folder" size={15} color="#fff" />

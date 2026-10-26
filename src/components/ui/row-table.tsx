@@ -1,8 +1,8 @@
 import { cn } from "./cn";
 
 /**
- * The prototype's list pattern: a #D1D1D1 tray (radius 24, padding 8) holding a header row and
- * #E8E8E8 row cards (radius 16, min-height 56) on a shared CSS grid template.
+ * The prototype's list pattern: a tray (`card`, radius 24, padding 8) holding a header row and
+ * row cards (`surface`, radius 16, min-height 56) on a shared CSS grid template.
  */
 export function RowTable({ minWidth, columns, label, children, className }: { minWidth: number; columns: string; label: string; children: React.ReactNode; className?: string }) {
   return (
@@ -38,7 +38,7 @@ export function Row({ id, children, highlighted, className, style, onClick }: { 
       onClick={onClick}
       className={cn(
         "grid min-h-14 items-center gap-3 rounded-row px-3 text-[13px] transition-[background-color,box-shadow] duration-[1000ms,120ms] hover:shadow-hover",
-        highlighted ? "bg-[rgba(2,62,125,.14)]" : "bg-surface",
+        highlighted ? "bg-primary-tint" : "bg-surface",
         onClick && "cursor-pointer",
         className,
       )}

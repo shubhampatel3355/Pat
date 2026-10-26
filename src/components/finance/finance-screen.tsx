@@ -120,7 +120,7 @@ export function FinanceScreen({ fy, years, periodLabel, cards, entries, today, i
                     <span
                       aria-hidden="true"
                       className="flex h-7 w-7 flex-none items-center justify-center rounded-pill text-[13px]"
-                      style={{ background: income ? tint("#3E9B52") : "#DCDCDC", color: income ? "#3E9B52" : "#55555A" }}
+                      style={{ background: income ? tint("#3E9B52") : "var(--color-chip-2)", color: income ? "#3E9B52" : "var(--color-muted)" }}
                     >
                       {income ? "↓" : "↑"}
                     </span>
@@ -173,7 +173,7 @@ function ExportMenu({ fy }: { fy: number }) {
               ["pdf", "PDF report"],
             ] as const
           ).map(([format, label]) => (
-            <button key={format} type="button" role="menuitem" onClick={() => get(format)} className="flex h-10 items-center gap-2.5 rounded-[14px] border-0 bg-transparent px-2 text-left text-sm hover:bg-white/70">
+            <button key={format} type="button" role="menuitem" onClick={() => get(format)} className="flex h-10 items-center gap-2.5 rounded-[14px] border-0 bg-transparent px-2 text-left text-sm hover:bg-raised/70">
               <span className="flex h-7 w-7 items-center justify-center rounded-pill bg-surface">
                 <Icon name={format === "pdf" ? "print" : "download"} size={14} />
               </span>

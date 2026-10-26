@@ -16,7 +16,7 @@ import { TodoCard } from "./todo-card";
 
 const CARD = "flex flex-col gap-2.5 rounded-card bg-surface p-4 shadow-lifted";
 const STAT = "flex flex-col gap-0.5 rounded-row bg-chip-2 px-3 py-2.5";
-const ROW = "flex min-h-11 items-center gap-2 rounded-[14px] bg-chip-2 px-2.5 py-1.5 text-ink hover:bg-white hover:text-ink";
+const ROW = "flex min-h-11 items-center gap-2 rounded-[14px] bg-chip-2 px-2.5 py-1.5 text-ink hover:bg-raised hover:text-ink";
 
 function CardHeader({ icon, title, href, linkLabel }: { icon: IconName; title: string; href?: string; linkLabel?: string }) {
   return (
@@ -99,7 +99,7 @@ function RevenueCard({ revenue, canOpenFinance }: { revenue: NonNullable<Dashboa
         </select>
       </label>
       {picked && (
-        <div className="flex items-baseline justify-between rounded-row bg-[rgba(2,62,125,.1)] px-3 py-2.5">
+        <div className="flex items-baseline justify-between rounded-row bg-primary-tint px-3 py-2.5">
           <span className="text-xs text-muted">{picked.label.replace(" (last)", "")}</span>
           <span className="text-[22px] font-light">{formatCompactINR(picked.valuePaise)}</span>
         </div>
@@ -192,14 +192,14 @@ function MyDayCard({ items, today }: { items: EmployeeCards["day"]; today: strin
           return (
             <li key={d.id}>
               <Link href={d.href} className={ROW}>
-                <span className="flex h-7 w-7 flex-none items-center justify-center rounded-pill bg-[rgba(2,62,125,.14)]">
-                  <Icon name={d.kind === "CAB" ? "car" : "clock"} size={13} strokeWidth={1.6} color="#023E7D" />
+                <span className="flex h-7 w-7 flex-none items-center justify-center rounded-pill bg-primary-tint">
+                  <Icon name={d.kind === "CAB" ? "car" : "clock"} size={13} strokeWidth={1.6} color="var(--color-link)" />
                 </span>
                 <span className="flex min-w-0 flex-1 flex-col">
                   <span className="truncate text-[13px]">{d.title}</span>
                   <span className="truncate text-[11px] text-muted">{d.sub}</span>
                 </span>
-                <span className={`flex h-[22px] flex-none items-center whitespace-nowrap rounded-pill px-[9px] text-[10px] font-medium ${overdue ? "bg-danger text-white" : "bg-[rgba(2,62,125,.14)] text-navy-950"}`}>
+                <span className={`flex h-[22px] flex-none items-center whitespace-nowrap rounded-pill px-[9px] text-[10px] font-medium ${overdue ? "bg-danger-fill text-white" : "bg-primary-tint text-navy-950"}`}>
                   {overdue ? "Overdue" : `${formatDayMonth(d.date)}${d.time ? ` ${formatTime12(d.time)}` : ""}`}
                 </span>
               </Link>
@@ -258,9 +258,9 @@ export function DashboardScreen({ data, greeting, dateLabel }: { data: Dashboard
           <div className="flex items-center gap-2">
             <span
               className="flex h-6 items-center gap-1.5 rounded-pill px-2.5 text-[11px] font-medium"
-              style={{ background: partnerView ? "rgba(2,62,125,.14)" : "#C7C7C7", color: partnerView ? "#001233" : "var(--color-muted-strong)" }}
+              style={{ background: partnerView ? "var(--color-primary-tint)" : "var(--color-chip)", color: partnerView ? "var(--color-navy-950)" : "var(--color-muted-strong)" }}
             >
-              <span className="h-1.5 w-1.5 rounded-pill" style={{ background: partnerView ? "#001233" : "var(--color-muted-strong)" }} />
+              <span className="h-1.5 w-1.5 rounded-pill" style={{ background: partnerView ? "var(--color-navy-950)" : "var(--color-muted-strong)" }} />
               {data.viewLabel}
             </span>
             <span className="text-xs text-muted">{dateLabel}</span>

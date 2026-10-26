@@ -75,7 +75,7 @@ export function Toggle({
       onClick={() => onChange(!checked)}
       className={cn("hit-44 inline-flex items-center gap-2.5 border-0 bg-transparent p-0 text-[13px] text-muted disabled:cursor-not-allowed disabled:opacity-60", className)}
     >
-      <span className="relative h-6 w-10 flex-none rounded-pill transition-colors duration-200" style={{ background: checked ? "#023E7D" : "#C7C7C7" }}>
+      <span className="relative h-6 w-10 flex-none rounded-pill transition-colors duration-200" style={{ background: checked ? "var(--color-primary)" : "var(--color-chip)" }}>
         <span
           className="absolute left-[3px] top-[3px] h-[18px] w-[18px] rounded-pill bg-white shadow-[0_1px_3px_rgba(0,0,0,.2)] transition-transform duration-200 ease-spring"
           style={{ transform: `translateX(${checked ? 16 : 0}px)` }}

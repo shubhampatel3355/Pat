@@ -216,7 +216,7 @@ export function VehiclesScreen({ rows, stats, people, places, me, today, default
                     </Button>
                   )}
                   {r.canCancel && (
-                    <button type="button" onClick={() => setCancelling(r)} className="hit-44 h-[30px] rounded-pill border-0 bg-chip-2 px-3 text-xs text-danger hover:bg-white">
+                    <button type="button" onClick={() => setCancelling(r)} className="hit-44 h-[30px] rounded-pill border-0 bg-chip-2 px-3 text-xs text-danger hover:bg-raised">
                       Cancel
                     </button>
                   )}

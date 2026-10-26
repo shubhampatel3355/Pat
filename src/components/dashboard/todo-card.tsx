@@ -84,8 +84,8 @@ export function TodoCard({ todos, today }: { todos: TodoDto[]; today: string }) 
         </div>
         <div className="relative h-9 w-9 flex-none" role="img" aria-label={`${pct}% done`}>
           <svg viewBox="0 0 36 36" className="h-full w-full">
-            <circle cx="18" cy="18" r="14" fill="none" stroke="#D1D1D1" strokeWidth="3.5" />
-            <circle cx="18" cy="18" r="14" fill="none" stroke="#023E7D" strokeWidth="3.5" strokeLinecap="round" pathLength={100} strokeDasharray={`${pct} 100`} transform="rotate(-90 18 18)" style={{ transition: "stroke-dasharray .6s cubic-bezier(.22,1,.36,1)" }} />
+            <circle cx="18" cy="18" r="14" fill="none" className="stroke-card" strokeWidth="3.5" />
+            <circle cx="18" cy="18" r="14" fill="none" className="stroke-primary" strokeWidth="3.5" strokeLinecap="round" pathLength={100} strokeDasharray={`${pct} 100`} transform="rotate(-90 18 18)" style={{ transition: "stroke-dasharray .6s cubic-bezier(.22,1,.36,1)" }} />
           </svg>
           <span className="absolute inset-0 flex items-center justify-center text-[9px] font-medium">{pct}%</span>
         </div>
@@ -100,7 +100,7 @@ export function TodoCard({ todos, today }: { todos: TodoDto[]; today: string }) 
             aria-selected={filter === k}
             onClick={() => setFilter(k)}
             className="hit-44 flex h-7 flex-none items-center gap-1.5 rounded-pill border-0 px-2.5 text-[11px] font-medium transition-colors duration-150"
-            style={{ background: filter === k ? "#023E7D" : "#D1D1D1", color: filter === k ? "#fff" : "#1C1C1E" }}
+            style={{ background: filter === k ? "var(--color-primary)" : "var(--color-card)", color: filter === k ? "#fff" : "var(--color-ink)" }}
           >
             {label}
             <span className="opacity-75">{items.filter((t) => !t.done).filter(match[k]).length}</span>
@@ -132,10 +132,10 @@ export function TodoCard({ todos, today }: { todos: TodoDto[]; today: string }) 
             ))}
           </select>
           <input type="time" aria-label="Time" value={time} onChange={(e) => setTime(e.target.value)} className={pill} disabled={due === "NONE"} />
-          <button type="button" aria-pressed={star} onClick={() => setStar((s) => !s)} className="hit-44 h-7 rounded-pill border-0 px-2.5 text-[11px]" style={{ background: star ? "#023E7D" : "#E2E2E2", color: star ? "#fff" : "#1C1C1E" }}>
+          <button type="button" aria-pressed={star} onClick={() => setStar((s) => !s)} className="hit-44 h-7 rounded-pill border-0 px-2.5 text-[11px]" style={{ background: star ? "var(--color-primary)" : "var(--color-chip-3)", color: star ? "#fff" : "var(--color-ink)" }}>
             ★ Important
           </button>
-          <button type="button" aria-pressed={remind} onClick={() => setRemind((r) => !r)} className="hit-44 h-7 rounded-pill border-0 px-2.5 text-[11px]" style={{ background: remind ? "#023E7D" : "#E2E2E2", color: remind ? "#fff" : "#1C1C1E" }}>
+          <button type="button" aria-pressed={remind} onClick={() => setRemind((r) => !r)} className="hit-44 h-7 rounded-pill border-0 px-2.5 text-[11px]" style={{ background: remind ? "var(--color-primary)" : "var(--color-chip-3)", color: remind ? "#fff" : "var(--color-ink)" }}>
             🔔 Remind
           </button>
         </div>
@@ -149,7 +149,7 @@ export function TodoCard({ todos, today }: { todos: TodoDto[]; today: string }) 
             <li
               key={t.id}
               className="flex flex-col rounded-xl transition-[background-color,opacity] duration-300"
-              style={{ background: t.done ? "#DCDCDC" : "#F0F0F0", opacity: t.done ? 0.6 : 1, animation: `pmaIn .5s cubic-bezier(.16,1,.3,1) ${i * 50}ms both` }}
+              style={{ background: t.done ? "var(--color-chip-2)" : "var(--color-field)", opacity: t.done ? 0.6 : 1, animation: `pmaIn .5s cubic-bezier(.16,1,.3,1) ${i * 50}ms both` }}
             >
               <div className="flex min-h-10 items-center gap-2 px-2 py-1">
                 <button
@@ -162,7 +162,7 @@ export function TodoCard({ todos, today }: { todos: TodoDto[]; today: string }) 
                     })
                   }
                   className="hit-44 flex h-5 w-5 flex-none items-center justify-center rounded-pill p-0 transition-colors duration-200"
-                  style={{ border: `1.5px solid ${t.done ? "#023E7D" : "#A8A8AD"}`, background: t.done ? "#023E7D" : "transparent", animation: t.done ? "pmaPop .5s cubic-bezier(.16,1,.3,1)" : undefined }}
+                  style={{ border: `1.5px solid ${t.done ? "var(--color-primary)" : "var(--color-neutral)"}`, background: t.done ? "var(--color-primary)" : "transparent", animation: t.done ? "pmaPop .5s cubic-bezier(.16,1,.3,1)" : undefined }}
                 >
                   <CheckGlyph />
                 </button>
@@ -170,7 +170,7 @@ export function TodoCard({ todos, today }: { todos: TodoDto[]; today: string }) 
                   <span className="truncate text-xs leading-4" style={{ textDecoration: t.done ? "line-through" : "none" }}>
                     {t.text}
                   </span>
-                  <span className="flex items-center gap-1.5 truncate text-[10px]" style={{ color: !t.done && t.dueDate === today ? "#023E7D" : "#55555A" }}>
+                  <span className="flex items-center gap-1.5 truncate text-[10px]" style={{ color: !t.done && t.dueDate === today ? "var(--color-link)" : "var(--color-muted)" }}>
                     {t.done ? "Completed" : whenLabel(t.dueDate, t.dueTime, today)}
                     {t.note && <span className="text-muted">· note</span>}
                   </span>
@@ -193,7 +193,7 @@ export function TodoCard({ todos, today }: { todos: TodoDto[]; today: string }) 
                   aria-pressed={t.important}
                   onClick={() => patch(t, { important: !t.important }, { important: !t.important })}
                   className="hit-44 h-6 w-6 flex-none rounded-pill border-0 bg-transparent text-sm hover:bg-chip-2"
-                  style={{ color: t.important ? "#023E7D" : "#55555A" }}
+                  style={{ color: t.important ? "var(--color-link)" : "var(--color-muted)" }}
                 >
                   {t.important ? "★" : "☆"}
                 </button>
@@ -231,7 +231,7 @@ export function TodoCard({ todos, today }: { todos: TodoDto[]; today: string }) 
                   <button
                     type="button"
                     onClick={() => run({ kind: "remove", id: t.id }, () => deleteTodoAction({ id: t.id }), () => setOpenId(null))}
-                    className="h-[26px] self-start rounded-pill border-0 bg-chip-2 px-2.5 text-[11px] text-danger hover:bg-white"
+                    className="h-[26px] self-start rounded-pill border-0 bg-chip-2 px-2.5 text-[11px] text-danger hover:bg-raised"
                   >
                     Delete task
                   </button>

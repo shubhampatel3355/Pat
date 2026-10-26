@@ -178,7 +178,7 @@ function MemberForm({ open, member, partners, canSeeCtc, canMakeOwner, canUpload
             <span className="text-[13px] font-medium">{active ? "Active" : "Deactivated"}</span>
             <span className="text-[11px] text-muted">{active ? "Can sign in" : "Signed out everywhere; cannot sign in"}</span>
           </span>
-          <input type="checkbox" className="h-5 w-5 accent-[#023E7D]" checked={active} onChange={(e) => setActive(e.target.checked)} aria-label="Account active" />
+          <input type="checkbox" className="h-5 w-5 accent-primary" checked={active} onChange={(e) => setActive(e.target.checked)} aria-label="Account active" />
         </label>
       )}
       <FormError message={error} />

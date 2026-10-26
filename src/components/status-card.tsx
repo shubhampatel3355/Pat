@@ -7,7 +7,7 @@ export function StatusCard({ icon, title, body, children }: { icon: IconName; ti
   return (
     <div className="flex max-w-[560px] flex-col items-start gap-4 rounded-[20px] bg-card p-8 shadow-raised">
       <span className="flex h-14 w-14 items-center justify-center rounded-pill bg-surface">
-        <Icon name={icon} size={22} color="#023E7D" />
+        <Icon name={icon} size={22} color="var(--color-link)" />
       </span>
       <span className="text-[22px] font-normal tracking-[-.01em]">{title}</span>
       <span className="text-sm leading-5 text-muted">{body}</span>

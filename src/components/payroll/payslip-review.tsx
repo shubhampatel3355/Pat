@@ -64,7 +64,7 @@ function MoneyInput({ label, value, onChange, placeholder }: { label: string; va
   return (
     <label className="flex flex-col gap-1.5">
       <span className="text-xs font-medium text-muted">{label}</span>
-      <span className="flex h-10 items-center gap-2 rounded-[14px] bg-white px-3 shadow-inset focus-within:shadow-focus">
+      <span className="flex h-10 items-center gap-2 rounded-[14px] bg-raised px-3 shadow-inset focus-within:shadow-focus">
         <span className="text-sm text-muted">₹</span>
         <input inputMode="decimal" value={value} placeholder={placeholder ?? "0"} onChange={(e) => onChange(e.target.value.replace(/[^\d,.]/g, ""))} className="min-w-0 flex-1 border-0 bg-transparent text-sm outline-none" />
       </span>
@@ -95,7 +95,7 @@ function PayslipEditor({ slip, onDone }: { slip: PayslipRowDto; onDone: () => vo
       </div>
       <label className="flex flex-col gap-1.5">
         <span className="text-xs font-medium text-muted">Note on the payslip</span>
-        <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Includes Q2 incentive" className={inputClass("light", "h-10 bg-white px-3")} />
+        <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Includes Q2 incentive" className={inputClass("light", "h-10 bg-raised px-3")} />
       </label>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <Toggle showLabel label="Hold this payslip" checked={hold} onChange={setHold} />

@@ -95,7 +95,7 @@ export function Drawer({ open, onClose, title, subtitle, children, footer, width
   useDialogBehaviour(open, onClose, panel);
   if (!open || !root) return null;
   return createPortal(
-    <div className="absolute inset-0 z-[57] bg-[rgba(2,62,125,.06)] backdrop-blur-[4px]" onClick={onClose}>
+    <div className="absolute inset-0 z-[57] bg-backdrop backdrop-blur-[4px]" onClick={onClose}>
       <div
         ref={panel}
         role="dialog"
@@ -131,7 +131,7 @@ export function Modal({ open, onClose, title, subtitle, children, footer, width 
   useDialogBehaviour(open, onClose, panel);
   if (!open || !root) return null;
   return createPortal(
-    <div className={cn("absolute inset-0 flex items-center justify-center bg-[rgba(2,62,125,.06)] p-4 backdrop-blur-[6px]", stacked ? "z-[59]" : "z-[55]")} onClick={onClose}>
+    <div className={cn("absolute inset-0 flex items-center justify-center bg-backdrop p-4 backdrop-blur-[6px]", stacked ? "z-[59]" : "z-[55]")} onClick={onClose}>
       <div
         ref={panel}
         role="dialog"

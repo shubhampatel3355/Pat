@@ -29,7 +29,7 @@ export function DocViewer({ data, company, onClose, actions = [] }: { data: Invo
       aria-modal="true"
       aria-label={`${data.kind === "PROFORMA" ? "Proforma invoice" : data.kind === "CREDIT_NOTE" ? "Credit note" : "Invoice"} ${data.number}`}
       onClick={onClose}
-      className="pm-scroll absolute inset-0 z-[60] flex flex-col items-center gap-3 overflow-y-auto bg-[rgba(0,18,51,.55)] p-4 backdrop-blur-[8px]"
+      className="pm-scroll absolute inset-0 z-[60] flex flex-col items-center gap-3 overflow-y-auto bg-[rgba(0,18,51,.55)] p-4 backdrop-blur-[8px] scheme-light"
     >
       <div onClick={(e) => e.stopPropagation()} className="sticky top-0 z-[2] flex w-full max-w-[820px] flex-wrap justify-end gap-2">
         {actions.map((a) => (

@@ -79,7 +79,7 @@ export function WipScreen({ rows, cards, users, me, today, monthEnd, defaultClos
         actions={
           <>
             <div className="flex h-10 items-center gap-2 rounded-pill bg-surface px-3.5 shadow-inset">
-              <Icon name="search" size={15} color="#55555A" />
+              <Icon name="search" size={15} color="var(--color-muted)" />
               <input
                 aria-label="Search WIP"
                 value={query}
@@ -153,7 +153,7 @@ export function WipScreen({ rows, cards, users, me, today, monthEnd, defaultClos
                 <Cell className="flex items-center gap-2.5">
                   <Avatar initials={r.initials} />
                   {r.canEdit ? (
-                    <button type="button" onClick={() => setDrawer({ open: true, row: r })} className="min-w-0 truncate border-0 bg-transparent p-0 text-left text-sm hover:text-primary" title={`Edit ${r.tenantName}`}>
+                    <button type="button" onClick={() => setDrawer({ open: true, row: r })} className="min-w-0 truncate border-0 bg-transparent p-0 text-left text-sm hover:text-link" title={`Edit ${r.tenantName}`}>
                       {r.tenantName}
                     </button>
                   ) : (
@@ -200,7 +200,7 @@ export function WipScreen({ rows, cards, users, me, today, monthEnd, defaultClos
                 <Cell>
                   <span
                     className="inline-flex h-6 items-center whitespace-nowrap rounded-pill px-2.5 text-[11px] font-medium"
-                    style={{ background: past ? "#023E7D" : soon ? "rgba(2,62,125,.14)" : "#DCDCDC", color: past ? "#fff" : soon ? "#001233" : "#55555A" }}
+                    style={{ background: past ? "var(--color-primary)" : soon ? "var(--color-primary-tint)" : "var(--color-chip-2)", color: past ? "#fff" : soon ? "var(--color-navy-950)" : "var(--color-muted)" }}
                   >
                     {formatDate(r.closureDate)}
                     {past ? " · overdue" : ""}
@@ -231,7 +231,7 @@ export function WipScreen({ rows, cards, users, me, today, monthEnd, defaultClos
                       {remarkMeta.label}
                     </span>
                   )}
-                  {r.canEdit && <Icon name="chevronDown" size={12} strokeWidth={2} color="#55555A" className="pointer-events-none absolute right-3" />}
+                  {r.canEdit && <Icon name="chevronDown" size={12} strokeWidth={2} color="var(--color-muted)" className="pointer-events-none absolute right-3" />}
                 </Cell>
             </Row>
           );

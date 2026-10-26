@@ -32,7 +32,7 @@ export function TaskDrawer({ task, today, onClose, onEdit }: { task: TaskDto; to
     ["Assignee", task.assignee.name],
     ["Due", task.dueAt ? instantLabel(task.dueAt, today) : "No due date"],
     ["Priority", TASK_PRIORITY[task.priority].label],
-    ["Linked to", task.lead ? <Link href={`/wip?focus=${task.lead.id}`} className="text-primary hover:underline">{task.lead.name}</Link> : "General"],
+    ["Linked to", task.lead ? <Link href={`/wip?focus=${task.lead.id}`} className="text-link hover:underline">{task.lead.name}</Link> : "General"],
   ];
 
   return (

@@ -167,7 +167,7 @@ function WipDrawerForm({ open, onClose, row, users, me, defaultClosure, canInvoi
             </Button>
           )}
           {row && canInvoice && (
-            <Link href={`/invoices?lead=${row.id}`} className="hit-44 mr-auto inline-flex h-10 items-center rounded-pill bg-surface px-[18px] text-[13px] font-medium text-ink hover:bg-white hover:text-ink">
+            <Link href={`/invoices?lead=${row.id}`} className="hit-44 mr-auto inline-flex h-10 items-center rounded-pill bg-surface px-[18px] text-[13px] font-medium text-ink hover:bg-raised hover:text-ink">
               Raise invoice
             </Link>
           )}

@@ -60,7 +60,7 @@ export function BdScreen({ rows, users, me, today, canSeeContacts }: BdScreenPro
         actions={
           <>
             <label className="flex h-10 items-center gap-2 rounded-pill bg-surface px-3.5 shadow-inset focus-within:shadow-focus">
-              <Icon name="search" size={15} color="#55555A" />
+              <Icon name="search" size={15} color="var(--color-muted)" />
               <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Tenant, contact, broker" aria-label="Search meetings" className="w-[180px] border-0 bg-transparent text-[13px] outline-none" />
             </label>
             <Button onClick={() => setDrawer({ open: true, row: null })}>+ New Meeting</Button>
@@ -102,7 +102,7 @@ export function BdScreen({ rows, users, me, today, canSeeContacts }: BdScreenPro
               <Cell>{formatDate(r.date)}</Cell>
               <Cell>
                 {r.canEdit ? (
-                  <button type="button" onClick={() => setDrawer({ open: true, row: r })} className="max-w-full truncate border-0 bg-transparent p-0 text-left text-sm text-ink hover:text-primary hover:underline">
+                  <button type="button" onClick={() => setDrawer({ open: true, row: r })} className="max-w-full truncate border-0 bg-transparent p-0 text-left text-sm text-ink hover:text-link hover:underline">
                     {r.tenantName}
                   </button>
                 ) : (
@@ -200,7 +200,7 @@ function CommentBox({ id, value, disabled }: { id: string; value: string; disabl
         if (text.trim() !== value.trim()) void action.run({ id, comments: text });
       }}
       placeholder={disabled ? "" : "Add comments"}
-      className="block h-[52px] w-full resize-none rounded-[12px] border-0 bg-[#F0F0F0] px-2.5 py-2 text-xs leading-4 shadow-inset outline-none focus:shadow-focus"
+      className="block h-[52px] w-full resize-none rounded-[12px] border-0 bg-field px-2.5 py-2 text-xs leading-4 shadow-inset outline-none focus:shadow-focus"
     />
   );
 }

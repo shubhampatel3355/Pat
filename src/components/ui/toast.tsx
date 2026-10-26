@@ -32,7 +32,7 @@ export function ToastProvider({ children, bottom = 24 }: { children: React.React
       <div aria-live="polite" role="status" className="pointer-events-none absolute left-1/2 z-[60] -translate-x-1/2" style={{ bottom }}>
         {toast && (
           <div key={toast.id} className="glass-menu flex h-11 animate-row-in items-center gap-2.5 whitespace-nowrap rounded-pill px-[18px] text-[13px] shadow-glass">
-            <span className="h-2 w-2 rounded-pill" style={{ background: toast.tone === "error" ? "#C93C37" : "#023E7D" }} />
+            <span className="h-2 w-2 rounded-pill" style={{ background: toast.tone === "error" ? "var(--color-danger)" : "var(--color-primary)" }} />
             {toast.message}
           </div>
         )}

@@ -1,5 +1,5 @@
-/** Progress ring (prototype: track #E2E2E2, stroke url(#pmGradB), rounded cap). `pct` 0–100. */
-export function Ring({ pct, size = 76, stroke = 8, track = "#E2E2E2", color = "url(#pmGradB)", label, children }: { pct: number; size?: number; stroke?: number; track?: string; color?: string; label?: string; children?: React.ReactNode }) {
+/** Progress ring (prototype: light track, stroke url(#pmGradB), rounded cap). `pct` 0–100. */
+export function Ring({ pct, size = 76, stroke = 8, track = "var(--color-chip-3)", color = "url(#pmGradB)", label, children }: { pct: number; size?: number; stroke?: number; track?: string; color?: string; label?: string; children?: React.ReactNode }) {
   const clamped = Math.max(0, Math.min(100, pct));
   return (
     <div className="relative flex-none" style={{ width: size, height: size }} role="img" aria-label={label ?? `${Math.round(clamped)}%`}>
@@ -35,8 +35,8 @@ export function SvgDefs() {
           <stop offset="1" stopColor="#E9E9E9" />
         </linearGradient>
         <linearGradient id="pmGradB" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="#023E7D" />
-          <stop offset="1" stopColor="#5C7FA8" />
+          <stop offset="0" style={{ stopColor: "var(--color-primary)" }} />
+          <stop offset="1" style={{ stopColor: "light-dark(#5C7FA8, #7EA7D8)" }} />
         </linearGradient>
         <linearGradient id="pmArea" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#023E7D" stopOpacity=".28" />

@@ -7,7 +7,7 @@ import { Toggle } from "@/components/ui/bits";
 import { Button } from "@/components/ui/button";
 import { FormError, inputClass } from "@/components/ui/field";
 import { googleLoginAction, loginAction } from "@/server/actions/auth";
-import { AuthHeading } from "../auth-card";
+import { AuthHeading } from "../auth-heading";
 
 const RESEND_SECONDS = 30;
 const EMPTY_CODE = ["", "", "", "", "", ""];
@@ -224,8 +224,8 @@ function OtpStep({
         )}
         <div className="flex items-center gap-2.5">
           <svg width="36" height="36" viewBox="0 0 100 100" aria-hidden="true">
-            <circle cx="50" cy="50" r="40" fill="none" stroke="#C7C7C7" strokeWidth="8" />
-            <circle cx="50" cy="50" r="40" fill="none" stroke="#023E7D" strokeWidth="8" strokeLinecap="round" pathLength={100} strokeDasharray={`${(wait / RESEND_SECONDS) * 100} 100`} transform="rotate(-90 50 50)" className="transition-[stroke-dasharray] duration-1000 ease-linear" />
+            <circle cx="50" cy="50" r="40" fill="none" className="stroke-chip" strokeWidth="8" />
+            <circle cx="50" cy="50" r="40" fill="none" strokeWidth="8" strokeLinecap="round" pathLength={100} strokeDasharray={`${(wait / RESEND_SECONDS) * 100} 100`} transform="rotate(-90 50 50)" className="stroke-primary transition-[stroke-dasharray] duration-1000 ease-linear" />
           </svg>
           {wait > 0 ? (
             <span className="text-[13px] text-muted">
@@ -241,7 +241,7 @@ function OtpStep({
                 boxes.current[0]?.focus();
                 onResend();
               }}
-              className="hit-44 border-0 bg-transparent p-0 text-[13px] text-primary"
+              className="hit-44 border-0 bg-transparent p-0 text-[13px] text-link"
             >
               Resend code
             </button>

@@ -135,8 +135,8 @@ function BdDrawerForm({ open, row, users, me, today, canSeeContacts, onClose, on
           Client contact info · visible to Admin and Owners only
         </span>
         <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] gap-2">
-          <input inputMode="tel" aria-label="Client phone" value={f.phone} onChange={(e) => set("phone", e.target.value)} placeholder={hiddenHint ?? "Phone"} className="h-10 min-w-0 rounded-[12px] border-0 bg-[#F0F0F0] px-3 text-sm shadow-inset outline-none focus:shadow-focus" />
-          <input type="email" aria-label="Client email" value={f.email} onChange={(e) => set("email", e.target.value)} placeholder={hiddenHint ?? "Email"} className="h-10 min-w-0 rounded-[12px] border-0 bg-[#F0F0F0] px-3 text-sm shadow-inset outline-none focus:shadow-focus" />
+          <input inputMode="tel" aria-label="Client phone" value={f.phone} onChange={(e) => set("phone", e.target.value)} placeholder={hiddenHint ?? "Phone"} className="h-10 min-w-0 rounded-[12px] border-0 bg-field px-3 text-sm shadow-inset outline-none focus:shadow-focus" />
+          <input type="email" aria-label="Client email" value={f.email} onChange={(e) => set("email", e.target.value)} placeholder={hiddenHint ?? "Email"} className="h-10 min-w-0 rounded-[12px] border-0 bg-field px-3 text-sm shadow-inset outline-none focus:shadow-focus" />
         </div>
       </div>
 

@@ -11,6 +11,7 @@ import { Icon } from "../ui/icon";
 import { SvgDefs } from "../ui/ring";
 import { ToastProvider } from "../ui/toast";
 import { useDismiss } from "../ui/use-dismiss";
+import { ThemeSwitch } from "../theme/theme-switch";
 import { CelebrationWatcher } from "./celebration-watcher";
 import { CommandPalette } from "./command-palette";
 import { LiveProvider, useLive, type LiveSnapshot } from "./live";
@@ -47,7 +48,7 @@ export function AppShell({ user, nav, quickCreate, view, live, children }: AppSh
       <div className="flex h-dvh">
         <div id="pm-frame" className="relative min-w-0 flex-1 overflow-hidden bg-frame">
           <SvgDefs />
-          <a href="#pm-content" className="sr-only-focusable rounded-pill bg-white px-4 py-2 text-sm">
+          <a href="#pm-content" className="sr-only-focusable rounded-pill bg-raised px-4 py-2 text-sm">
             Skip to content
           </a>
           <ToastProvider>
@@ -83,7 +84,7 @@ function TopBar({ user, quickCreate, view, onOpenSearch }: { user: ShellUser; qu
       <div className="flex min-w-0 items-center gap-2">
         <Link href="/dashboard" title="Dashboard" aria-label="Dashboard" className={cn("hit-44 flex h-10 w-10 flex-none items-center justify-center rounded-pill", RAISED)}>
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-            <path d={BRAND_MARK} fill="#023E7D" />
+            <path d={BRAND_MARK} style={{ fill: "light-dark(#023E7D, #9CC3FF)" }} />
           </svg>
         </Link>
         <button type="button" onClick={() => router.back()} title="Back" aria-label="Back" className={cn("hit-44 flex h-10 w-10 flex-none items-center justify-center rounded-pill border-0 transition-transform duration-150 hover:bg-field active:scale-[.97]", RAISED)}>
@@ -96,7 +97,7 @@ function TopBar({ user, quickCreate, view, onOpenSearch }: { user: ShellUser; qu
           aria-keyshortcuts={isMac ? "Meta+K" : "Control+K"}
           className={cn("hit-44 flex h-10 flex-none items-center gap-2.5 rounded-pill border-0 pl-[11px] pr-3.5 text-[13px] text-muted hover:bg-field", RAISED)}
         >
-          <Icon name="search" size={18} color="#1C1C1E" />
+          <Icon name="search" size={18} color="var(--color-ink)" />
           <span className="max-md:hidden">Search</span>
           <span className="rounded-pill bg-card px-[7px] py-0.5 text-[11px] max-md:hidden">{isMac ? "⌘K" : "Ctrl K"}</span>
         </button>
@@ -151,7 +152,7 @@ function ViewSwitch({ view }: { view: ShellView }) {
         >
           <span
             className="flex h-[26px] w-[26px] items-center justify-center rounded-pill text-[11px] font-medium shadow-avatar"
-            style={{ background: index === i ? "#023E7D" : "#C7C7C7", color: index === i ? "#fff" : "var(--color-muted-strong)" }}
+            style={{ background: index === i ? "var(--color-primary)" : "var(--color-chip)", color: index === i ? "#fff" : "var(--color-muted-strong)" }}
           >
             {p.initials}
           </span>
@@ -182,7 +183,7 @@ function QuickCreate({ items }: { items: ShellQuickItem[] }) {
         <div role="menu" className="glass-menu absolute right-0 top-12 z-40 flex w-[220px] flex-col gap-0.5 rounded-[20px] p-2 shadow-glass">
           <span className="px-2.5 py-1.5 text-[11px] text-muted">Create new</span>
           {items.map((q) => (
-            <Link key={q.label} href={q.href} role="menuitem" onClick={close} className="flex h-10 items-center gap-2.5 rounded-[14px] px-2 text-left text-sm text-ink hover:bg-white/70 hover:text-ink">
+            <Link key={q.label} href={q.href} role="menuitem" onClick={close} className="flex h-10 items-center gap-2.5 rounded-[14px] px-2 text-left text-sm text-ink hover:bg-raised/70 hover:text-ink">
               <span className="flex h-7 w-7 items-center justify-center rounded-pill bg-surface">
                 <Icon name={q.icon} size={14} />
               </span>
@@ -218,11 +219,15 @@ function ProfileMenu({ user }: { user: ShellUser }) {
         </span>
       </button>
       {open && (
-        <div role="menu" className="glass-menu absolute right-0 top-12 z-40 flex w-[220px] flex-col gap-0.5 rounded-[20px] p-2 shadow-glass">
+        <div role="menu" className="glass-menu absolute right-0 top-12 z-40 flex w-[240px] flex-col gap-0.5 rounded-[20px] p-2 shadow-glass">
           <span className="px-2.5 py-1.5 text-[11px] text-muted">
             Signed in as {user.role === "OWNER" ? "Owner" : user.role === "ADMIN" ? "Admin" : "Employee"}
           </span>
-          <Link href="/change-password" role="menuitem" onClick={close} className="flex h-10 items-center gap-2.5 rounded-[14px] px-2 text-sm text-ink hover:bg-white/70 hover:text-ink">
+          <div className="flex items-center justify-between gap-2 py-1.5 pl-2.5 pr-1">
+            <span className="text-sm text-ink">Dark mode</span>
+            <ThemeSwitch />
+          </div>
+          <Link href="/change-password" role="menuitem" onClick={close} className="flex h-10 items-center gap-2.5 rounded-[14px] px-2 text-sm text-ink hover:bg-raised/70 hover:text-ink">
             <span className="flex h-7 w-7 items-center justify-center rounded-pill bg-surface">
               <Icon name="key" size={14} />
             </span>
@@ -233,7 +238,7 @@ function ProfileMenu({ user }: { user: ShellUser }) {
             role="menuitem"
             disabled={signingOut}
             onClick={() => start(() => signOutAction())}
-            className="flex h-10 items-center gap-2.5 rounded-[14px] border-0 bg-transparent px-2 text-left text-sm hover:bg-white/70"
+            className="flex h-10 items-center gap-2.5 rounded-[14px] border-0 bg-transparent px-2 text-left text-sm hover:bg-raised/70"
           >
             <span className="flex h-7 w-7 items-center justify-center rounded-pill bg-surface">
               <Icon name="logout" size={14} />
@@ -282,7 +287,7 @@ function Notifications() {
         className={cn("hit-44 relative flex h-10 w-10 items-center justify-center rounded-pill border-0 hover:bg-field", RAISED)}
       >
         <Icon name="bell" size={18} />
-        {live.unread > 0 && <span className="absolute right-2.5 top-[9px] h-[7px] w-[7px] rounded-pill bg-primary shadow-[0_0_0_2px_#E8E8E8]" />}
+        {live.unread > 0 && <span className="absolute right-2.5 top-[9px] h-[7px] w-[7px] rounded-pill bg-primary shadow-[0_0_0_2px_var(--color-surface)]" />}
       </button>
       {open && (
         <div className="glass-strong absolute right-0 top-12 z-40 flex w-[min(340px,86vw)] flex-col gap-2.5 rounded-[20px] p-3.5 shadow-glass">
@@ -307,9 +312,9 @@ function Notifications() {
                     }
                     if (!n.read) void markNotificationsReadAction({ ids: [n.id] }).then(() => live.refresh());
                   }}
-                  className="flex gap-2.5 rounded-[14px] border-0 bg-white/45 p-2 text-left"
+                  className="flex gap-2.5 rounded-[14px] border-0 bg-raised/45 p-2 text-left"
                 >
-                  <span className="mt-1.5 h-[7px] w-[7px] flex-none rounded-pill" style={{ background: n.read ? "#C7C7C7" : "#023E7D" }} />
+                  <span className="mt-1.5 h-[7px] w-[7px] flex-none rounded-pill" style={{ background: n.read ? "var(--color-chip)" : "var(--color-primary)" }} />
                   <span className="flex min-w-0 flex-col gap-0.5">
                     <span className="text-[13px] leading-[18px]">{n.text}</span>
                     <span className="text-[11px] text-muted">{notificationTime(n.at, today)}</span>
@@ -376,10 +381,10 @@ function Rail({ nav }: { nav: ShellNavGroup[] }) {
       className="pm-scroll absolute bottom-2 left-1.5 top-[72px] z-[25] flex flex-col gap-1.5 overflow-y-auto overflow-x-hidden rounded-card p-1.5 transition-[width,background-color,box-shadow] duration-300 ease-spring max-md:hidden"
       style={{
         width: open ? 232 : 52,
-        background: open ? "rgba(244,244,244,.62)" : "transparent",
+        background: open ? "light-dark(rgba(244,244,244,.62), rgba(28,31,36,.86))" : "transparent",
         backdropFilter: open ? "blur(24px)" : "none",
         WebkitBackdropFilter: open ? "blur(24px)" : "none",
-        boxShadow: open ? "0 18px 48px rgba(0,0,0,.12)" : "none",
+        boxShadow: open ? "var(--shadow-glass)" : "none",
       }}
     >
       {nav.map((g) => (
@@ -398,14 +403,14 @@ function Rail({ nav }: { nav: ShellNavGroup[] }) {
                 href={it.href}
                 title={it.label}
                 aria-current={active ? "page" : undefined}
-                className="flex h-10 items-center gap-3 whitespace-nowrap rounded-pill text-left text-ink transition-colors duration-200 hover:bg-white/45 hover:text-ink"
+                className="flex h-10 items-center gap-3 whitespace-nowrap rounded-pill text-left text-ink transition-colors duration-200 hover:bg-raised/45 hover:text-ink"
               >
                 <span
                   className="flex h-10 w-10 flex-none items-center justify-center rounded-pill transition-[background-color,color] duration-300 ease-spring"
                   style={{
-                    background: active ? "#023E7D" : "#E8E8E8",
-                    color: active ? "#fff" : "#1C1C1E",
-                    boxShadow: active ? "0 8px 20px rgba(2,62,125,.32)" : "inset 0 1px 0 rgba(255,255,255,.7),0 4px 14px rgba(0,0,0,.05)",
+                    background: active ? "var(--color-primary)" : "var(--color-surface)",
+                    color: active ? "#fff" : "var(--color-ink)",
+                    boxShadow: active ? "var(--shadow-primary)" : "var(--shadow-raised)",
                   }}
                 >
                   <Icon name={it.icon} size={18} />
@@ -424,7 +429,7 @@ function Rail({ nav }: { nav: ShellNavGroup[] }) {
         title="Log out"
         disabled={signingOut}
         onClick={() => start(() => signOutAction())}
-        className="flex h-10 flex-none items-center gap-3 whitespace-nowrap rounded-pill border-0 bg-transparent p-0 hover:bg-white/45"
+        className="flex h-10 flex-none items-center gap-3 whitespace-nowrap rounded-pill border-0 bg-transparent p-0 hover:bg-raised/45"
       >
         <span className={cn("flex h-10 w-10 flex-none items-center justify-center rounded-pill", RAISED)}>
           <Icon name="logout" size={18} />

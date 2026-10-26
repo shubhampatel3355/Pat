@@ -234,7 +234,7 @@ export function InvoiceScreen({ mode, invoices, proformas, nextInvoice, nextProf
                         void convert.run({ id: r.id });
                       }}
                       className="hit-44 h-8 whitespace-nowrap rounded-pill border-0 px-3.5 text-xs font-medium active:scale-[.97] disabled:cursor-default"
-                      style={{ background: open ? "#023E7D" : "#DCDCDC", color: open ? "#fff" : "#55555A" }}
+                      style={{ background: open ? "var(--color-primary)" : "var(--color-chip-2)", color: open ? "#fff" : "var(--color-muted)" }}
                       title={r.convertedToNumber ? `Converted to ${r.convertedToNumber}` : undefined}
                     >
                       {open ? "Convert to invoice" : "Converted"}

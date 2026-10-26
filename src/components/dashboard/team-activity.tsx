@@ -94,7 +94,7 @@ function TeamActivityModal({ rows, onClose }: { rows: LiveActivity[]; onClose: (
             <span className="h-1.5 w-1.5 rounded-pill bg-success" style={{ animation: "pmaGlow 1.6s ease-in-out infinite" }} />
             Live
           </span>
-          <button type="button" onClick={onClose} title="Close" aria-label="Close" className="hit-44 h-[34px] w-[34px] rounded-pill border-0 bg-chip-2 text-base hover:bg-white">
+          <button type="button" onClick={onClose} title="Close" aria-label="Close" className="hit-44 h-[34px] w-[34px] rounded-pill border-0 bg-chip-2 text-base hover:bg-raised">
             ×
           </button>
         </div>

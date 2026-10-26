@@ -102,7 +102,7 @@ export function TeamScreen({ members, partners, meta, quarterShort, canManage, c
           );
           const cls = cn(
             "flex flex-col gap-3 rounded-[20px] p-4 shadow-raised transition-transform duration-200 ease-spring hover:-translate-y-0.5",
-            fresh === m.id ? "bg-[#DDE3EC]" : "bg-card",
+            fresh === m.id ? "bg-primary-tint" : "bg-card",
             m.status === "INACTIVE" && "opacity-60",
           );
           return m.canEdit ? (

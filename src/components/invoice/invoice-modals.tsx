@@ -168,7 +168,7 @@ export function PaymentsModal({ invoice, canReverse, onClose }: { invoice: Pick<
               <div className="flex flex-col gap-2 border-t border-chip pt-2">
                 <span className="text-xs text-muted">Reversing removes this receipt from the ledger and reopens the invoice. The audit log keeps the original.</span>
                 <div className="flex gap-2">
-                  <input data-autofocus value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Reason, e.g. Recorded against the wrong invoice" className={inputClass("light", "h-10 flex-1 bg-white px-3")} />
+                  <input data-autofocus value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Reason, e.g. Recorded against the wrong invoice" className={inputClass("light", "h-10 flex-1 bg-raised px-3")} />
                   <Button variant="secondary" onClick={() => setReversing(null)}>
                     Keep
                   </Button>

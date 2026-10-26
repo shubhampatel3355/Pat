@@ -13,7 +13,7 @@ The visual source of truth is `design-reference/Pat Michaels OS (offline).html` 
 | Runtime | Node.js | ≥ 22.13 | Docker image `node:22-bookworm-slim` |
 | Framework | Next.js App Router + React Server Components | 16.4.2 / React 19.3 | Turbopack build, `output: 'standalone'`, `proxy.ts` (Node runtime). `cacheComponents` **off**: every screen is per-user and dynamic. |
 | Language | TypeScript | 5.9.3 | TS 7 (native port) not yet used by Next's type tooling. |
-| Styling | Tailwind CSS v4 (`@tailwindcss/turbopack`) | 4.3.3 | Design tokens as CSS variables in `@theme` (see §4). |
+| Styling | Tailwind CSS v4 (`@tailwindcss/turbopack`) | 4.3.3 | Design tokens as CSS variables: fixed values in `@theme`, themed colours in a light/dark palette rule (see §4). |
 | Font | Urbanist, self-hosted from `@fontsource-variable/urbanist` via `next/font/local` | 5.3.0 | The prototype ships the Urbanist variable font; weights 300/400/500 (+600/700 used on a few labels). |
 | Database | PostgreSQL | 17 | Coolify-managed in production; `docker-compose` locally; `embedded-postgres` for Docker-less dev. |
 | ORM | Prisma (`prisma-client` generator + `@prisma/adapter-pg`) | 7.10.1 | Config in `prisma7.config.ts`; migrations checked in. Prisma 8 is still RC. |
@@ -50,6 +50,7 @@ The visual source of truth is `design-reference/Pat Michaels OS (offline).html` 
 19. **Full-window app** (client request): the signed-in app fills the browser window; the prototype floats it as a rounded frame on the blue gradient with a margin. The sign-in screens keep the gradient.
 20. **Phones** (below 768 px) use the employee prototype's floating bottom bar — Home, WIP, Follow-ups (each only if the person may open it) and More, which opens the page list / search — and keep the account button as an avatar so Change password and Sign out stay reachable.
 21. **Not found, errors, loading**: pages a role may not open and unknown addresses show the prototype's module card ("This page isn't available" / "Page not found") with Back to dashboard; a page that fails shows "This page couldn't load" with Try again and the log reference; navigation shows a skeleton while a page loads. Because of that loading state, a refused page answers HTTP 200 with the "Not available" card (no record data is rendered); API routes still answer 404.
+22. **Dark mode** (client request) is not in the prototype: a dark palette with the same layering (frame, trays, rows, raised) and the client's chosen switch — the Uiverse 3D toggle — in the account menu and on the sign-in screens. It follows the system until the person picks a side; brand-blue panels and documents look the same in both themes (see §4).
 
 ---
 
@@ -125,7 +126,7 @@ flag; the Dashboard "Team activity" ticker polls feed rows the viewer is allowed
 
 ## 4. Design system
 
-Tokens extracted from the prototype into `src/app/globals.css` (`@theme`):
+Tokens extracted from the prototype into `src/app/globals.css` (fixed values in `@theme`, themed colours in the palette rule):
 
 - Blues `#001233` / `#002855` / `#023E7D` (primary action `#023E7D`; blue cards `linear-gradient(160deg,#023E7D,#002855[,#001233])`, white text).
 - Neutrals: app frame `#DCDCDC`, surface `#E8E8E8`, input/hover `#F0F0F0`, card `#D1D1D1`, chips `#C7C7C7` / `#DCDCDC`, text `#1C1C1E`, secondary `#55555A`.
@@ -137,6 +138,24 @@ Tokens extracted from the prototype into `src/app/globals.css` (`@theme`):
 - Time: stored UTC, shown in `Asia/Kolkata`; financial year April–March everywhere.
 - Accessibility: icon buttons get `aria-label`s; 40px pill buttons keep their look but get a 44px hit area;
   contrast checked against 4.5:1.
+
+**Light and dark themes.** Every themed colour is `light-dark(<light>, <dark>)`; the light side is the prototype's
+value. `<html>` carries `color-scheme`, which picks the side:
+
+- No saved choice → `color-scheme: light dark`, so the system setting decides.
+- A saved choice → the `pm_theme` cookie (`light` | `dark`, one year, readable by the page). The root layout renders it
+  as `data-theme` on `<html>`, so the first paint is already right (no flash, nothing for hydration to change).
+- The switch (`components/theme/theme-switch.tsx`, the Uiverse 3D toggle; styles in `globals.css`) sets `data-theme`
+  and the cookie at once; `useTheme` reads `data-theme` or, without it, `prefers-color-scheme`, so every switch on
+  screen agrees. It sits in the account menu on every signed-in page and at the top right of the sign-in screens.
+- Brand-blue panels (`bg-blue-card` / `-hero` / `-chip`), the document viewer (`scheme-light`) and `/print/*` pages pin
+  `color-scheme: light`. A custom property is resolved on the element that declares it, so the palette rule is declared
+  on those elements too — that keeps their white fields and buttons light inside a dark page. Printed documents use
+  fixed colours and are always light.
+- Tailwind compiles `light-dark()` in the stylesheet to a fallback that switches on those `color-scheme` declarations;
+  `light-dark()` in inline styles (a few SVG fills) relies on the browser (Chrome 123+, Safari 17.5+, Firefox 120+).
+- New colours go in the palette rule with both sides, and get a line in the `@theme inline` list so Tailwind generates
+  their utilities.
 
 ---
 

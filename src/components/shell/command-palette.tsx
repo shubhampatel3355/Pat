@@ -69,7 +69,7 @@ function Palette({ onClose, nav }: { onClose: () => void; nav: ShellNavGroup[] }
   };
 
   return (
-    <div className="absolute inset-0 z-50 flex items-start justify-center bg-[rgba(2,62,125,.06)] px-4 pb-4 pt-20 backdrop-blur-[6px]" onClick={onClose}>
+    <div className="absolute inset-0 z-50 flex items-start justify-center bg-backdrop px-4 pb-4 pt-20 backdrop-blur-[6px]" onClick={onClose}>
       <div
         role="dialog"
         aria-modal="true"
@@ -126,7 +126,7 @@ function Palette({ onClose, nav }: { onClose: () => void; nav: ShellNavGroup[] }
                     type="button"
                     onMouseEnter={() => setActive(index)}
                     onClick={() => go(item)}
-                    className={`flex min-h-12 items-center gap-3 rounded-row border-0 px-2.5 py-1.5 text-left ${index === active ? "bg-white/70" : "bg-transparent"}`}
+                    className={`flex min-h-12 items-center gap-3 rounded-row border-0 px-2.5 py-1.5 text-left ${index === active ? "bg-raised/70" : "bg-transparent"}`}
                   >
                     <span className="flex h-8 w-8 flex-none items-center justify-center rounded-pill bg-surface">
                       <Icon name={item.icon} size={14} />

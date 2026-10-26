@@ -54,7 +54,7 @@ function CompleteCircle({ done, onClick, label, size = 28 }: { done: boolean; on
       aria-pressed={done}
       onClick={onClick}
       className="hit-44 flex flex-none items-center justify-center rounded-pill border-[1.5px] p-0 transition-colors duration-200 hover:border-primary"
-      style={{ width: size, height: size, borderColor: done ? "#023E7D" : "#A8A8AD", background: done ? "#023E7D" : "transparent" }}
+      style={{ width: size, height: size, borderColor: done ? "var(--color-primary)" : "var(--color-neutral)", background: done ? "var(--color-primary)" : "transparent" }}
     >
       {done && <CheckGlyph />}
     </button>
@@ -197,7 +197,7 @@ export function FollowUpsScreen({ followUps, tasks, users, leads, me, today, now
                       </span>
                       <div className="flex min-w-0 flex-1 flex-col">
                         {f.canEdit ? (
-                          <button type="button" onClick={() => setFollowUpModal({ open: true, followUp: f })} className="self-start border-0 bg-transparent p-0 text-left text-sm text-ink hover:text-primary" style={{ textDecoration: isDone ? "line-through" : "none" }}>
+                          <button type="button" onClick={() => setFollowUpModal({ open: true, followUp: f })} className="self-start border-0 bg-transparent p-0 text-left text-sm text-ink hover:text-link" style={{ textDecoration: isDone ? "line-through" : "none" }}>
                             {f.contactName}
                           </button>
                         ) : (
@@ -216,11 +216,11 @@ export function FollowUpsScreen({ followUps, tasks, users, leads, me, today, now
                       <div className="flex flex-wrap items-center gap-1.5 py-1 pl-[84px] max-sm:pl-0">
                         <span className="text-xs text-muted">Move to</span>
                         {options.map((o) => (
-                          <button key={o.label} type="button" disabled={reschedule.pending} onClick={() => void reschedule.run({ id: f.id, dueDate: o.date, dueTime: o.time })} className="hit-44 h-7 rounded-pill border-0 bg-white px-3 text-xs hover:bg-primary hover:text-white">
+                          <button key={o.label} type="button" disabled={reschedule.pending} onClick={() => void reschedule.run({ id: f.id, dueDate: o.date, dueTime: o.time })} className="hit-44 h-7 rounded-pill border-0 bg-raised px-3 text-xs hover:bg-primary hover:text-white">
                             {o.label}
                           </button>
                         ))}
-                        <button type="button" onClick={() => setFollowUpModal({ open: true, followUp: f })} className="hit-44 h-7 rounded-pill border-0 bg-transparent px-3 text-xs text-muted hover:bg-white">
+                        <button type="button" onClick={() => setFollowUpModal({ open: true, followUp: f })} className="hit-44 h-7 rounded-pill border-0 bg-transparent px-3 text-xs text-muted hover:bg-raised">
                           Pick a time…
                         </button>
                       </div>
@@ -242,9 +242,9 @@ export function FollowUpsScreen({ followUps, tasks, users, leads, me, today, now
             <div className="pm-scroll relative overflow-x-auto">
               <div className="grid min-w-[900px] grid-cols-7 gap-2">
                 {week.map((d) => (
-                  <div key={d.day} className="flex min-h-[320px] flex-col gap-1.5 rounded-[20px] bg-card p-2" style={{ boxShadow: d.day === today ? "0 0 0 1.5px #023E7D" : "none" }}>
+                  <div key={d.day} className="flex min-h-[320px] flex-col gap-1.5 rounded-[20px] bg-card p-2" style={{ boxShadow: d.day === today ? "0 0 0 1.5px var(--color-primary)" : "none" }}>
                     <div className="flex items-center justify-between px-1.5 py-1">
-                      <span className="text-[13px] font-medium" style={{ color: d.day === today ? "#001233" : "#1C1C1E" }}>
+                      <span className="text-[13px] font-medium" style={{ color: d.day === today ? "var(--color-navy-950)" : "var(--color-ink)" }}>
                         {d.label}
                       </span>
                       <span className="text-[11px] text-muted">{d.items.length}</span>
@@ -256,13 +256,13 @@ export function FollowUpsScreen({ followUps, tasks, users, leads, me, today, now
                           key={f.id}
                           type="button"
                           onClick={() => (f.canEdit ? setFollowUpModal({ open: true, followUp: f }) : f.lead && router.push(`/wip?focus=${f.lead.id}`))}
-                          className="flex flex-col gap-0.5 rounded-[14px] border-0 px-2.5 py-2 text-left hover:bg-white"
-                          style={{ background: overdue ? "#023E7D" : "#E8E8E8" }}
+                          className="flex flex-col gap-0.5 rounded-[14px] border-0 px-2.5 py-2 text-left hover:bg-raised"
+                          style={{ background: overdue ? "var(--color-primary)" : "var(--color-surface)" }}
                         >
-                          <span className="text-[11px]" style={{ color: overdue ? "rgba(255,255,255,.88)" : "#55555A" }}>
+                          <span className="text-[11px]" style={{ color: overdue ? "rgba(255,255,255,.88)" : "var(--color-muted)" }}>
                             {formatTime12(timeIST(new Date(f.dueAt)))} · {TYPE[f.type]!.label}
                           </span>
-                          <span className="text-xs font-medium" style={{ color: overdue ? "#fff" : "#1C1C1E" }}>
+                          <span className="text-xs font-medium" style={{ color: overdue ? "#fff" : "var(--color-ink)" }}>
                             {f.contactName}
                           </span>
                         </button>
@@ -309,7 +309,7 @@ export function FollowUpsScreen({ followUps, tasks, users, leads, me, today, now
                   .map((t) => {
                     const isDone = t.status === "DONE";
                     return (
-                      <Row key={t.id} id={`task-${t.id}`} onClick={() => setDrawerId(t.id)} className="hover:-translate-y-px hover:bg-[#F0F0F0]" style={{ opacity: isDone ? 0.55 : 1 }}>
+                      <Row key={t.id} id={`task-${t.id}`} onClick={() => setDrawerId(t.id)} className="hover:-translate-y-px hover:bg-field" style={{ opacity: isDone ? 0.55 : 1 }}>
                         <Cell>
                           <CompleteCircle
                             size={24}
@@ -364,7 +364,7 @@ export function FollowUpsScreen({ followUps, tasks, users, leads, me, today, now
                         if (t) setStatus(t, col.value);
                       }}
                       className="flex min-h-[420px] flex-col gap-1.5 rounded-card p-2 transition-colors duration-200"
-                      style={{ background: isOver ? "linear-gradient(rgba(2,62,125,.12),rgba(2,62,125,.12)),#D1D1D1" : "#D1D1D1", boxShadow: isOver ? "0 0 0 1.5px #023E7D" : "none" }}
+                      style={{ background: isOver ? "linear-gradient(var(--color-primary-tint),var(--color-primary-tint)),var(--color-card)" : "var(--color-card)", boxShadow: isOver ? "0 0 0 1.5px var(--color-primary)" : "none" }}
                     >
                       <div className="flex items-center gap-2 px-2 py-1.5">
                         <span className="h-2 w-2 rounded-pill" style={{ background: col.color }} />
@@ -388,7 +388,7 @@ export function FollowUpsScreen({ followUps, tasks, users, leads, me, today, now
                           }}
                           onClick={() => setDrawerId(t.id)}
                           className="flex cursor-grab flex-col gap-2.5 rounded-row border-0 bg-surface p-3 text-left shadow-raised transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-hover"
-                          style={{ opacity: dragging === t.id ? 0.45 : 1, outline: dragging === t.id ? "1.5px dashed #023E7D" : "none", outlineOffset: -1.5 }}
+                          style={{ opacity: dragging === t.id ? 0.45 : 1, outline: dragging === t.id ? "1.5px dashed var(--color-primary)" : "none", outlineOffset: -1.5 }}
                         >
                           <span className="text-[13px] font-medium" style={{ textDecoration: t.status === "DONE" ? "line-through" : "none" }}>
                             {t.title}

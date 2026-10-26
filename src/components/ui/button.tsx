@@ -11,7 +11,7 @@ const VARIANTS: Record<Variant, string> = {
   primary:
     "bg-primary text-white shadow-primary hover:bg-primary-hover active:scale-[.97] active:bg-primary-active disabled:bg-steel disabled:shadow-none",
   // Neutral pill inside drawers ("Cancel").
-  secondary: "bg-surface text-ink hover:bg-white active:scale-[.97]",
+  secondary: "bg-surface text-ink hover:bg-raised active:scale-[.97]",
   // Neutral pill on the frame ("Back" on login, top-bar style).
   surface: "bg-surface text-ink shadow-raised hover:bg-field active:scale-[.97]",
   // White pill on blue cards ("Raise invoice").
@@ -19,8 +19,8 @@ const VARIANTS: Record<Variant, string> = {
   // Translucent pill on blue cards ("Clear", "Upload documents").
   glass: "bg-white/14 text-white hover:bg-white/24",
   "outline-white": "border-[1.5px] border-white/70 bg-transparent text-white hover:bg-white/14 active:scale-[.97]",
-  ghost: "bg-transparent text-ink hover:bg-white/45",
-  "danger-soft": "bg-chip-2 text-danger hover:bg-white",
+  ghost: "bg-transparent text-ink hover:bg-raised/45",
+  "danger-soft": "bg-chip-2 text-danger hover:bg-raised",
 };
 
 const SIZES: Record<Size, string> = {
@@ -104,7 +104,7 @@ export function CloseButton({ onClick, label = "Close" }: { onClick: () => void;
       onClick={onClick}
       title={label}
       aria-label={label}
-      className="hit-44 h-9 w-9 flex-none rounded-pill border-0 bg-surface text-base hover:bg-white"
+      className="hit-44 h-9 w-9 flex-none rounded-pill border-0 bg-surface text-base hover:bg-raised"
     >
       ×
     </button>

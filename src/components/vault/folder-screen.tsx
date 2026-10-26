@@ -95,7 +95,7 @@ export function FolderScreen({
   return (
     <Page>
       <div className="flex flex-col gap-1.5">
-        <Link href="/vault" className="-ml-1.5 inline-flex h-7 items-center self-start rounded-pill px-2.5 text-xs text-muted hover:bg-white/45 hover:text-ink">
+        <Link href="/vault" className="-ml-1.5 inline-flex h-7 items-center self-start rounded-pill px-2.5 text-xs text-muted hover:bg-raised/45 hover:text-ink">
           ‹ Contracts &amp; Vault
         </Link>
         <PageHeader
@@ -121,7 +121,7 @@ export function FolderScreen({
       />
 
       <label className="flex h-10 min-w-[min(100%,320px)] items-center gap-2 self-start rounded-pill bg-surface px-3.5 shadow-inset focus-within:shadow-focus">
-        <Icon name="search" size={15} color="#55555A" />
+        <Icon name="search" size={15} color="var(--color-muted)" />
         <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search in this folder" aria-label="Search in this folder" className="min-w-0 flex-1 border-0 bg-transparent text-[13px] outline-none" />
       </label>
 
@@ -137,7 +137,7 @@ export function FolderScreen({
         {visible.map((f) => (
           <Row key={f.id} id={`file-${f.id}`} highlighted={fresh.includes(f.id)}>
             <Cell className="flex items-center gap-2.5">
-              <span className="flex h-9 w-9 flex-none items-center justify-center rounded-[12px] bg-[rgba(2,62,125,.14)] text-[9px] font-semibold text-navy-950">{f.ext}</span>
+              <span className="flex h-9 w-9 flex-none items-center justify-center rounded-[12px] bg-primary-tint text-[9px] font-semibold text-navy-950">{f.ext}</span>
               <span className="truncate">{f.name}</span>
             </Cell>
             {showOwner && <Cell className="truncate">{f.ownerName ?? "—"}</Cell>}
@@ -149,7 +149,7 @@ export function FolderScreen({
                 <Icon name="download" size={14} />
               </a>
               {f.canDelete && (
-                <button type="button" title="Delete" aria-label={`Delete ${f.name}`} onClick={() => setRemoving(f)} className={`${ACTION} text-base text-danger hover:bg-white`}>
+                <button type="button" title="Delete" aria-label={`Delete ${f.name}`} onClick={() => setRemoving(f)} className={`${ACTION} text-base text-danger hover:bg-raised`}>
                   ×
                 </button>
               )}

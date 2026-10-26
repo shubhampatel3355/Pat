@@ -76,7 +76,7 @@ export function BrokerRows({ label, rows, onChange, users, takenElsewhere = [], 
               onClick={() => remove(i)}
               className={cn(
                 "hit-44 flex-none rounded-pill border-0 text-base",
-                onBlue ? "h-9 w-9 bg-white/16 text-white hover:bg-white/28" : "h-11 w-11 bg-surface hover:bg-white",
+                onBlue ? "h-9 w-9 bg-white/16 text-white hover:bg-white/28" : "h-11 w-11 bg-surface hover:bg-raised",
                 rows.length <= minRows && "cursor-not-allowed opacity-35",
               )}
             >

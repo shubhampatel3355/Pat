@@ -23,7 +23,7 @@ const PERIODS = [
 ] as const;
 const STATUS: Record<IncentiveStatus, { label: string; className: string }> = {
   EARNED: { label: "Earned", className: "bg-[rgba(62,155,82,.18)]" },
-  EXPECTED: { label: "Expected", className: "bg-[rgba(2,62,125,.14)]" },
+  EXPECTED: { label: "Expected", className: "bg-primary-tint" },
   NO_PAYOUT: { label: "No payout", className: "bg-chip-2" },
 };
 

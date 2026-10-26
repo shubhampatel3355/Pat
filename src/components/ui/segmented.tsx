@@ -9,7 +9,7 @@ interface SegmentedProps<T extends string> {
   className?: string;
 }
 
-/** Pill tab group: grey track, active option on #E8E8E8 with a soft shadow. */
+/** Pill tab group: grey track, active option on the surface colour with a soft shadow. */
 export function Segmented<T extends string>({ options, value, onChange, label, size = "md", className }: SegmentedProps<T>) {
   return (
     <div role="tablist" aria-label={label} className={cn("flex gap-0.5 self-start rounded-pill bg-card p-1", className)}>
@@ -45,7 +45,7 @@ interface ChoiceChipsProps<T extends string | null> {
   className?: string;
 }
 
-/** Wrapping chips: selected = blue (#023E7D) with white text, others #C7C7C7. */
+/** Wrapping chips: selected = brand blue with white text, others chip grey. */
 export function ChoiceChips<T extends string | null>({ options, value, onChange, label, tone = "light", className }: ChoiceChipsProps<T>) {
   const selected = (v: T) => (Array.isArray(value) ? value.includes(v) : value === v);
   return (
@@ -64,7 +64,7 @@ export function ChoiceChips<T extends string | null>({ options, value, onChange,
               tone === "light"
                 ? active
                   ? "bg-primary text-white"
-                  : "bg-chip text-ink hover:bg-[#bdbdc0]"
+                  : "bg-chip text-ink hover:bg-track"
                 : active
                   ? "bg-white text-navy-950"
                   : "bg-white/14 text-white hover:bg-white/24",
