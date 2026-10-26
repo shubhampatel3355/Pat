@@ -1,16 +1,18 @@
 import "server-only";
 import type { Prisma } from "@/generated/prisma/client";
-import type { CabStatus, CarType, FollowUpType, WipRemark } from "@/generated/prisma/enums";
-import { CLOSED_REMARKS, WIP_REMARKS } from "@/lib/constants";
-import { addDaysIso, currentFy, dateToIso, financialYear, fyToDateLabel, isoDateIST, isoToDate, istToInstant, sameDayLastYear, timeIST } from "@/lib/dates";
+import type { WipRemark } from "@/generated/prisma/enums";
+import { CAR_TYPES, CLOSED_REMARKS, WIP_REMARK, WIP_REMARKS } from "@/lib/constants";
+import { currentFy, dateToIso, financialYear, fyQuarterOfIso, fyToDateLabel, isoDateIST, isoToDate, istToInstant, sameDayLastYear } from "@/lib/dates";
 import { toPaise } from "@/lib/money";
 import { db } from "../db";
 import { has, isAdminOrOwner, type SessionUser } from "../policy";
-import { wipScope } from "../policy/scopes";
 import type { ViewState } from "../view";
 import { partnerTeamIds } from "../view";
-import { companyRevenue, revenueByFy, revenueByUser, teamRevenue } from "./revenue";
-import { getTarget, targetsByScope } from "./targets";
+import { incentiveFor } from "./incentive";
+import { payrollEmployees } from "./payroll";
+import { companyRevenue, revenueByFy, teamRevenue } from "./revenue";
+import { getTarget } from "./targets";
+import { listWip, wipCards } from "./wip";
 
 export interface TodoDto {
   id: string;
@@ -39,11 +41,22 @@ export interface PipelineStage {
   count: number;
 }
 
+export interface EmployeeDayItem {
+  id: string;
+  kind: "LEAD" | "CAB";
+  title: string;
+  sub: string;
+  date: string;
+  time: string | null;
+  href: string;
+}
+
 export interface DashboardData {
   mode: "company" | "partner" | "employee";
   today: string;
   viewLabel: string;
-  target: { label: string; amountPaise: number | null; achievedPaise: number };
+  /** `note` follows the amount ("achieved year to date"); `scope` names the target in achievements. */
+  target: { label: string; amountPaise: number | null; achievedPaise: number; note: string; scope: string };
   revenue: {
     ytdLabel: string;
     ytdPaise: number;
@@ -52,13 +65,15 @@ export interface DashboardData {
     projectedPaise: number;
     previous: { key: string; label: string; valuePaise: number }[];
   } | null;
-  pipeline: { totalPaise: number; open: number; stages: PipelineStage[] };
+  pipeline: { totalPaise: number; open: number; stages: PipelineStage[] } | null;
   todos: TodoDto[];
   achievements: AchievementDto[];
   canOpenFinance: boolean;
+  /** The employee dashboard's cards (prototype "Employee View"). */
   employee?: {
-    followUps: { id: string; title: string; type: FollowUpType | "TASK"; time: string | null; href: string }[];
-    cabs: { id: string; car: CarType; client: string; date: string; time: string; pickup: string; status: CabStatus }[];
+    wip: { feesInPlayPaise: number; mandates: number; rows: { id: string; tenantName: string; building: string; feePaise: number; remark: WipRemark }[] };
+    day: EmployeeDayItem[];
+    pay: { earnedPaise: number; expectedPaise: number; ctcAnnualPaise: number | null; dateOfJoining: string | null; latestPayslip: { url: string; label: string } | null };
   };
 }
 
@@ -119,47 +134,70 @@ export async function dashboardData(user: SessionUser, view: ViewState): Promise
   const fy = currentFy();
   const todos = await todosOf(user.id);
 
-  // Employees: a personal dashboard (not designed in the prototype — flagged for design review).
+  // Employees: the prototype's Employee View — own quarter target against own WIP, My WIP, My day, incentive.
   if (!isAdminOrOwner(user)) {
-    const [fyTarget, quarterTargets, own, pipeline, followUps, tasks, cabs, achievements] = await Promise.all([
-      getTarget("USER", user.id, "REVENUE", fy.key),
-      Promise.all([1, 2, 3, 4].map((q) => targetsByScope("USER", "REVENUE", `${fy.key}-Q${q}`))),
-      revenueByUser(fy.start, today, [user.id]),
-      pipelineFor(wipScope(user)),
-      db.followUp.findMany({
-        where: { ownerId: user.id, deletedAt: null, completedAt: null, dueAt: { gte: istToInstant(today), lt: istToInstant(addDaysIso(today, 1)) } },
-        orderBy: { dueAt: "asc" },
-        take: 8,
-      }),
-      db.task.findMany({
-        where: { assigneeId: user.id, deletedAt: null, status: { not: "DONE" }, dueAt: { lt: istToInstant(addDaysIso(today, 1)) } },
-        orderBy: { dueAt: "asc" },
-        take: 8,
-      }),
-      db.cabBooking.findMany({
+    const q = fyQuarterOfIso(today);
+    const [all, quarterTarget, cab, achievements, incentive, payroll] = await Promise.all([
+      listWip(user),
+      getTarget("USER", user.id, "WIP_FEES", q.key),
+      db.cabBooking.findFirst({
         where: { bookedForId: user.id, status: { in: ["REQUESTED", "CONFIRMED"] }, pickupDate: { gte: isoToDate(today) } },
         orderBy: [{ pickupDate: "asc" }, { pickupTime: "asc" }],
-        take: 5,
       }),
       achievementsSince(monthStart(today), [user.id]),
+      incentiveFor(user.id, today),
+      payrollEmployees(user),
     ]);
-    const summedQuarters = quarterTargets.reduce((a, m) => a + (m.get(user.id) ?? 0), 0);
+    // Their own rows even if they may see everyone's.
+    const mine = all.filter((r) => [...r.primary, ...r.secondary].some((b) => b.userId === user.id));
+    const open = mine.filter((r) => !CLOSED_REMARKS.includes(r.remark));
+    const next = open.filter((r) => r.remark !== "INVOICE_RAISED" && r.remark !== "ON_HOLD").sort((a, b) => a.closureDate.localeCompare(b.closureDate));
+    const me = payroll.find((p) => p.id === user.id);
+    const latest = me?.statements.MONTHLY[0];
+    const day: EmployeeDayItem[] = next.slice(0, 3).map((r) => ({
+      id: r.id,
+      kind: "LEAD",
+      title: r.tenantName,
+      sub: `${WIP_REMARK[r.remark].label}${r.building ? ` · ${r.building}` : ""}`,
+      date: r.closureDate,
+      time: null,
+      href: `/wip?focus=${r.id}`,
+    }));
+    if (cab) {
+      day.push({
+        id: cab.id,
+        kind: "CAB",
+        title: `${CAR_TYPES.find((t) => t.value === cab.carType)?.label ?? "Cab"} · ${cab.clientName}`,
+        sub: `Cab · ${cab.pickupLocation}`,
+        date: dateToIso(cab.pickupDate),
+        time: cab.pickupTime,
+        href: "/vehicles",
+      });
+    }
     return {
       mode: "employee",
       today,
-      viewLabel: "My dashboard",
-      target: { label: `${fy.label} · ${user.firstName}`, amountPaise: fyTarget ?? (summedQuarters || null), achievedPaise: own.get(user.id) ?? 0 },
+      viewLabel: `Employee View · ${user.name}`,
+      target: { label: `${q.label} · ${user.firstName}`, amountPaise: quarterTarget, achievedPaise: wipCards(mine, today).currentPaise, note: "in WIP this quarter", scope: "this quarter's target" },
       revenue: null,
-      pipeline,
+      pipeline: null,
       todos,
       achievements,
       canOpenFinance: false,
       employee: {
-        followUps: [
-          ...followUps.map((f) => ({ id: f.id, title: `${f.contactName}${f.note ? ` — ${f.note}` : ""}`, type: f.type, time: timeIST(f.dueAt), href: "/follow-ups" })),
-          ...tasks.map((t) => ({ id: t.id, title: t.title, type: "TASK" as const, time: t.dueAt ? timeIST(t.dueAt) : null, href: `/follow-ups?task=${t.id}` })),
-        ],
-        cabs: cabs.map((c) => ({ id: c.id, car: c.carType, client: c.clientName, date: dateToIso(c.pickupDate), time: c.pickupTime, pickup: c.pickupLocation, status: c.status })),
+        wip: {
+          feesInPlayPaise: open.reduce((a, r) => a + r.estFeesPaise, 0),
+          mandates: open.length,
+          rows: open.slice(0, 4).map((r) => ({ id: r.id, tenantName: r.tenantName, building: r.building, feePaise: r.estFeesPaise, remark: r.remark })),
+        },
+        day,
+        pay: {
+          earnedPaise: incentive.earnedPaise,
+          expectedPaise: incentive.expectedPaise,
+          ctcAnnualPaise: me?.ctcAnnualPaise ?? null,
+          dateOfJoining: me?.dateOfJoining ?? null,
+          latestPayslip: latest ? { url: `/api/payslips/${user.id}/MONTHLY/${encodeURIComponent(latest.key)}`, label: latest.label } : null,
+        },
       },
     };
   }
@@ -176,7 +214,7 @@ export async function dashboardData(user: SessionUser, view: ViewState): Promise
     mode: partner ? "partner" : "company",
     today,
     viewLabel: partner ? `Partner View · ${partner.name}` : "Company View",
-    target: { label: partner ? `${fy.label} · ${partner.name.split(" ")[0]}` : fy.label, amountPaise: targetAmount, achievedPaise: revenue.ytdPaise },
+    target: { label: partner ? `${fy.label} · ${partner.name.split(" ")[0]}` : fy.label, amountPaise: targetAmount, achievedPaise: revenue.ytdPaise, note: "achieved year to date", scope: "the annual target" },
     revenue,
     pipeline,
     todos,

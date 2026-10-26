@@ -10,6 +10,8 @@ export const ICONS = {
   finance: "M6 4h12M6 9h12M6 4c5 0 7 2 7 5s-2 5-7 5h1l7 7",
   teams: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8M4 21c.8-3.8 4-6 8-6s7.2 2.2 8 6",
   payroll: "M2 6h20v12H2zM2 10h20M6 15h4",
+  mypay: "M3 7h18v10H3zM3 11h18M7 15h3",
+  inventory: "M4 21V5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v16M14 9h5a1 1 0 0 1 1 1v11M2 21h20M8 8h2M8 12h2M8 16h2",
   vault: "M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM10 14h4v3h-4zM11 14v-1a1 1 0 0 1 2 0v1",
   reports: "M21 12A9 9 0 1 1 12 3v9zM15 3.5A9 9 0 0 1 20.5 9H15z",
   settings: "M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M16 4v4M10 10v4M18 16v4",

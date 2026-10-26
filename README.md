@@ -115,8 +115,15 @@ the payslips; disbursal posts the gross salary cost to the ledger (Finance → P
 
 Structure (`src/lib/payroll.ts`): CTC is gross fixed pay — Basic 50 %, HRA 20 %, Special allowance 30 %.
 Deductions: employee PF 12 % of basic, Karnataka professional tax (₹ 200, ₹ 300 in February, from ₹ 25,000),
-and a TDS estimate (10 % above ₹ 50,000 a month) that reviewers can override. Employees download their own
-payslips (monthly) and statements (quarterly, yearly) from Payroll; managers can download anyone's.
+and a TDS estimate (10 % above ₹ 50,000 a month) that reviewers can override. Managers download anyone's
+payslips from Payroll.
+
+Employees have **Payslips & Incentive** instead: their own payslips (monthly, quarterly, yearly) and their
+incentive per deal, also summarised on their dashboard. Incentive (`src/lib/incentive.ts`) is 20 % of the
+person's share of each deal's fee: earned at Invoice Raised / Payment Collected, counted at half as expected
+while the deal is in play, nothing for Lost / On Hold. The share comes from the invoice's broker split once
+invoiced, otherwise the WIP row's share %, otherwise an equal split among its brokers. It is shown, not paid
+automatically — add it to a payslip during payroll review.
 
 ## Documents
 
@@ -139,6 +146,5 @@ runs when its tables are empty. It refuses to run with `NODE_ENV=production`. De
 To keep demo data apart from your working database, point `DATABASE_URL` at a separate database (for example
 `…/patmichaels_demo`) when running `db:deploy`, `db:seed`, `db:seed:demo` and `pnpm dev`.
 
-> **Design review needed:** the Employee dashboard (own target, own pipeline, today's follow-ups, upcoming
-> cabs) and the Dashboard **Pipeline** card were not in the prototype; both are built from existing
-> components and should be reviewed by design.
+> **Design review needed:** the Dashboard **Pipeline** card was not in the prototype; it is built from
+> existing components and should be reviewed by design.

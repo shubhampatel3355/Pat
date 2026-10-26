@@ -1,6 +1,6 @@
 import "server-only";
 import type { IconName } from "@/lib/icons";
-import { can, type SessionUser } from "./policy";
+import { can, has, type SessionUser } from "./policy";
 
 export interface NavItem {
   href: string;
@@ -30,7 +30,9 @@ export function navFor(user: SessionUser): NavGroup[] {
       items: [
         { href: "/finance", label: "Finance", icon: "finance", allowed: can(user, "view", { type: "finance" }) },
         { href: "/invoices", label: "Invoice", icon: "invoice", allowed: can(user, "view", { type: "invoice" }) },
-        { href: "/payroll", label: "Payroll", icon: "payroll", allowed: can(user, "view", { type: "payroll" }) },
+        { href: "/payroll", label: "Payroll", icon: "payroll", allowed: has(user, "payroll.view_all") || has(user, "payroll.run") },
+        // Employee View: own payslips and incentive (and anyone else on payroll who can't see everyone's).
+        { href: "/payslips", label: "Payslips & Incentive", icon: "mypay", allowed: user.role === "EMPLOYEE" || (user.role === "ADMIN" && !has(user, "payroll.view_all")) },
       ],
     },
     { label: "People", items: [{ href: "/teams", label: "Teams", icon: "teams", allowed: can(user, "view", { type: "team" }) }] },

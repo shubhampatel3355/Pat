@@ -2,19 +2,23 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { CAB_STATUS, CAR_TYPES, FOLLOW_UP_TYPES } from "@/lib/constants";
-import { formatDayMonth, formatTime12, relativeDayLabel } from "@/lib/dates";
-import { formatCompactINR } from "@/lib/money";
+import { formatDate, formatDayMonth, formatTime12 } from "@/lib/dates";
+import type { IconName } from "@/lib/icons";
+import { formatCompactINR, formatINR } from "@/lib/money";
 import type { DashboardData, PipelineStage } from "@/server/services/dashboard";
-import { StatusPill } from "../ui/bits";
+import { Button } from "../ui/button";
 import { Icon } from "../ui/icon";
+import { useDownload } from "../ui/use-download";
+import { StagePill } from "../wip/stage-pill";
 import { AchievementsButton, achievementValue, type AchievementRow } from "./achievements";
 import { TeamActivityButton } from "./team-activity";
 import { TodoCard } from "./todo-card";
 
 const CARD = "flex flex-col gap-2.5 rounded-card bg-surface p-4 shadow-lifted";
+const STAT = "flex flex-col gap-0.5 rounded-row bg-chip-2 px-3 py-2.5";
+const ROW = "flex min-h-11 items-center gap-2 rounded-[14px] bg-chip-2 px-2.5 py-1.5 text-ink hover:bg-white hover:text-ink";
 
-function CardHeader({ icon, title, href, linkLabel }: { icon: "finance" | "pipeline" | "followups" | "car"; title: string; href?: string; linkLabel?: string }) {
+function CardHeader({ icon, title, href, linkLabel }: { icon: IconName; title: string; href?: string; linkLabel?: string }) {
   return (
     <div className="flex items-center gap-2.5">
       <span className="flex h-8 w-8 flex-none items-center justify-center rounded-pill bg-chip-2">
@@ -30,7 +34,7 @@ function CardHeader({ icon, title, href, linkLabel }: { icon: "finance" | "pipel
   );
 }
 
-function TargetCard({ label, amountPaise, achievedPaise }: DashboardData["target"]) {
+function TargetCard({ label, amountPaise, achievedPaise, note }: DashboardData["target"]) {
   const pct = amountPaise ? Math.min(1, achievedPaise / amountPaise) : 0;
   return (
     <div className="bg-blue-hero relative mt-4 grid min-h-[240px] grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] items-end gap-6 overflow-hidden rounded-panel p-[clamp(20px,3vw,32px)] text-white shadow-blue-lg">
@@ -42,7 +46,9 @@ function TargetCard({ label, amountPaise, achievedPaise }: DashboardData["target
           <span className="text-[13px] font-medium uppercase tracking-[.08em]">Target · {label}</span>
         </div>
         <span className="text-[clamp(56px,7vw,88px)] font-bold leading-none tracking-[-.03em]">{amountPaise === null ? "—" : formatCompactINR(amountPaise)}</span>
-        <span className="text-sm text-white/88">{formatCompactINR(achievedPaise)} achieved year to date</span>
+        <span className="text-sm text-white/88">
+          {formatCompactINR(achievedPaise)} {note}
+        </span>
       </div>
       <div className="flex flex-col gap-2.5">
         <div className="flex items-baseline justify-between">
@@ -103,11 +109,11 @@ function RevenueCard({ revenue, canOpenFinance }: { revenue: NonNullable<Dashboa
 }
 
 /** Stage bar by WIP remark (no weighted line), total open fees and open count. Not in the prototype — needs design sign-off. */
-function PipelineCard({ title, pipeline }: { title: string; pipeline: DashboardData["pipeline"] }) {
+function PipelineCard({ pipeline }: { pipeline: NonNullable<DashboardData["pipeline"]> }) {
   const stages = pipeline.stages.filter((s) => s.count > 0);
   return (
-    <section className={CARD} aria-label={title}>
-      <CardHeader icon="pipeline" title={title} href="/wip" linkLabel="Open WIP" />
+    <section className={CARD} aria-label="Pipeline">
+      <CardHeader icon="pipeline" title="Pipeline" href="/wip" linkLabel="Open WIP" />
       <div className="flex items-baseline justify-between">
         <span className="text-2xl font-light leading-[30px]">{formatCompactINR(pipeline.totalPaise)}</span>
         <span className="text-[11px] text-muted">
@@ -134,46 +140,105 @@ function PipelineCard({ title, pipeline }: { title: string; pipeline: DashboardD
   );
 }
 
-function FollowUpsCard({ items, today }: { items: NonNullable<DashboardData["employee"]>["followUps"]; today: string }) {
+// ── Employee View (prototype: My WIP · My day · My incentive & payslip) ─────────
+
+type EmployeeCards = NonNullable<DashboardData["employee"]>;
+
+function Stat({ label, value, valueClassName = "" }: { label: string; value: string; valueClassName?: string }) {
   return (
-    <section className={CARD} aria-label="Today's follow-ups">
-      <CardHeader icon="followups" title="Today's follow-ups" href="/follow-ups" linkLabel="Open follow-ups" />
+    <div className={STAT}>
+      <span className="text-[11px] text-muted">{label}</span>
+      <span className={`text-2xl font-light leading-[30px] ${valueClassName}`}>{value}</span>
+    </div>
+  );
+}
+
+function MyWipCard({ wip }: { wip: EmployeeCards["wip"] }) {
+  return (
+    <section className={CARD} aria-label="My WIP">
+      <CardHeader icon="inventory" title="My WIP" />
+      <div className="grid grid-cols-2 gap-2">
+        <Stat label="Fees in play" value={formatCompactINR(wip.feesInPlayPaise)} />
+        <Stat label="Mandates" value={String(wip.mandates)} />
+      </div>
       <ul className="m-0 flex list-none flex-col gap-1 p-0">
-        {items.map((f) => (
-          <li key={f.id}>
-            <Link href={f.href} className="flex items-center gap-2.5 rounded-xl bg-field px-2.5 py-2 text-ink hover:text-ink">
-              <Icon name={f.type === "TASK" ? "check" : (FOLLOW_UP_TYPES.find((t) => t.value === f.type)?.icon ?? "phone")} size={14} />
-              <span className="min-w-0 flex-1 truncate text-xs">{f.title}</span>
-              {f.time && <span className="text-[11px] text-muted">{formatTime12(f.time)}</span>}
+        {wip.rows.map((r) => (
+          <li key={r.id}>
+            <Link href={`/wip?focus=${r.id}`} className={ROW}>
+              <span className="flex min-w-0 flex-1 flex-col">
+                <span className="truncate text-[13px]">{r.tenantName}</span>
+                <span className="truncate text-[11px] text-muted">
+                  {r.building ? `${r.building} · ` : ""}
+                  {formatCompactINR(r.feePaise)}
+                </span>
+              </span>
+              <StagePill remark={r.remark} />
             </Link>
           </li>
         ))}
-        {items.length === 0 && <li className="p-3 text-center text-xs text-muted">Nothing due today · {formatDayMonth(today)}</li>}
+        {wip.rows.length === 0 && <li className="p-2 text-xs text-muted">No mandates assigned yet.</li>}
       </ul>
     </section>
   );
 }
 
-function CabsCard({ items, today }: { items: NonNullable<DashboardData["employee"]>["cabs"]; today: string }) {
+function MyDayCard({ items, today }: { items: EmployeeCards["day"]; today: string }) {
   return (
-    <section className={CARD} aria-label="Upcoming cabs">
-      <CardHeader icon="car" title="Upcoming cabs" href="/vehicles" linkLabel="Open vehicle management" />
+    <section className={CARD} aria-label="My day">
+      <CardHeader icon="followups" title="My day" />
       <ul className="m-0 flex list-none flex-col gap-1 p-0">
-        {items.map((c) => (
-          <li key={c.id} className="flex items-center gap-2.5 rounded-xl bg-field px-2.5 py-2">
-            <span className="flex min-w-0 flex-1 flex-col">
-              <span className="truncate text-xs">
-                {CAR_TYPES.find((t) => t.value === c.car)?.label} · {c.client}
-              </span>
-              <span className="truncate text-[11px] text-muted">
-                {relativeDayLabel(c.date, today)}, {formatTime12(c.time)} · {c.pickup}
-              </span>
-            </span>
-            <StatusPill color={CAB_STATUS[c.status].color}>{CAB_STATUS[c.status].label}</StatusPill>
-          </li>
-        ))}
-        {items.length === 0 && <li className="p-3 text-center text-xs text-muted">No cabs booked.</li>}
+        {items.map((d) => {
+          const overdue = d.kind === "LEAD" && d.date < today;
+          return (
+            <li key={d.id}>
+              <Link href={d.href} className={ROW}>
+                <span className="flex h-7 w-7 flex-none items-center justify-center rounded-pill bg-[rgba(2,62,125,.14)]">
+                  <Icon name={d.kind === "CAB" ? "car" : "clock"} size={13} strokeWidth={1.6} color="#023E7D" />
+                </span>
+                <span className="flex min-w-0 flex-1 flex-col">
+                  <span className="truncate text-[13px]">{d.title}</span>
+                  <span className="truncate text-[11px] text-muted">{d.sub}</span>
+                </span>
+                <span className={`flex h-[22px] flex-none items-center whitespace-nowrap rounded-pill px-[9px] text-[10px] font-medium ${overdue ? "bg-danger text-white" : "bg-[rgba(2,62,125,.14)] text-navy-950"}`}>
+                  {overdue ? "Overdue" : `${formatDayMonth(d.date)}${d.time ? ` ${formatTime12(d.time)}` : ""}`}
+                </span>
+              </Link>
+            </li>
+          );
+        })}
+        {items.length === 0 && <li className="p-2 text-xs text-muted">Nothing scheduled — enjoy the quiet.</li>}
       </ul>
+    </section>
+  );
+}
+
+function MyPayCard({ pay }: { pay: EmployeeCards["pay"] }) {
+  const file = useDownload();
+  return (
+    <section className={CARD} aria-label="My incentive and payslip">
+      <CardHeader icon="payroll" title="My incentive & payslip" href="/payslips" linkLabel="Open payslips & incentive" />
+      <div className="grid grid-cols-2 gap-2">
+        <Stat label="Earned" value={formatCompactINR(pay.earnedPaise)} valueClassName="text-success-ink" />
+        <Stat label="Expected" value={formatCompactINR(pay.expectedPaise)} />
+      </div>
+      <div className="flex justify-between px-0.5 pt-1 text-xs">
+        <span className="text-muted">Current CTC</span>
+        <span>{pay.ctcAnnualPaise === null ? "—" : formatINR(pay.ctcAnnualPaise)}</span>
+      </div>
+      <div className="flex justify-between px-0.5 pb-1 text-xs">
+        <span className="text-muted">Date of joining</span>
+        <span>{pay.dateOfJoining ? formatDate(pay.dateOfJoining) : "—"}</span>
+      </div>
+      <Button
+        icon="download"
+        iconSize={14}
+        className="w-full"
+        disabled={!pay.latestPayslip}
+        loading={file.pending !== null}
+        onClick={() => pay.latestPayslip && void file.download(pay.latestPayslip.url, "payslip.pdf")}
+      >
+        {pay.latestPayslip ? "Download latest payslip" : "No payslips yet"}
+      </Button>
     </section>
   );
 }
@@ -182,7 +247,7 @@ export function DashboardScreen({ data, greeting, dateLabel }: { data: Dashboard
   const partnerView = data.mode === "partner";
   const pct = data.target.amountPaise ? Math.round(Math.min(1, data.target.achievedPaise / data.target.amountPaise) * 100) : null;
   const rows: AchievementRow[] = [
-    ...(pct !== null ? [{ id: "target", icon: "target" as const, title: `Reached ${pct}% of the annual target`, meta: `${formatCompactINR(data.target.achievedPaise)} of ${formatCompactINR(data.target.amountPaise!)}`, value: `${pct}%` }] : []),
+    ...(pct !== null ? [{ id: "target", icon: "target" as const, title: `Reached ${pct}% of ${data.target.scope}`, meta: `${formatCompactINR(data.target.achievedPaise)} of ${formatCompactINR(data.target.amountPaise!)}`, value: `${pct}%` }] : []),
     ...data.achievements.map((a) => ({ id: a.id, icon: (a.kind === "DEAL_CLOSED" ? "trophy" : "spark") as AchievementRow["icon"], title: a.title, meta: a.meta, value: achievementValue(a.valuePaise) })),
   ];
 
@@ -203,16 +268,22 @@ export function DashboardScreen({ data, greeting, dateLabel }: { data: Dashboard
           <div className="flex flex-wrap items-center justify-between gap-4">
             <h1 className="m-0 text-[44px] font-light leading-[48px] tracking-[-.02em] [text-wrap:balance]">{greeting}</h1>
             <div className="flex flex-wrap gap-2">
-              <TeamActivityButton />
-              <AchievementsButton rows={rows} headline={`${rows.length} achievement${rows.length === 1 ? "" : "s"} this month`} sub={pct === null ? "Keep the momentum going" : `${pct}% of the annual target reached`} />
+              {/* The Employee View has achievements only; team activity is for owners and admins. */}
+              {!data.employee && <TeamActivityButton />}
+              <AchievementsButton rows={rows} headline={`${rows.length} achievement${rows.length === 1 ? "" : "s"} this month`} sub={pct === null ? "Keep the momentum going" : `${pct}% of ${data.target.scope} reached`} />
             </div>
           </div>
           <TargetCard {...data.target} />
           <div className="mt-2 grid grid-cols-[repeat(auto-fit,minmax(min(100%,320px),1fr))] gap-2">
             {data.revenue && <RevenueCard revenue={data.revenue} canOpenFinance={data.canOpenFinance} />}
-            <PipelineCard title={data.mode === "employee" ? "My pipeline" : "Pipeline"} pipeline={data.pipeline} />
-            {data.employee && <FollowUpsCard items={data.employee.followUps} today={data.today} />}
-            {data.employee && <CabsCard items={data.employee.cabs} today={data.today} />}
+            {data.pipeline && <PipelineCard pipeline={data.pipeline} />}
+            {data.employee && (
+              <>
+                <MyWipCard wip={data.employee.wip} />
+                <MyDayCard items={data.employee.day} today={data.today} />
+                <MyPayCard pay={data.employee.pay} />
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -43,8 +43,9 @@ export function AppShell({ user, nav, quickCreate, view, live, children }: AppSh
 
   return (
     <LiveProvider initial={live}>
-      <div className="flex h-dvh p-[clamp(12px,3.5vw,56px)]">
-        <div id="pm-frame" className="relative min-w-0 flex-1 overflow-hidden rounded-xl bg-frame shadow-frame">
+      {/* The app fills the window (the prototype floats this frame on the blue background with a margin). */}
+      <div className="flex h-dvh">
+        <div id="pm-frame" className="relative min-w-0 flex-1 overflow-hidden bg-frame">
           <SvgDefs />
           <a href="#pm-content" className="sr-only-focusable rounded-pill bg-white px-4 py-2 text-sm">
             Skip to content

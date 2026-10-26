@@ -19,15 +19,17 @@ test("an employee downloads their own payslip and nobody else's", async ({ brows
   const page = await context.newPage();
   await skipIntro(page, baseURL!);
   await signIn(page, E2E.employee.email, E2E.employee.password);
+
+  // Employees use "Payslips & Incentive"; Payroll (everyone's pay, run controls) sends them there.
   await page.goto("/payroll");
-
-  // Only their own row, and no run controls.
-  const rows = page.locator('[role="row"]').filter({ has: page.getByRole("button", { name: "Download" }) });
-  await expect(rows).toHaveCount(1);
-  await expect(rows.first()).toContainText("Neha Sharma");
+  await expect(page).toHaveURL(/\/payslips$/);
+  await expect(page.getByRole("heading", { name: "Payslips & Incentive" })).toBeVisible();
+  await expect(page.getByText(/^Neha Sharma · /)).toBeVisible();
   await expect(page.getByRole("button", { name: /Approve payroll|Disburse via bank/ })).toHaveCount(0);
+  await expect(page.getByRole("table", { name: "My incentive" })).toContainText("Expected");
 
-  const [download] = await Promise.all([page.waitForEvent("download", { timeout: 60_000 }), rows.first().getByRole("button", { name: "Download" }).click()]);
+  const [download] = await Promise.all([page.waitForEvent("download", { timeout: 60_000 }), page.getByRole("button", { name: "Download payslip" }).first().click()]);
+  expect(download.suggestedFilename()).toMatch(/^Payslip-Neha-Sharma-/);
   expectPdf(await readFile((await download.path())!));
 
   const res = await page.request.get(othersPayslip);
