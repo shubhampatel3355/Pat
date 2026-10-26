@@ -98,11 +98,6 @@ export async function latestRun(): Promise<RunDto | null> {
   return run ? toRunDto(run) : null;
 }
 
-export async function runById(id: string): Promise<RunDto | null> {
-  const run = await db.payrollRun.findUnique({ where: { id }, include: runInclude });
-  return run ? toRunDto(run) : null;
-}
-
 /**
  * Creates or refreshes the payslips of a run from current CTCs. Reviewer inputs (commission, incentive,
  * other deductions, TDS overrides, holds, notes) on existing payslips are kept.

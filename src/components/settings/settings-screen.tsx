@@ -39,7 +39,7 @@ export function SettingsScreen({ tab, tabs, children }: { tab: SettingsTab; tabs
   return (
     <Page>
       <PageHeader title="Settings" meta="Company, roles, integrations and the audit trail" />
-      <nav aria-label="Settings sections" className="pm-scroll flex max-w-full gap-0.5 self-start overflow-x-auto rounded-pill bg-card p-1">
+      <nav aria-label="Settings sections" className="pm-scroll relative flex max-w-full gap-0.5 self-start overflow-x-auto rounded-pill bg-card p-1">
         {tabs.map((t) => (
           <Link
             key={t}
@@ -173,7 +173,7 @@ function TargetsEditor({ targets, canEdit }: { targets: TargetsView; canEdit: bo
         </div>
       </div>
 
-      <div className="pm-scroll overflow-x-auto">
+      <div className="pm-scroll relative overflow-x-auto">
         <div role="table" aria-label={`Member targets ${targets.quarterLabel}`} className="flex min-w-[640px] flex-col gap-1">
           <div role="row" className="grid h-9 grid-cols-[minmax(200px,1.4fr)_minmax(160px,1fr)_minmax(160px,1fr)] items-center gap-3 px-3 text-xs font-medium text-muted">
             <span role="columnheader">Member · {targets.quarterLabel}</span>
@@ -223,7 +223,7 @@ export function RolesTab({ matrix, canEdit }: { matrix: RolesMatrix; canEdit: bo
           <Icon name="lock" size={12} /> Only owners can change what each role may do.
         </p>
       )}
-      <div className="pm-scroll overflow-x-auto rounded-card bg-card p-2">
+      <div className="pm-scroll relative overflow-x-auto rounded-card bg-card p-2">
         <div role="table" aria-label="Roles and permissions" className="flex min-w-[720px] flex-col gap-1">
           <div role="row" className="grid h-11 items-center gap-2 px-3 text-xs font-medium text-muted" style={{ gridTemplateColumns: cols }}>
             <span role="columnheader">Permission</span>

@@ -45,8 +45,4 @@ export type PermissionKey = (typeof PERMISSION_DEFS)[number]["key"];
 
 export const PERMISSION_KEYS = PERMISSION_DEFS.map((p) => p.key) as PermissionKey[];
 
-export function isPermissionKey(value: string): value is PermissionKey {
-  return (PERMISSION_KEYS as string[]).includes(value);
-}
-
 export const ROLE_LABELS = { OWNER: "Owner", ADMIN: "Admin", EMPLOYEE: "Employee" } as const;

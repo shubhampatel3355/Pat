@@ -43,10 +43,6 @@ export function canDeleteFile(user: SessionUser, f: FileAccessRow): boolean {
   return f.invoiceId ? has(user, "invoices.create") : user.role === "OWNER";
 }
 
-export function formatFileSize(bytes: number): string {
-  return bytes >= 1e6 ? `${(bytes / 1e6).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1e3))} KB`;
-}
-
 interface SaveInput {
   user: SessionUser;
   meta: RequestMeta;

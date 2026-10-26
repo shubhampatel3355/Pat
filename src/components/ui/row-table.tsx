@@ -6,7 +6,7 @@ import { cn } from "./cn";
  */
 export function RowTable({ minWidth, columns, label, children, className }: { minWidth: number; columns: string; label: string; children: React.ReactNode; className?: string }) {
   return (
-    <div className={cn("pm-scroll overflow-x-auto rounded-card bg-card p-2", className)}>
+    <div className={cn("pm-scroll relative overflow-x-auto rounded-card bg-card p-2", className)}>
       <div role="table" aria-label={label} className="flex flex-col gap-1" style={{ minWidth, ["--cols" as string]: columns }}>
         {children}
       </div>

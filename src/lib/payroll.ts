@@ -1,4 +1,4 @@
-import { addDaysIso, financialYear, fyMonths, fyOfIso, quarterBounds, type FinancialYear } from "./dates";
+import { financialYear, fyMonths, fyOfIso, quarterBounds, type FinancialYear } from "./dates";
 
 /**
  * Payroll arithmetic (all amounts in paise). The prototype's structure: CTC is the gross fixed pay,
@@ -128,7 +128,6 @@ export function shortMonthLabel(period: string): string {
 }
 
 export const periodOfIso = (iso: string) => iso.slice(0, 7);
-export const previousPeriod = (period: string) => periodOfIso(addDaysIso(monthStart(period), -1));
 
 export type StatementType = "MONTHLY" | "QUARTERLY" | "YEARLY";
 

@@ -2,10 +2,10 @@ import "server-only";
 import type { Prisma } from "@/generated/prisma/client";
 import type { InvoiceStatus, InvoiceType } from "@/generated/prisma/enums";
 import type { InvoiceDocData } from "@/lib/company";
-import { addDaysIso, dateToIso, financialYear, formatDate, fyOfIso, isoDateIST, isoToDate, type FinancialYear } from "@/lib/dates";
+import { addDaysIso, dateToIso, formatDate, fyOfIso, isoDateIST, isoToDate, type FinancialYear } from "@/lib/dates";
 import { computeGst, STATE_NAMES } from "@/lib/gstin";
 import { dueDateFromTerms, formatDocNumber, invoiceStatusDisplay } from "@/lib/invoice";
-import { formatINR, sharePaise, toPaise } from "@/lib/money";
+import { formatINR, toPaise } from "@/lib/money";
 import { formatMobile } from "@/lib/schemas/common";
 import { db, type Tx } from "../db";
 import { companyStateCode } from "../env";
@@ -212,21 +212,4 @@ export async function listDocuments(user: SessionUser, kinds: InvoiceType[]): Pr
       payments: r.payments.map((p) => ({ id: p.id, amountPaise: toPaise(p.amountPaise), receivedOn: dateToIso(p.receivedOn), mode: p.mode, reference: p.reference, recordedBy: p.recordedBy.name })),
     };
   });
-}
-
-/** Summary line under the list header: "3 invoices raised · ₹ 12,36,640 billed · next PM/26-27/0115". */
-export async function invoiceMeta(today = isoDateIST()) {
-  const fy = fyOfIso(today);
-  const [count, sum, next] = await Promise.all([
-    db.invoice.count({ where: { type: "INVOICE", fy: fy.short } }),
-    db.invoice.aggregate({ where: { type: "INVOICE", fy: fy.short }, _sum: { totalPaise: true } }),
-    peekNumber("INVOICE", today),
-  ]);
-  return { count, billedPaise: toPaise(sum._sum.totalPaise ?? BigInt(0)), next, fyLabel: financialYear(fy.startYear).label };
-}
-
-export function brokerSharesForUsers(inv: { feesPaise: bigint; brokers: { userId: string | null; sharePct: number }[] }): Map<string, number> {
-  const out = new Map<string, number>();
-  for (const b of inv.brokers) if (b.userId) out.set(b.userId, (out.get(b.userId) ?? 0) + sharePaise(toPaise(inv.feesPaise), b.sharePct));
-  return out;
 }

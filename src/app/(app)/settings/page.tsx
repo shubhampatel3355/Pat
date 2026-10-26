@@ -39,7 +39,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   } else {
     const moduleParam = param("module");
     const auditModule = moduleParam && (AUDIT_MODULES as readonly string[]).includes(moduleParam) ? moduleParam : null;
-    const page = await auditPage(auditModule, param("before"));
+    const page = await auditPage(user, auditModule, param("before"));
     body = <AuditTab modules={AUDIT_MODULES} module={auditModule} rows={page.rows} next={page.next} />;
   }
   return (

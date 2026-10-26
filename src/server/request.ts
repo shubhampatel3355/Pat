@@ -1,5 +1,4 @@
 import "server-only";
-import { headers } from "next/headers";
 
 export interface RequestMeta {
   ip: string | null;
@@ -12,10 +11,6 @@ export function metaFromHeaders(h: Headers): RequestMeta {
   const ip = forwarded || h.get("x-real-ip") || null;
   const userAgent = h.get("user-agent")?.slice(0, 400) ?? null;
   return { ip, userAgent };
-}
-
-export async function requestMeta(): Promise<RequestMeta> {
-  return metaFromHeaders(await headers());
 }
 
 /**

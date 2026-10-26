@@ -114,11 +114,3 @@ export async function revenueByFy(userIds?: string[]): Promise<Map<number, numbe
         GROUP BY 1`;
   return new Map(rows.map((r) => [Number(r.fy), toNumber(r.total)]));
 }
-
-/** Earliest financial year (start year) that has any invoice, or null. */
-export async function firstInvoiceYear(): Promise<number | null> {
-  const first = await db.invoice.findFirst({ where: { type: "INVOICE" }, orderBy: { issueDate: "asc" }, select: { issueDate: true } });
-  if (!first) return null;
-  const d = first.issueDate;
-  return d.getUTCMonth() >= 3 ? d.getUTCFullYear() : d.getUTCFullYear() - 1;
-}

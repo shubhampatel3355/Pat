@@ -3,7 +3,7 @@
 import { refresh } from "next/cache";
 import { ok } from "@/lib/action-result";
 import { CAB_STATUS, CAR_TYPES } from "@/lib/constants";
-import { dateToIso, formatDayMonth, formatTime12, isoDateIST, isoToDate } from "@/lib/dates";
+import { dateToIso, formatDayMonth, formatTime12, isoDateIST, isoToDate, timeIST } from "@/lib/dates";
 import { cabBookingInputSchema, cabStatusInputSchema } from "@/lib/schemas/vehicles";
 import { writeAudit } from "../audit";
 import { db } from "../db";
@@ -18,6 +18,7 @@ export const bookCabAction = defineAction({
   authorize: (user) => can(user, "create", { type: "cab" }),
   handler: async ({ user, input, meta }) => {
     if (input.pickupDate < isoDateIST()) throw new UserError("Pick today or a later date", { pickupDate: "In the past" });
+    if (input.pickupDate === isoDateIST() && input.pickupTime < timeIST(new Date())) throw new UserError("That time has already passed today — pick a later time", { pickupTime: "Already passed" });
     const person = await db.user.findFirst({ where: { id: input.bookedForId, active: true, deletedAt: null }, select: { id: true, name: true } });
     if (!person) throw new UserError("Pick who the cab is for");
     const when = `${formatDayMonth(input.pickupDate)}, ${formatTime12(input.pickupTime)}`;

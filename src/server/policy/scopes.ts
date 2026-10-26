@@ -31,10 +31,6 @@ export function followUpScope(u: SessionUser): Prisma.FollowUpWhereInput {
   return { ...base, OR: [{ ownerId: u.id }, { createdById: u.id }] };
 }
 
-export function payslipScope(u: SessionUser): Prisma.PayslipWhereInput {
-  return has(u, "payroll.view_all") ? {} : { userId: u.id };
-}
-
 /** Audit rows the user may see in the activity ticker. */
 export function feedScope(u: SessionUser): Prisma.AuditLogWhereInput {
   if (isAdminOrOwner(u)) return { feed: true };

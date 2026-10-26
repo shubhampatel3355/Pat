@@ -53,9 +53,10 @@ export function AppShell({ user, nav, quickCreate, view, live, children }: AppSh
           <ToastProvider>
             <TopBar user={user} quickCreate={quickCreate} view={view} onOpenSearch={() => setCmdOpen(true)} />
             <Rail nav={nav} />
-            <main id="pm-content" tabIndex={-1} className="pm-scroll absolute bottom-0 left-[76px] right-0 top-[68px] overflow-y-auto pb-8 pr-6 outline-none max-md:left-3 max-md:pr-3">
+            <main id="pm-content" tabIndex={-1} className="pm-scroll absolute bottom-0 left-[76px] right-0 top-[68px] overflow-y-auto pb-8 pr-6 outline-none max-md:left-3 max-md:pb-24 max-md:pr-3">
               {children}
             </main>
+            <MobileNav nav={nav} onMore={() => setCmdOpen(true)} />
             <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} nav={nav} />
             <CelebrationWatcher />
           </ToastProvider>
@@ -200,17 +201,18 @@ function ProfileMenu({ user }: { user: ShellUser }) {
   const ref = useDismiss(open, close);
   const [signingOut, start] = useTransition();
   return (
-    <div ref={ref} className="relative max-md:hidden">
+    <div ref={ref} className="relative">
+      {/* Phones show the avatar only; the menu (change password, sign out) is the same everywhere. */}
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-haspopup="menu"
         aria-label={`Account: ${user.name}`}
-        className="glass flex h-10 items-center gap-2.5 rounded-pill py-[3px] pl-[3px] pr-4 text-left"
+        className="glass flex h-10 items-center gap-2.5 rounded-pill py-[3px] pl-[3px] pr-4 text-left max-md:pr-[3px]"
       >
         <span className="flex h-8 w-8 items-center justify-center rounded-pill bg-primary text-[11px] font-medium text-white shadow-avatar">{user.initials}</span>
-        <span className="flex flex-col leading-[1.15]">
+        <span className="flex flex-col leading-[1.15] max-md:hidden">
           <span className="text-[13px] font-medium">{user.name}</span>
           <span className="text-[11px] text-muted">{user.email}</span>
         </span>
@@ -319,6 +321,40 @@ function Notifications() {
         </div>
       )}
     </div>
+  );
+}
+
+// ── Mobile bottom bar (prototype: Home · WIP · Follow-ups · More) ───────────────
+
+function MobileNav({ nav, onMore }: { nav: ShellNavGroup[]; onMore: () => void }) {
+  const pathname = usePathname();
+  const allowed = new Set(nav.flatMap((g) => g.items.map((i) => i.href)));
+  const items = (
+    [
+      ["/dashboard", "Home", "dashboard"],
+      ["/wip", "WIP", "leads"],
+      ["/follow-ups", "Follow-ups", "followups"],
+    ] as const
+  ).filter(([href]) => allowed.has(href));
+  const button = (active: boolean) =>
+    cn(
+      "flex h-12 w-12 items-center justify-center rounded-pill border-0 transition-colors duration-200",
+      active ? "bg-primary text-white shadow-primary" : "bg-transparent text-ink",
+    );
+  return (
+    <nav aria-label="Mobile" className="glass absolute bottom-3 left-3 right-3 z-30 flex h-16 items-center justify-around rounded-pill px-2 shadow-glass md:hidden">
+      {items.map(([href, label, icon]) => {
+        const active = pathname === href || pathname.startsWith(`${href}/`);
+        return (
+          <Link key={href} href={href} title={label} aria-label={label} aria-current={active ? "page" : undefined} className={button(active)}>
+            <Icon name={icon} size={20} />
+          </Link>
+        );
+      })}
+      <button type="button" onClick={onMore} title="More" aria-label="More pages and search" className={button(false)}>
+        <Icon name="more" size={20} />
+      </button>
+    </nav>
   );
 }
 

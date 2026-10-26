@@ -239,7 +239,7 @@ export function FollowUpsScreen({ followUps, tasks, users, leads, me, today, now
               )}
             </div>
           ) : (
-            <div className="pm-scroll overflow-x-auto">
+            <div className="pm-scroll relative overflow-x-auto">
               <div className="grid min-w-[900px] grid-cols-7 gap-2">
                 {week.map((d) => (
                   <div key={d.day} className="flex min-h-[320px] flex-col gap-1.5 rounded-[20px] bg-card p-2" style={{ boxShadow: d.day === today ? "0 0 0 1.5px #023E7D" : "none" }}>
@@ -341,7 +341,7 @@ export function FollowUpsScreen({ followUps, tasks, users, leads, me, today, now
               </RowTable>
             )
           ) : (
-            <div className="pm-scroll overflow-x-auto">
+            <div className="pm-scroll relative overflow-x-auto">
               <div className="grid min-w-[860px] grid-cols-3 gap-2">
                 {TASK_STATUSES.map((col) => {
                   const cards = visibleTasks.filter((t) => t.status === col.value);

@@ -91,7 +91,7 @@ export function TodoCard({ todos, today }: { todos: TodoDto[]; today: string }) 
         </div>
       </div>
 
-      <div className="pm-scroll flex gap-1 overflow-x-auto" role="tablist" aria-label="To-do lists">
+      <div className="pm-scroll relative flex gap-1 overflow-x-auto" role="tablist" aria-label="To-do lists">
         {FILTERS.map(([k, label]) => (
           <button
             key={k}

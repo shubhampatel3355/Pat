@@ -9,7 +9,6 @@ import type {
   LeadTemperature,
   MeetingMode,
   MeetingType,
-  PricingBasis,
   TaskPriority,
   TaskStatus,
   WipRemark,
@@ -31,12 +30,6 @@ export const WIP_REMARKS: { value: WipRemark; label: string; color: string }[] =
 export const WIP_REMARK = Object.fromEntries(WIP_REMARKS.map((r) => [r.value, r])) as Record<WipRemark, (typeof WIP_REMARKS)[number]>;
 /** Remarks that are no longer in the pipeline. */
 export const CLOSED_REMARKS: WipRemark[] = ["LOST", "PAYMENT_COLLECTED"];
-
-export const PRICING_BASIS: { value: PricingBasis; label: string }[] = [
-  { value: "PER_SQFT", label: "Per sq ft" },
-  { value: "PER_SEAT", label: "Per seat" },
-  { value: "LUMPSUM", label: "Lumpsum" },
-];
 
 export const TEMPERATURES: { value: LeadTemperature; label: string; color: string }[] = [
   { value: "COLD", label: "Cold", color: "#5C7FA8" },
@@ -95,11 +88,3 @@ export const FOLLOW_UP_TYPES: { value: FollowUpType; label: string; icon: "phone
   { value: "MEETING", label: "Meeting", icon: "calendar" },
   { value: "SITE_VISIT", label: "Site visit", icon: "visits" },
 ];
-
-export const STATUS_COLORS = {
-  success: "#3E9B52",
-  warning: "#F5B73B",
-  danger: "#C93C37",
-  neutral: "#A8A8AD",
-  primary: "#023E7D",
-} as const;

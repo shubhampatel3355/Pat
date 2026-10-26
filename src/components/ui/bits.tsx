@@ -86,16 +86,6 @@ export function Toggle({
   );
 }
 
-/** Small round icon badge used at the top-left of cards. */
-export function IconBadge({ children, tone = "chip", size = 32 }: { children: React.ReactNode; tone?: "chip" | "blue" | "white" | "surface"; size?: number }) {
-  const tones = { chip: "bg-chip-2", blue: "bg-primary text-white", white: "bg-white/16 text-white", surface: "bg-surface" };
-  return (
-    <span className={cn("inline-flex flex-none items-center justify-center rounded-pill", tones[tone])} style={{ width: size, height: size }}>
-      {children}
-    </span>
-  );
-}
-
 export function EmptyState({ children, className }: { children: React.ReactNode; className?: string }) {
   return <div className={cn("p-10 text-center text-[13px] text-muted", className)}>{children}</div>;
 }

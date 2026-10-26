@@ -63,7 +63,9 @@ Sign in as `pat@patmichaels.in` with the temporary password; you'll be asked to 
   finance definitions, payroll arithmetic, permissions, schemas, storage link signing.
 - **End to end** (`pnpm test:e2e`): sign-in (wrong password, first sign-in password change, sign-out,
   return to the requested page), **create a WIP lead → raise its invoice → print → server PDF → email with the
-  PDF attached**, and **an employee downloads their own payslip** but gets a 404 for anyone else's. They run
+  PDF attached**, **an employee downloads their own payslip** but gets a 404 for anyone else's, **employee access
+  control** (restricted pages show "Not available"; finance export, invoice PDFs, others' payslips and partner-folder
+  uploads are refused), and **phones** (bottom bar, page list, sign-out, no sideways scrolling). They run
   against a production build and a throwaway database whose name must end in `_test` or `_e2e`. The global setup
   loads the demo data into it.
 

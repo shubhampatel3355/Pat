@@ -27,12 +27,14 @@ interface VehiclesScreenProps {
   places: string[];
   me: string;
   today: string;
+  /** Next sensible pick-up (computed on the server so the first render matches). */
+  defaultPickup: { date: string; time: string };
 }
 
-export function VehiclesScreen({ rows, stats, people, places, me, today }: VehiclesScreenProps) {
+export function VehiclesScreen({ rows, stats, people, places, me, today, defaultPickup }: VehiclesScreenProps) {
   const router = useRouter();
   const params = useSearchParams();
-  const blank = { carType: "SEDAN" as CarType, clientName: "", pickupDate: today, pickupTime: "10:00", pickupLocation: "", bookedForId: me };
+  const blank = { carType: "SEDAN" as CarType, clientName: "", pickupDate: defaultPickup.date, pickupTime: defaultPickup.time, pickupLocation: "", bookedForId: me };
   const [form, setForm] = useState(blank);
   const [error, setError] = useState<string | null>(null);
   const [fresh, setFresh] = useState<string | null>(() => params.get("focus"));

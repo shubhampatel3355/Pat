@@ -36,23 +36,25 @@ export async function scheduleFollowUpReminder(tx: Tx, followUp: { id: string; d
 
 export async function handleReminder(job: ReminderJob) {
   const appUrl = env().APP_URL.replace(/\/$/, "");
+  // People who have been deactivated or removed get no reminders (and no emails) any more.
+  const reachable = (u: { active: boolean; deletedAt: Date | null }) => u.active && !u.deletedAt;
   if (job.kind === "followup") {
-    const f = await db.followUp.findUnique({ where: { id: job.id } });
-    if (!f || f.deletedAt || f.completedAt) return;
+    const f = await db.followUp.findUnique({ where: { id: job.id }, include: { owner: { select: { active: true, deletedAt: true } } } });
+    if (!f || f.deletedAt || f.completedAt || !reachable(f.owner)) return;
     if (job.at && f.dueAt.toISOString() !== job.at) return; // rescheduled since
     await db.notification.create({ data: { userId: f.ownerId, kind: "reminder", text: `Follow-up due: ${f.contactName}${f.note ? ` · ${f.note}` : ""}`, href: `/follow-ups?followup=${f.id}` } });
     return;
   }
   if (job.kind === "todo") {
     const todo = await db.todo.findUnique({ where: { id: job.id }, include: { user: true } });
-    if (!todo || todo.done || !todo.remind) return;
+    if (!todo || todo.done || !todo.remind || !reachable(todo.user)) return;
     const due = todoDueInstant(todo);
     if (!due || (job.at && due.toISOString() !== job.at)) return; // rescheduled since
     await db.notification.create({ data: { userId: todo.userId, kind: "reminder", text: `Reminder: ${todo.text}`, href: "/dashboard" } });
     return;
   }
   const task = await db.task.findUnique({ where: { id: job.id }, include: { assignee: true } });
-  if (!task || task.deletedAt || task.status === "DONE" || !task.dueAt) return;
+  if (!task || task.deletedAt || task.status === "DONE" || !task.dueAt || !reachable(task.assignee)) return;
   if (job.at && task.dueAt.toISOString() !== job.at) return;
   if (task.remindInApp) {
     await db.notification.create({ data: { userId: task.assigneeId, kind: "reminder", text: `Task due: ${task.title}`, href: `/follow-ups?task=${task.id}` } });

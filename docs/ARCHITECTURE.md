@@ -48,6 +48,8 @@ The visual source of truth is `design-reference/Pat Michaels OS (offline).html` 
 17. **Payment reversal** is not in the prototype: an invoice's **Payments (n)** action lists its payments, and people who can record payments can reverse one with a reason. The invoice status, the Finance receipt and the WIP stage ("Payment Collected" → "Invoice Raised") follow in one transaction.
 18. **Colour contrast**: small text on the grey chips and cards uses slightly darker shades than the prototype (`muted-strong` #4D4D52 instead of #55555A on #C7C7C7; YoY green #216A36 / red #A8302C instead of #3E9B52 / #C93C37 on #DCDCDC) to meet WCAG AA 4.5:1. Lighthouse (desktop) scores Dashboard and WIP 100 for performance, accessibility and best practices.
 19. **Full-window app** (client request): the signed-in app fills the browser window; the prototype floats it as a rounded frame on the blue gradient with a margin. The sign-in screens keep the gradient.
+20. **Phones** (below 768 px) use the employee prototype's floating bottom bar — Home, WIP, Follow-ups (each only if the person may open it) and More, which opens the page list / search — and keep the account button as an avatar so Change password and Sign out stay reachable.
+21. **Not found, errors, loading**: pages a role may not open and unknown addresses show the prototype's module card ("This page isn't available" / "Page not found") with Back to dashboard; a page that fails shows "This page couldn't load" with Try again and the log reference; navigation shows a skeleton while a page loads. Because of that loading state, a refused page answers HTTP 200 with the "Not available" card (no record data is rendered); API routes still answer 404.
 
 ---
 
@@ -73,7 +75,8 @@ src/
   server/               server-only: env, db, logger, auth/, policy/ (can + scopes), audit, actions/,
                         services/, storage/, pdf/, email/, queue/, rate-limit, crypto, signed-urls
   proxy.ts              CSP nonce + optimistic auth redirect
-  instrumentation.ts    env validation at boot, pg-boss worker start, error reporting hook
+  instrumentation.ts    env validation at boot, pg-boss worker start, error reporting hook; on SIGTERM stops the
+                        queue and closes the PDF browser
 tests/unit, tests/e2e, tests/visual
 ```
 

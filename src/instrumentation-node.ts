@@ -23,9 +23,10 @@ export async function registerNode() {
     await start();
   }
 
+  // On redeploy/stop: let running jobs finish and close the PDF browser so no Chromium process is left behind.
   const shutdown = async () => {
-    const { stopBoss } = await import("./server/queue");
-    await stopBoss();
+    const [{ stopBoss }, { closePdfBrowser }] = await Promise.all([import("./server/queue"), import("./server/pdf/render")]);
+    await Promise.allSettled([stopBoss(), closePdfBrowser()]);
   };
   process.once("SIGTERM", () => void shutdown());
   process.once("SIGINT", () => void shutdown());

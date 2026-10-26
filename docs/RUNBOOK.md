@@ -148,6 +148,11 @@ shows its contact details.
 ## Upgrades and known quirks
 
 - **Dependencies** are pinned. Upgrade on a branch, then let CI (unit + e2e) pass before merging.
+- **Local development**: background jobs (emails, reminders) start once with `pnpm dev` and don't hot-reload — restart
+  the dev server after changing anything under `src/server/queue`, `reminders.ts` or the email/PDF code. If the dev
+  server keeps reloading the page in a loop, stop it, delete `.next/dev` and start it again.
+- Server Action logging is switched off in `next.config.ts` (`logging.serverFunctions: false`): Next.js would otherwise
+  print every action's arguments — including passwords — in the dev terminal. Don't switch it back on.
 - Keep **`pg` on 8.x**. Prisma 7.10's query engine sends overlapping queries inside transactions, which pg 8
   only warns about (`DeprecationWarning: Calling client.query() when the client is already executing a query`)
   and pg 9 will reject. Upgrade `pg` only once Prisma supports it.

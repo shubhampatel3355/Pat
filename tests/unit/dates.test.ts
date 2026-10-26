@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addDaysIso, financialYear, formatDate, formatDateTime, formatTime12, fyMonths, fyOfIso, fyQuarterOfIso, isoDateIST, relativeDayLabel, sameDayLastYear } from "@/lib/dates";
+import { addDaysIso, defaultPickupSlot, financialYear, formatDate, formatDateTime, formatTime12, fyMonths, fyOfIso, fyQuarterOfIso, isoDateIST, relativeDayLabel, sameDayLastYear } from "@/lib/dates";
 
 describe("financial year (April–March)", () => {
   it("starts in April", () => {
@@ -40,4 +40,13 @@ describe("year-on-year dates", () => {
   it("steps back one year", () => expect(sameDayLastYear("2026-10-22")).toBe("2025-10-22"));
   it("maps 29 Feb to 28 Feb", () => expect(sameDayLastYear("2028-02-29")).toBe("2027-02-28"));
   it("stamps reports in IST", () => expect(formatDateTime(new Date("2026-10-22T11:18:00Z"))).toBe("22 Oct 2026, 4:48 pm"));
+});
+
+describe("default cab pick-up (IST)", () => {
+  it.each([
+    ["2026-10-26T03:00:00Z", "2026-10-26", "10:00"], // 08:30 IST → today 10:00
+    ["2026-10-26T10:51:00Z", "2026-10-26", "16:30"], // 16:21 IST → next half hour
+    ["2026-10-26T11:00:00Z", "2026-10-26", "17:00"], // 16:30 IST exactly → the following slot
+    ["2026-10-26T18:15:00Z", "2026-10-27", "10:00"], // 23:45 IST → tomorrow 10:00
+  ])("%s → %s %s", (now, date, time) => expect(defaultPickupSlot(new Date(now))).toEqual({ date, time }));
 });

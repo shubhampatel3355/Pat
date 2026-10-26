@@ -8,6 +8,7 @@ import { initialsOf } from "../auth/session";
 import { companyProfile } from "../company";
 import { db } from "../db";
 import { env } from "../env";
+import { has, type SessionUser } from "../policy";
 import { permissionsForRole } from "../policy/permissions";
 
 // ── General ───────────────────────────────────────────────────────────────────
@@ -173,9 +174,19 @@ export interface AuditRowDto {
 }
 
 const PAGE = 50;
+const PAY_KEY = /ctc/i;
+const HIDDEN_PAY = "Hidden — needs “View all payroll”";
 
-/** Newest first, optionally one module, paged by (created_at, id). */
-export async function auditPage(module: string | null, before: string | null): Promise<{ rows: AuditRowDto[]; next: string | null }> {
+/** Removes salary figures from an audit snapshot (CTC fields anywhere; whole snapshots of payroll entries). */
+function redactPay(value: Prisma.JsonValue | null, module: string): Prisma.JsonValue | null {
+  if (value === null || value === undefined) return null;
+  if (module === "Payroll") return HIDDEN_PAY;
+  return JSON.parse(JSON.stringify(value, (key, v) => (key && PAY_KEY.test(key) ? HIDDEN_PAY : v))) as Prisma.JsonValue;
+}
+
+/** Newest first, optionally one module, paged by (created_at, id). Salary details only for people who may see payroll. */
+export async function auditPage(viewer: SessionUser, module: string | null, before: string | null): Promise<{ rows: AuditRowDto[]; next: string | null }> {
+  const seePay = has(viewer, "payroll.view_all");
   const where: Prisma.AuditLogWhereInput = {};
   if (module && (AUDIT_MODULES as readonly string[]).includes(module)) where.module = module;
   const cursor = before?.match(/^(\d{4}-\d{2}-\d{2}T[\d:.]+Z)\|([0-9a-f-]{36})$/i);
@@ -194,8 +205,8 @@ export async function auditPage(module: string | null, before: string | null): P
       action: r.action,
       ip: r.ip,
       at: r.createdAt.toISOString(),
-      before: json(r.before),
-      after: json(r.after),
+      before: json(seePay ? r.before : redactPay(r.before, r.module)),
+      after: json(seePay ? r.after : redactPay(r.after, r.module)),
     })),
     next: rows.length > PAGE && last ? `${last.createdAt.toISOString()}|${last.id}` : null,
   };

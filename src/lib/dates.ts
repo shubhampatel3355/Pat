@@ -10,6 +10,20 @@ const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", 
 const isoFormatter = new Intl.DateTimeFormat("en-CA", { timeZone: TIME_ZONE, year: "numeric", month: "2-digit", day: "2-digit" });
 const hourFormatter = new Intl.DateTimeFormat("en-GB", { timeZone: TIME_ZONE, hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
 
+/**
+ * Default pick-up for a new cab booking (IST): today at 10:00, or the next half hour once 10:00 has passed;
+ * tomorrow at 10:00 late at night.
+ */
+export function defaultPickupSlot(now: Date = new Date()): { date: string; time: string } {
+  const today = isoDateIST(now);
+  const [h, m] = timeIST(now).split(":").map(Number) as [number, number];
+  const minutes = h * 60 + m;
+  if (minutes < 10 * 60) return { date: today, time: "10:00" };
+  const next = Math.ceil((minutes + 1) / 30) * 30;
+  if (next > 23 * 60 + 30) return { date: addDaysIso(today, 1), time: "10:00" };
+  return { date: today, time: `${String(Math.floor(next / 60)).padStart(2, "0")}:${String(next % 60).padStart(2, "0")}` };
+}
+
 /** "YYYY-MM-DD" for an instant, in IST. */
 export function isoDateIST(at: Date = new Date()): string {
   return isoFormatter.format(at);

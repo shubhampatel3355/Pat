@@ -165,12 +165,12 @@ export const disbursePayrollAction = defineAction({
         meta,
         visibility: "PRIVATE",
       });
-      await notify(tx, run.payslips.map((p) => p.userId), { kind: "payroll", text: `Your ${label} payslip is ready`, href: "/payroll" }, user.id);
+      await notify(tx, run.payslips.map((p) => p.userId), { kind: "payroll", text: `Your ${label} payslip is ready`, href: "/payslips" }, user.id);
       for (const p of run.payslips) {
         const mail = documentEmail({
           greetingName: p.user.name.split(" ")[0]!,
           heading: `Your payslip for ${label}`,
-          lines: [`Your salary for ${label} has been paid. Net pay: ${formatINR(toPaise(p.netPaise))}.`, "Your payslip is attached as a PDF. You can also download it any time from Payroll in Pat Michaels OS."],
+          lines: [`Your salary for ${label} has been paid. Net pay: ${formatINR(toPaise(p.netPaise))}.`, "Your payslip is attached as a PDF. You can also download it any time from Payslips & Incentive in Pat Michaels OS."],
           footnote: `${company.legalName} · this payslip is confidential.`,
         });
         await enqueue(

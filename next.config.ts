@@ -14,6 +14,9 @@ const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
   reactStrictMode: true,
+  // Dev servers otherwise print every Server Action call with its arguments — passwords, salaries, client
+  // contacts — to the terminal and any log file. (Production never logs these.)
+  logging: { serverFunctions: false },
   // Native / Node-only packages stay out of the bundle and are traced into the standalone output.
   serverExternalPackages: [
     "@node-rs/argon2",
