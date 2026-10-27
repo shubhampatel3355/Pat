@@ -219,11 +219,11 @@ function ProfileMenu({ user }: { user: ShellUser }) {
         </span>
       </button>
       {open && (
-        <div role="menu" className="glass-menu absolute right-0 top-12 z-40 flex w-[240px] flex-col gap-0.5 rounded-[20px] p-2 shadow-glass">
+        <div role="menu" className="glass-menu absolute right-0 top-12 z-40 flex w-[220px] flex-col gap-0.5 rounded-[20px] p-2 shadow-glass">
           <span className="px-2.5 py-1.5 text-[11px] text-muted">
             Signed in as {user.role === "OWNER" ? "Owner" : user.role === "ADMIN" ? "Admin" : "Employee"}
           </span>
-          <div className="flex items-center justify-between gap-2 py-1.5 pl-2.5 pr-1">
+          <div className="flex h-10 items-center justify-between gap-2 px-2.5">
             <span className="text-sm text-ink">Dark mode</span>
             <ThemeSwitch />
           </div>
