@@ -34,12 +34,12 @@ export function BrokerRows({ label, rows, onChange, users, takenElsewhere = [], 
   const onBlue = tone === "onBlue";
 
   return (
-    <div className="flex flex-col gap-1.5" role="group" aria-label={label}>
+    <div className="flex flex-col gap-2" role="group" aria-label={label}>
       {rows.map((row, i) => {
         const value = row.kind === "user" ? row.userId : row.kind === "external" ? NEW_BROKER : "";
         const options = users.filter((u) => u.id === value || (!takenHere.includes(u.id) && !takenElsewhere.includes(u.id)));
         return (
-          <div key={i} className="flex items-center gap-1.5">
+          <div key={i} className="flex items-center gap-2">
             {row.kind === "external" ? (
               <input
                 aria-label={`${label} ${i + 1} — external broker name`}
@@ -90,6 +90,7 @@ export function BrokerRows({ label, rows, onChange, users, takenElsewhere = [], 
         onClick={() => onChange([...rows, { kind: "empty" }])}
         className={cn(
           "hit-44 h-9 self-start rounded-pill border-0 px-4 text-[13px]",
+          rows.length > 0 && "mt-1",
           onBlue ? "bg-white font-semibold text-navy-950 hover:bg-ice active:scale-[.97]" : "bg-primary font-medium text-white shadow-primary hover:bg-primary-hover active:scale-[.97]",
         )}
       >

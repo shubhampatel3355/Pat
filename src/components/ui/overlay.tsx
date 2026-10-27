@@ -101,7 +101,10 @@ interface OverlayProps {
   stacked?: boolean;
 }
 
-/** Right-side frosted-glass drawer (prototype: 520 px, inset 12 px, radius 28, slide-in). */
+/**
+ * Right-side frosted-glass drawer (prototype: 520 px, inset 12 px, radius 28, slide-in). A long form scrolls
+ * above the footer, so its actions stay in reach.
+ */
 export function Drawer({ open: requested, onClose, width = 520, className, ...content }: OverlayProps) {
   const exiting = useContext(ExitingContext);
   const open = requested && !exiting;
@@ -125,20 +128,17 @@ export function Drawer({ open: requested, onClose, width = 520, className, ...co
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         className={cn(
-          "pm-scroll glass-strong absolute bottom-3 right-3 top-3 flex flex-col gap-4 overflow-y-auto overflow-x-hidden rounded-panel p-5 shadow-panel outline-none",
+          "glass-strong absolute bottom-3 right-3 top-3 flex flex-col overflow-hidden rounded-panel shadow-panel outline-none",
           closing ? "animate-drawer-out" : "animate-drawer-in",
           className,
         )}
         style={{ width: `min(${width}px, calc(100% - 24px))` }}
       >
-        <Header titleId={titleId} title={title} subtitle={subtitle} onClose={onClose} />
-        {children}
-        {footer && (
-          <>
-            <div className="flex-1" />
-            <div className="flex justify-end gap-2">{footer}</div>
-          </>
-        )}
+        <div className="pm-scroll flex flex-1 flex-col gap-4 overflow-y-auto overflow-x-hidden p-5">
+          <Header titleId={titleId} title={title} subtitle={subtitle} onClose={onClose} />
+          {children}
+        </div>
+        {footer && <div className="flex flex-none justify-end gap-2 px-5 pb-5">{footer}</div>}
       </div>
     </div>,
     root,

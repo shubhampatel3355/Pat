@@ -11,6 +11,7 @@ import { createLeadAction, deleteLeadAction, updateLeadAction } from "@/server/a
 import type { UserOption, WipRowDto } from "@/server/services/wip";
 import { BrokerRows, draftsFromChips, type BrokerDraft } from "../brokers/broker-rows";
 import { Button } from "../ui/button";
+import { cn } from "../ui/cn";
 import { ConfirmDialog } from "../ui/confirm-dialog";
 import { FormError, inputClass } from "../ui/field";
 import { Presence } from "../ui/motion";
@@ -152,6 +153,7 @@ function WipDrawerForm({ open, onClose, row, users, me, defaultClosure, canInvoi
   const pending = create.pending || update.pending || remove.pending;
   const label = "text-xs font-medium text-muted";
   const field = inputClass("light", "h-11 px-3.5");
+  const stack = "flex flex-col gap-2";
 
   return (
     <Drawer
@@ -180,117 +182,121 @@ function WipDrawerForm({ open, onClose, row, users, me, defaultClosure, canInvoi
         </>
       }
     >
-      <div className="grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] gap-2">
-        <label className="flex flex-col gap-1.5">
-          <span className={label}>Tenant name</span>
-          <input data-autofocus value={f.tenantName} onChange={(e) => set("tenantName", e.target.value)} placeholder="e.g. Zeta Fintech" className={field} />
-        </label>
-        <div className="flex flex-col gap-1.5">
-          <span className={label}>Landlord / Operator</span>
+      {/* Fields sit 20 px apart down the form and 12 px apart across a row; a label is 8 px above its field. */}
+      <div className="flex flex-col gap-5">
+        <div className="grid grid-cols-1 gap-x-3 gap-y-5 min-[440px]:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+          <label className={stack}>
+            <span className={label}>Tenant name</span>
+            <input data-autofocus value={f.tenantName} onChange={(e) => set("tenantName", e.target.value)} placeholder="e.g. Zeta Fintech" className={field} />
+          </label>
+          <div className={stack}>
+            <span className={label}>Landlord / Operator</span>
+            <Segmented
+              label="Landlord or operator"
+              size="sm"
+              value={f.landlordType}
+              onChange={(v) => set("landlordType", v)}
+              options={[
+                { value: "LANDLORD", label: "Landlord" },
+                { value: "OPERATOR", label: "Operator" },
+              ]}
+              className="h-11 items-center"
+            />
+          </div>
+        </div>
+
+        <div className={stack}>
+          <span className={label}>Pricing basis</span>
           <Segmented
-            label="Landlord or operator"
+            label="Pricing basis"
             size="sm"
-            value={f.landlordType}
-            onChange={(v) => set("landlordType", v)}
+            value={f.pricingBasis}
+            onChange={(v) => set("pricingBasis", v)}
             options={[
-              { value: "LANDLORD", label: "Landlord" },
-              { value: "OPERATOR", label: "Operator" },
+              { value: "PER_SQFT", label: "Per sq ft" },
+              { value: "PER_SEAT", label: "Per seat" },
+              { value: "LUMPSUM", label: "Lumpsum" },
             ]}
           />
         </div>
-      </div>
 
-      <div className="flex flex-col gap-1.5">
-        <span className={label}>Pricing basis</span>
-        <Segmented
-          label="Pricing basis"
-          size="sm"
-          value={f.pricingBasis}
-          onChange={(v) => set("pricingBasis", v)}
-          options={[
-            { value: "PER_SQFT", label: "Per sq ft" },
-            { value: "PER_SEAT", label: "Per seat" },
-            { value: "LUMPSUM", label: "Lumpsum" },
-          ]}
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-2">
-        {f.pricingBasis === "PER_SQFT" && (
-          <label className="flex flex-col gap-1.5">
-            <span className={label}>Area (sq ft)</span>
-            <input inputMode="numeric" value={f.area} onChange={(e) => set("area", digits(e.target.value))} placeholder="10,000" className={field} />
+        <div className="grid grid-cols-2 gap-3">
+          {f.pricingBasis === "PER_SQFT" && (
+            <label className={stack}>
+              <span className={label}>Area (sq ft)</span>
+              <input inputMode="numeric" value={f.area} onChange={(e) => set("area", digits(e.target.value))} placeholder="10,000" className={field} />
+            </label>
+          )}
+          {f.pricingBasis === "PER_SEAT" && (
+            <label className={stack}>
+              <span className={label}>Seats</span>
+              <input inputMode="numeric" value={f.seats} onChange={(e) => set("seats", digits(e.target.value))} placeholder="120" className={field} />
+            </label>
+          )}
+          <label className={stack}>
+            <span className={label}>{f.pricingBasis === "PER_SEAT" ? "Rent / seat (₹)" : f.pricingBasis === "LUMPSUM" ? "Lumpsum amount (₹)" : "Rent / sq ft (₹)"}</span>
+            <input
+              inputMode="decimal"
+              value={f.rate}
+              onChange={(e) => set("rate", e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1"))}
+              placeholder={f.pricingBasis === "PER_SEAT" ? "9,500" : f.pricingBasis === "LUMPSUM" ? "5,00,000" : "90"}
+              className={field}
+            />
           </label>
-        )}
-        {f.pricingBasis === "PER_SEAT" && (
-          <label className="flex flex-col gap-1.5">
-            <span className={label}>Seats</span>
-            <input inputMode="numeric" value={f.seats} onChange={(e) => set("seats", digits(e.target.value))} placeholder="120" className={field} />
-          </label>
-        )}
-        <label className="flex flex-col gap-1.5">
-          <span className={label}>{f.pricingBasis === "PER_SEAT" ? "Rent / seat (₹)" : f.pricingBasis === "LUMPSUM" ? "Lumpsum amount (₹)" : "Rent / sq ft (₹)"}</span>
-          <input
-            inputMode="decimal"
-            value={f.rate}
-            onChange={(e) => set("rate", e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1"))}
-            placeholder={f.pricingBasis === "PER_SEAT" ? "9,500" : f.pricingBasis === "LUMPSUM" ? "5,00,000" : "90"}
-            className={field}
-          />
-        </label>
-      </div>
-
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-2">
-        <label className="flex flex-col gap-1.5">
-          <span className={label}>Building</span>
-          <input value={f.building} onChange={(e) => set("building", e.target.value)} placeholder="e.g. RMZ Ecospace" className={field} />
-        </label>
-        <label className="flex flex-col gap-1.5">
-          <span className={label}>Location</span>
-          <input value={f.location} onChange={(e) => set("location", e.target.value)} placeholder="e.g. Bellandur, ORR" className={field} />
-        </label>
-        <label className="flex flex-col gap-1.5">
-          <span className={label}>Landlord / Operator name</span>
-          <input value={f.landlordName} onChange={(e) => set("landlordName", e.target.value)} placeholder="e.g. RMZ Corp / WeWork" className={field} />
-        </label>
-      </div>
-
-      <div className="flex items-center justify-between gap-3 rounded-[20px] bg-surface p-3.5">
-        <div className="flex flex-col gap-0.5">
-          <span className="text-xs text-muted">Estimated fees</span>
-          <span className="text-[11px] text-muted">{monthly ? `${formatCompactINR(monthly)} / month · 1 month's rent` : "1 month’s rent · fills in as you type"}</span>
         </div>
-        <span className="text-[28px] font-light" aria-live="polite">
-          {formatCompactINR(fees)}
-        </span>
-      </div>
 
-      <div className="flex flex-col gap-1.5">
-        <span className={label}>Primary brokers</span>
-        <BrokerRows label="Primary broker" rows={f.primary} onChange={(r) => set("primary", r)} users={users} takenElsewhere={secondaryIds} allowExternal={false} minRows={1} />
-      </div>
-      <div className="flex flex-col gap-1.5">
-        <span className={label}>Secondary brokers</span>
-        <BrokerRows label="Secondary broker" rows={f.secondary} onChange={(r) => set("secondary", r)} users={users} takenElsewhere={primaryIds} />
-      </div>
+        <div className="grid grid-cols-2 gap-x-3 gap-y-5">
+          <label className={stack}>
+            <span className={label}>Building</span>
+            <input value={f.building} onChange={(e) => set("building", e.target.value)} placeholder="e.g. RMZ Ecospace" className={field} />
+          </label>
+          <label className={stack}>
+            <span className={label}>Location</span>
+            <input value={f.location} onChange={(e) => set("location", e.target.value)} placeholder="e.g. Bellandur, ORR" className={field} />
+          </label>
+          <label className={cn(stack, "col-span-2")}>
+            <span className={label}>Landlord / Operator name</span>
+            <input value={f.landlordName} onChange={(e) => set("landlordName", e.target.value)} placeholder="e.g. RMZ Corp / WeWork" className={field} />
+          </label>
+        </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        <label className="flex flex-col gap-1.5">
-          <span className={label}>Estimated closure date</span>
-          <input type="date" value={f.closureDate} onChange={(e) => set("closureDate", e.target.value)} className={field} />
-        </label>
-        <label className="flex flex-col gap-1.5">
-          <span className={label}>Remark</span>
-          <select value={f.remark} onChange={(e) => set("remark", e.target.value as WipRemark)} className={inputClass("light", "h-11 cursor-pointer px-3")}>
-            {WIP_REMARKS.map((r) => (
-              <option key={r.value} value={r.value}>
-                {r.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        <div className="flex items-center justify-between gap-3 rounded-[20px] bg-surface px-4 py-3.5">
+          <div className="flex flex-col gap-0.5">
+            <span className="text-xs text-muted">Estimated fees</span>
+            <span className="text-[11px] text-muted">{monthly ? `${formatCompactINR(monthly)} / month · 1 month's rent` : "1 month’s rent · fills in as you type"}</span>
+          </div>
+          <span className="text-[28px] font-light" aria-live="polite">
+            {formatCompactINR(fees)}
+          </span>
+        </div>
+
+        <div className={stack}>
+          <span className={label}>Primary brokers</span>
+          <BrokerRows label="Primary broker" rows={f.primary} onChange={(r) => set("primary", r)} users={users} takenElsewhere={secondaryIds} allowExternal={false} minRows={1} />
+        </div>
+        <div className={stack}>
+          <span className={label}>Secondary brokers</span>
+          <BrokerRows label="Secondary broker" rows={f.secondary} onChange={(r) => set("secondary", r)} users={users} takenElsewhere={primaryIds} />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <label className={stack}>
+            <span className={label}>Estimated closure date</span>
+            <input type="date" value={f.closureDate} onChange={(e) => set("closureDate", e.target.value)} className={field} />
+          </label>
+          <label className={stack}>
+            <span className={label}>Remark</span>
+            <select value={f.remark} onChange={(e) => set("remark", e.target.value as WipRemark)} className={inputClass("light", "h-11 cursor-pointer px-3")}>
+              {WIP_REMARKS.map((r) => (
+                <option key={r.value} value={r.value}>
+                  {r.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <FormError message={error} />
       </div>
-      <FormError message={error} />
       {row && (
         <ConfirmDialog
           open={confirmDelete}
