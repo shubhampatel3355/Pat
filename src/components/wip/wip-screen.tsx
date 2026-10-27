@@ -12,6 +12,7 @@ import type { UserOption, WipRowDto } from "@/server/services/wip";
 import { Avatar } from "../ui/bits";
 import { Button } from "../ui/button";
 import { Icon } from "../ui/icon";
+import { FreshValue } from "../ui/motion";
 import { Page, PageHeader } from "../ui/page";
 import { Cell, HeadCell, Row, RowHead, RowTable } from "../ui/row-table";
 import { useAction } from "../ui/toast";
@@ -106,7 +107,7 @@ export function WipScreen({ rows, cards, users, me, today, monthEnd, defaultClos
         }
       />
 
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,260px),1fr))] gap-2">
+      <div className="pm-stagger grid grid-cols-[repeat(auto-fit,minmax(min(100%,260px),1fr))] gap-2">
         {cards.map((c) => (
           <div key={c.title} className="flex min-h-[150px] flex-col gap-2.5 rounded-[20px] p-[18px] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.12),0_10px_28px_rgba(0,18,51,.22)]" style={{ background: c.bg }}>
             <div className="flex items-center gap-2.5">
@@ -116,7 +117,9 @@ export function WipScreen({ rows, cards, users, me, today, monthEnd, defaultClos
               <span className="flex-1 text-sm font-medium">{c.title}</span>
               <span className="text-xs text-white/88">{c.tag}</span>
             </div>
-            <span className="text-[32px] font-semibold leading-9 tracking-[-.02em]">{c.value}</span>
+            <span className="text-[32px] font-semibold leading-9 tracking-[-.02em]">
+              <FreshValue value={c.value} />
+            </span>
             <div className="flex-1" />
             <div className="flex flex-col gap-1.5">
               <div className="relative h-1.5 rounded-pill bg-white/18" role="progressbar" aria-valuenow={Math.round(c.widthPct)} aria-valuemin={0} aria-valuemax={100} aria-label={c.title}>

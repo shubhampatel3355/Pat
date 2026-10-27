@@ -49,7 +49,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       className={cn(
-        "hit-44 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-pill border-0 font-medium tracking-[.005em] transition-[transform,background-color] duration-150 disabled:cursor-not-allowed",
+        "hit-44 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-pill border-0 font-medium tracking-[.005em] transition-[transform,translate,scale,background-color,color,box-shadow] duration-(--duration-micro) ease-standard disabled:cursor-not-allowed",
         VARIANTS[variant],
         SIZES[size],
         className,
@@ -84,7 +84,7 @@ export function IconButton({ icon, label, size = 40, tone = "surface", iconSize,
       title={label}
       aria-label={label}
       className={cn(
-        "hit-44 inline-flex flex-none items-center justify-center rounded-pill border-0 transition-[transform,background-color,color] duration-150 active:scale-[.97]",
+        "hit-44 inline-flex flex-none items-center justify-center rounded-pill border-0 transition-[transform,scale,background-color,color] duration-(--duration-micro) ease-standard active:scale-[.97]",
         ICON_TONES[tone],
         className,
       )}
@@ -104,7 +104,7 @@ export function CloseButton({ onClick, label = "Close" }: { onClick: () => void;
       onClick={onClick}
       title={label}
       aria-label={label}
-      className="hit-44 h-9 w-9 flex-none rounded-pill border-0 bg-surface text-base hover:bg-raised"
+      className="hit-44 h-9 w-9 flex-none rounded-pill border-0 bg-surface text-base transition-[background-color,transform,translate,scale] duration-(--duration-micro) ease-standard hover:bg-raised active:scale-[.94]"
     >
       ×
     </button>

@@ -18,6 +18,8 @@ import { LiveProvider, useLive, type LiveSnapshot } from "./live";
 import type { ShellNavGroup, ShellQuickItem, ShellUser, ShellView } from "./types";
 
 const RAISED = "bg-surface shadow-raised";
+/** Top-bar buttons: colour eases on hover, a small press on click. */
+const PRESS = "transition-[background-color,transform,translate,scale] duration-(--duration-micro) active:scale-[.97]";
 
 interface AppShellProps {
   user: ShellUser;
@@ -82,12 +84,12 @@ function TopBar({ user, quickCreate, view, onOpenSearch }: { user: ShellUser; qu
   return (
     <header className="absolute left-0 right-0 top-0 z-30 flex h-[68px] items-center justify-between gap-2 px-3 py-3.5">
       <div className="flex min-w-0 items-center gap-2">
-        <Link href="/dashboard" title="Dashboard" aria-label="Dashboard" className={cn("hit-44 flex h-10 w-10 flex-none items-center justify-center rounded-pill", RAISED)}>
+        <Link href="/dashboard" title="Dashboard" aria-label="Dashboard" className={cn("hit-44 flex h-10 w-10 flex-none items-center justify-center rounded-pill", RAISED, PRESS)}>
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
             <path d={BRAND_MARK} style={{ fill: "light-dark(#023E7D, #9CC3FF)" }} />
           </svg>
         </Link>
-        <button type="button" onClick={() => router.back()} title="Back" aria-label="Back" className={cn("hit-44 flex h-10 w-10 flex-none items-center justify-center rounded-pill border-0 transition-transform duration-150 hover:bg-field active:scale-[.97]", RAISED)}>
+        <button type="button" onClick={() => router.back()} title="Back" aria-label="Back" className={cn("hit-44 flex h-10 w-10 flex-none items-center justify-center rounded-pill border-0 hover:bg-field", RAISED, PRESS)}>
           <Icon name="back" size={18} />
         </button>
         <button
@@ -95,7 +97,7 @@ function TopBar({ user, quickCreate, view, onOpenSearch }: { user: ShellUser; qu
           onClick={onOpenSearch}
           aria-label="Search"
           aria-keyshortcuts={isMac ? "Meta+K" : "Control+K"}
-          className={cn("hit-44 flex h-10 flex-none items-center gap-2.5 rounded-pill border-0 pl-[11px] pr-3.5 text-[13px] text-muted hover:bg-field", RAISED)}
+          className={cn("hit-44 flex h-10 flex-none items-center gap-2.5 rounded-pill border-0 pl-[11px] pr-3.5 text-[13px] text-muted hover:bg-field", RAISED, PRESS)}
         >
           <Icon name="search" size={18} color="var(--color-ink)" />
           <span className="max-md:hidden">Search</span>
@@ -175,15 +177,15 @@ function QuickCreate({ items }: { items: ShellQuickItem[] }) {
         aria-label="Quick create"
         aria-expanded={open}
         aria-haspopup="menu"
-        className="hit-44 flex h-10 w-10 items-center justify-center rounded-pill border-0 bg-primary text-white shadow-primary transition-transform duration-150 hover:bg-primary-hover active:scale-[.97]"
+        className="hit-44 flex h-10 w-10 items-center justify-center rounded-pill border-0 bg-primary text-white shadow-primary transition-[background-color,transform,translate,scale] duration-(--duration-micro) hover:bg-primary-hover active:scale-[.97]"
       >
         <Icon name="plus" size={18} strokeWidth={1.6} />
       </button>
       {open && (
-        <div role="menu" className="glass-menu absolute right-0 top-12 z-40 flex w-[220px] flex-col gap-0.5 rounded-[20px] p-2 shadow-glass">
+        <div role="menu" className="glass-menu absolute right-0 top-12 z-40 flex w-[220px] origin-top-right animate-pop-in flex-col gap-0.5 rounded-[20px] p-2 shadow-glass">
           <span className="px-2.5 py-1.5 text-[11px] text-muted">Create new</span>
           {items.map((q) => (
-            <Link key={q.label} href={q.href} role="menuitem" onClick={close} className="flex h-10 items-center gap-2.5 rounded-[14px] px-2 text-left text-sm text-ink hover:bg-raised/70 hover:text-ink">
+            <Link key={q.label} href={q.href} role="menuitem" onClick={close} className="flex h-10 items-center gap-2.5 rounded-[14px] px-2 text-left text-sm text-ink transition-colors hover:bg-raised/70 hover:text-ink">
               <span className="flex h-7 w-7 items-center justify-center rounded-pill bg-surface">
                 <Icon name={q.icon} size={14} />
               </span>
@@ -210,7 +212,7 @@ function ProfileMenu({ user }: { user: ShellUser }) {
         aria-expanded={open}
         aria-haspopup="menu"
         aria-label={`Account: ${user.name}`}
-        className="glass flex h-10 items-center gap-2.5 rounded-pill py-[3px] pl-[3px] pr-4 text-left max-md:pr-[3px]"
+        className="glass flex h-10 items-center gap-2.5 rounded-pill py-[3px] pl-[3px] pr-4 text-left transition-transform duration-(--duration-micro) active:scale-[.98] max-md:pr-[3px]"
       >
         <span className="flex h-8 w-8 items-center justify-center rounded-pill bg-primary text-[11px] font-medium text-white shadow-avatar">{user.initials}</span>
         <span className="flex flex-col leading-[1.15] max-md:hidden">
@@ -219,7 +221,7 @@ function ProfileMenu({ user }: { user: ShellUser }) {
         </span>
       </button>
       {open && (
-        <div role="menu" className="glass-menu absolute right-0 top-12 z-40 flex w-[220px] flex-col gap-0.5 rounded-[20px] p-2 shadow-glass">
+        <div role="menu" className="glass-menu absolute right-0 top-12 z-40 flex w-[220px] origin-top-right animate-pop-in flex-col gap-0.5 rounded-[20px] p-2 shadow-glass">
           <span className="px-2.5 py-1.5 text-[11px] text-muted">
             Signed in as {user.role === "OWNER" ? "Owner" : user.role === "ADMIN" ? "Admin" : "Employee"}
           </span>
@@ -227,7 +229,7 @@ function ProfileMenu({ user }: { user: ShellUser }) {
             <span className="text-sm text-ink">Dark mode</span>
             <ThemeSwitch />
           </div>
-          <Link href="/change-password" role="menuitem" onClick={close} className="flex h-10 items-center gap-2.5 rounded-[14px] px-2 text-sm text-ink hover:bg-raised/70 hover:text-ink">
+          <Link href="/change-password" role="menuitem" onClick={close} className="flex h-10 items-center gap-2.5 rounded-[14px] px-2 text-sm text-ink transition-colors hover:bg-raised/70 hover:text-ink">
             <span className="flex h-7 w-7 items-center justify-center rounded-pill bg-surface">
               <Icon name="key" size={14} />
             </span>
@@ -238,7 +240,7 @@ function ProfileMenu({ user }: { user: ShellUser }) {
             role="menuitem"
             disabled={signingOut}
             onClick={() => start(() => signOutAction())}
-            className="flex h-10 items-center gap-2.5 rounded-[14px] border-0 bg-transparent px-2 text-left text-sm hover:bg-raised/70"
+            className="flex h-10 items-center gap-2.5 rounded-[14px] border-0 bg-transparent px-2 text-left text-sm transition-colors hover:bg-raised/70"
           >
             <span className="flex h-7 w-7 items-center justify-center rounded-pill bg-surface">
               <Icon name="logout" size={14} />
@@ -284,13 +286,13 @@ function Notifications() {
         title="Notifications"
         aria-label={live.unread ? `Notifications, ${live.unread} unread` : "Notifications"}
         aria-expanded={open}
-        className={cn("hit-44 relative flex h-10 w-10 items-center justify-center rounded-pill border-0 hover:bg-field", RAISED)}
+        className={cn("hit-44 relative flex h-10 w-10 items-center justify-center rounded-pill border-0 hover:bg-field", RAISED, PRESS)}
       >
         <Icon name="bell" size={18} />
         {live.unread > 0 && <span className="absolute right-2.5 top-[9px] h-[7px] w-[7px] rounded-pill bg-primary shadow-[0_0_0_2px_var(--color-surface)]" />}
       </button>
       {open && (
-        <div className="glass-strong absolute right-0 top-12 z-40 flex w-[min(340px,86vw)] flex-col gap-2.5 rounded-[20px] p-3.5 shadow-glass">
+        <div className="glass-strong absolute right-0 top-12 z-40 flex w-[min(340px,86vw)] origin-top-right animate-pop-in flex-col gap-2.5 rounded-[20px] p-3.5 shadow-glass">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium">Notifications</span>
             <button type="button" onClick={markAll} className="border-0 bg-transparent p-0 text-xs text-primary">
@@ -312,7 +314,7 @@ function Notifications() {
                     }
                     if (!n.read) void markNotificationsReadAction({ ids: [n.id] }).then(() => live.refresh());
                   }}
-                  className="flex gap-2.5 rounded-[14px] border-0 bg-raised/45 p-2 text-left"
+                  className="flex gap-2.5 rounded-[14px] border-0 bg-raised/45 p-2 text-left transition-colors hover:bg-raised/80"
                 >
                   <span className="mt-1.5 h-[7px] w-[7px] flex-none rounded-pill" style={{ background: n.read ? "var(--color-chip)" : "var(--color-primary)" }} />
                   <span className="flex min-w-0 flex-col gap-0.5">
@@ -343,7 +345,7 @@ function MobileNav({ nav, onMore }: { nav: ShellNavGroup[]; onMore: () => void }
   ).filter(([href]) => allowed.has(href));
   const button = (active: boolean) =>
     cn(
-      "flex h-12 w-12 items-center justify-center rounded-pill border-0 transition-colors duration-200",
+      "flex h-12 w-12 items-center justify-center rounded-pill border-0 transition-[background-color,color,box-shadow,transform,scale] duration-(--duration-base) ease-standard active:scale-[.94]",
       active ? "bg-primary text-white shadow-primary" : "bg-transparent text-ink",
     );
   return (
@@ -378,7 +380,7 @@ function Rail({ nav }: { nav: ShellNavGroup[] }) {
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget as Node)) setOpen(false);
       }}
-      className="pm-scroll absolute bottom-2 left-1.5 top-[72px] z-[25] flex flex-col gap-1.5 overflow-y-auto overflow-x-hidden rounded-card p-1.5 transition-[width,background-color,box-shadow] duration-300 ease-spring max-md:hidden"
+      className="pm-scroll absolute bottom-2 left-1.5 top-[72px] z-[25] flex flex-col gap-1.5 overflow-y-auto overflow-x-hidden rounded-card p-1.5 transition-[width,background-color,box-shadow] duration-(--duration-overlay) ease-spring max-md:hidden"
       style={{
         width: open ? 232 : 52,
         background: open ? "light-dark(rgba(244,244,244,.62), rgba(28,31,36,.86))" : "transparent",
@@ -390,7 +392,7 @@ function Rail({ nav }: { nav: ShellNavGroup[] }) {
       {nav.map((g) => (
         <div key={g.label} className="flex flex-col gap-1.5">
           <span
-            className="flex items-end overflow-hidden whitespace-nowrap pl-3 text-[11px] text-muted transition-[height,opacity] duration-300"
+            className="flex items-end overflow-hidden whitespace-nowrap pl-3 text-[11px] text-muted transition-[height,opacity] duration-(--duration-base) ease-standard"
             style={{ height: open ? 18 : 0, opacity: open ? 1 : 0 }}
           >
             {g.label}
@@ -403,19 +405,17 @@ function Rail({ nav }: { nav: ShellNavGroup[] }) {
                 href={it.href}
                 title={it.label}
                 aria-current={active ? "page" : undefined}
-                className="flex h-10 items-center gap-3 whitespace-nowrap rounded-pill text-left text-ink transition-colors duration-200 hover:bg-raised/45 hover:text-ink"
+                className="group flex h-10 items-center gap-3 whitespace-nowrap rounded-pill text-left text-ink transition-colors duration-(--duration-micro) hover:bg-raised/45 hover:text-ink"
               >
                 <span
-                  className="flex h-10 w-10 flex-none items-center justify-center rounded-pill transition-[background-color,color] duration-300 ease-spring"
-                  style={{
-                    background: active ? "var(--color-primary)" : "var(--color-surface)",
-                    color: active ? "#fff" : "var(--color-ink)",
-                    boxShadow: active ? "var(--shadow-primary)" : "var(--shadow-raised)",
-                  }}
+                  className={cn(
+                    "flex h-10 w-10 flex-none items-center justify-center rounded-pill transition-[background-color,color,box-shadow,transform,scale] duration-(--duration-base) ease-standard group-active:scale-[.96]",
+                    active ? "bg-primary text-white shadow-primary" : "bg-surface text-ink shadow-raised group-hover:bg-raised",
+                  )}
                 >
                   <Icon name={it.icon} size={18} />
                 </span>
-                <span className="text-[13px] font-medium transition-opacity duration-200" style={{ opacity: open ? 1 : 0 }}>
+                <span className="text-[13px] font-medium transition-opacity duration-(--duration-micro) ease-standard" style={{ opacity: open ? 1 : 0 }}>
                   {it.label}
                 </span>
               </Link>

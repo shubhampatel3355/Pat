@@ -10,6 +10,7 @@ import { Button } from "../ui/button";
 import { ConfirmDialog } from "../ui/confirm-dialog";
 import { FormError, inputClass } from "../ui/field";
 import { Icon } from "../ui/icon";
+import { Presence } from "../ui/motion";
 import { Drawer } from "../ui/overlay";
 import { ChoiceChips } from "../ui/segmented";
 import { useAction } from "../ui/toast";
@@ -28,9 +29,8 @@ interface BdDrawerProps {
 }
 
 export function BdDrawer(props: BdDrawerProps) {
-  // Remount per meeting so the form starts from that meeting's values.
-  if (!props.open) return null;
-  return <BdDrawerForm key={props.row?.id ?? "new"} {...props} />;
+  // Remount per meeting so the form starts from that meeting's values; the last one stays while the drawer closes.
+  return <Presence value={props.open && props}>{(shown) => <BdDrawerForm key={shown.row?.id ?? "new"} {...shown} />}</Presence>;
 }
 
 function BdDrawerForm({ open, row, users, me, today, canSeeContacts, onClose, onSaved }: BdDrawerProps) {

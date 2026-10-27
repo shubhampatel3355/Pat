@@ -152,7 +152,7 @@ export function VehiclesScreen({ rows, stats, people, places, me, today, default
           </Button>
         </section>
 
-        <div className="grid grid-cols-3 gap-2">
+        <div className="pm-stagger grid grid-cols-3 gap-2">
           {[
             ["Today", stats.today],
             ["Upcoming", stats.upcoming],

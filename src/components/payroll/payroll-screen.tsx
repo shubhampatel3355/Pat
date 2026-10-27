@@ -11,6 +11,7 @@ import { Button } from "../ui/button";
 import { ConfirmDialog } from "../ui/confirm-dialog";
 import { FormError, inputClass } from "../ui/field";
 import { CheckGlyph, Icon } from "../ui/icon";
+import { FreshValue, Presence } from "../ui/motion";
 import { Modal } from "../ui/overlay";
 import { Page, PageHeader } from "../ui/page";
 import { Cell, HeadCell, Row, RowHead, RowTable } from "../ui/row-table";
@@ -73,7 +74,7 @@ export function PayrollScreen({ run, next, employees, manager, canRun }: Payroll
       />
 
       {manager && run && (
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] gap-2">
+        <div className="pm-stagger grid grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] gap-2">
           <div className="flex flex-col gap-3 rounded-[20px] bg-card px-4 pb-3 pt-4 shadow-raised">
             <span className="text-sm font-medium">{run.label} run</span>
             <div className="relative py-1">
@@ -112,7 +113,9 @@ export function PayrollScreen({ run, next, employees, manager, canRun }: Payroll
           ].map(([k, v, sub]) => (
             <div key={k} className={CARD}>
               <span className="text-sm font-medium">{k}</span>
-              <span className="text-[28px] font-light">{v}</span>
+              <span className="text-[28px] font-light">
+                <FreshValue value={v} />
+              </span>
               <span className="text-xs text-muted">{sub}</span>
             </div>
           ))}
@@ -135,7 +138,7 @@ export function PayrollScreen({ run, next, employees, manager, canRun }: Payroll
         </RowTable>
       )}
 
-      {review && run && <PayslipReview run={run} canEdit={canRun} onClose={() => setReview(false)} />}
+      <Presence value={review && run}>{(shown) => <PayslipReview run={shown} canEdit={canRun} onClose={() => setReview(false)} />}</Presence>
       {run && (
         <ConfirmDialog
           open={confirm !== null}

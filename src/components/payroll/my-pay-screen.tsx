@@ -37,7 +37,7 @@ export function MyPayScreen({ me, incentive, monthLabel }: { me: PayrollEmployee
     <Page>
       <PageHeader title="Payslips & Incentive" meta={`${me.name} · ${me.title} · ${monthLabel}`} />
 
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,220px),1fr))] gap-2">
+      <div className="pm-stagger grid grid-cols-[repeat(auto-fit,minmax(min(100%,220px),1fr))] gap-2">
         {[
           ["Incentive earned", formatCompactINR(incentive.earnedPaise), "text-success-ink"],
           ["Incentive expected", formatCompactINR(incentive.expectedPaise), ""],

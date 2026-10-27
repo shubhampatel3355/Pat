@@ -8,6 +8,7 @@ import { formatCompactINR, formatINR } from "@/lib/money";
 import type { DashboardData, PipelineStage } from "@/server/services/dashboard";
 import { Button } from "../ui/button";
 import { Icon } from "../ui/icon";
+import { FreshValue, RevealWords } from "../ui/motion";
 import { useDownload } from "../ui/use-download";
 import { StagePill } from "../wip/stage-pill";
 import { AchievementsButton, achievementValue, type AchievementRow } from "./achievements";
@@ -16,7 +17,7 @@ import { TodoCard } from "./todo-card";
 
 const CARD = "flex flex-col gap-2.5 rounded-card bg-surface p-4 shadow-lifted";
 const STAT = "flex flex-col gap-0.5 rounded-row bg-chip-2 px-3 py-2.5";
-const ROW = "flex min-h-11 items-center gap-2 rounded-[14px] bg-chip-2 px-2.5 py-1.5 text-ink hover:bg-raised hover:text-ink";
+const ROW = "flex min-h-11 items-center gap-2 rounded-[14px] bg-chip-2 px-2.5 py-1.5 text-ink transition-colors hover:bg-raised hover:text-ink";
 
 function CardHeader({ icon, title, href, linkLabel }: { icon: IconName; title: string; href?: string; linkLabel?: string }) {
   return (
@@ -45,7 +46,9 @@ function TargetCard({ label, amountPaise, achievedPaise, note }: DashboardData["
           </span>
           <span className="text-[13px] font-medium uppercase tracking-[.08em]">Target · {label}</span>
         </div>
-        <span className="text-[clamp(56px,7vw,88px)] font-bold leading-none tracking-[-.03em]">{amountPaise === null ? "—" : formatCompactINR(amountPaise)}</span>
+        <span className="text-[clamp(56px,7vw,88px)] font-bold leading-none tracking-[-.03em]">
+          <FreshValue value={amountPaise === null ? "—" : formatCompactINR(amountPaise)} />
+        </span>
         <span className="text-sm text-white/88">
           {formatCompactINR(achievedPaise)} {note}
         </span>
@@ -53,7 +56,9 @@ function TargetCard({ label, amountPaise, achievedPaise, note }: DashboardData["
       <div className="flex flex-col gap-2.5">
         <div className="flex items-baseline justify-between">
           <span className="text-[13px] opacity-88">Progress</span>
-          <span className="text-[32px] font-light">{amountPaise ? `${Math.round(pct * 100)}%` : "—"}</span>
+          <span className="text-[32px] font-light">
+            <FreshValue value={amountPaise ? `${Math.round(pct * 100)}%` : "—"} />
+          </span>
         </div>
         <div className="relative h-2.5 rounded-pill bg-white/18" role="progressbar" aria-label="Progress to target" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pct * 100)}>
           <span className="absolute inset-y-0 left-0 rounded-pill bg-white transition-[width] duration-600 ease-spring" style={{ width: `${pct * 100}%` }} />
@@ -148,7 +153,9 @@ function Stat({ label, value, valueClassName = "" }: { label: string; value: str
   return (
     <div className={STAT}>
       <span className="text-[11px] text-muted">{label}</span>
-      <span className={`text-2xl font-light leading-[30px] ${valueClassName}`}>{value}</span>
+      <span className={`text-2xl font-light leading-[30px] ${valueClassName}`}>
+        <FreshValue value={value} />
+      </span>
     </div>
   );
 }
@@ -252,7 +259,7 @@ export function DashboardScreen({ data, greeting, dateLabel }: { data: Dashboard
   ];
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)] items-stretch gap-6 pr-[clamp(0px,3vw,48px)]" style={{ animation: "pmaIn .48s cubic-bezier(.22,1,.36,1) both" }}>
+    <div className="grid animate-page-in grid-cols-[minmax(0,1fr)] items-stretch gap-6 pr-[clamp(0px,3vw,48px)]">
       <div className="flex min-w-0 flex-col gap-3.5">
         <div className="relative z-[2] flex flex-col gap-3 pl-[clamp(0px,3vw,48px)] pt-9">
           <div className="flex items-center gap-2">
@@ -266,7 +273,9 @@ export function DashboardScreen({ data, greeting, dateLabel }: { data: Dashboard
             <span className="text-xs text-muted">{dateLabel}</span>
           </div>
           <div className="flex flex-wrap items-center justify-between gap-4">
-            <h1 className="m-0 text-[44px] font-light leading-[48px] tracking-[-.02em] [text-wrap:balance]">{greeting}</h1>
+            <h1 className="m-0 text-[44px] font-light leading-[48px] tracking-[-.02em] [text-wrap:balance]">
+              <RevealWords text={greeting} />
+            </h1>
             <div className="flex flex-wrap gap-2">
               {/* The Employee View has achievements only; team activity is for owners and admins. */}
               {!data.employee && <TeamActivityButton />}
@@ -274,7 +283,7 @@ export function DashboardScreen({ data, greeting, dateLabel }: { data: Dashboard
             </div>
           </div>
           <TargetCard {...data.target} />
-          <div className="mt-2 grid grid-cols-[repeat(auto-fit,minmax(min(100%,320px),1fr))] gap-2">
+          <div className="pm-stagger mt-2 grid grid-cols-[repeat(auto-fit,minmax(min(100%,320px),1fr))] gap-2">
             {data.revenue && <RevenueCard revenue={data.revenue} canOpenFinance={data.canOpenFinance} />}
             {data.pipeline && <PipelineCard pipeline={data.pipeline} />}
             {data.employee && (

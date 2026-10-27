@@ -13,6 +13,7 @@ import { BrokerRows, draftsFromChips, type BrokerDraft } from "../brokers/broker
 import { Button } from "../ui/button";
 import { ConfirmDialog } from "../ui/confirm-dialog";
 import { FormError, inputClass } from "../ui/field";
+import { Presence } from "../ui/motion";
 import { Drawer } from "../ui/overlay";
 import { Segmented } from "../ui/segmented";
 import { useAction } from "../ui/toast";
@@ -116,9 +117,8 @@ interface WipDrawerProps {
 }
 
 export function WipDrawer(props: WipDrawerProps) {
-  // Remount per row so the form always starts from that row's values.
-  if (!props.open) return null;
-  return <WipDrawerForm key={props.row?.id ?? "new"} {...props} />;
+  // Remount per row so the form always starts from that row's values; the last one stays while the drawer closes.
+  return <Presence value={props.open && props}>{(shown) => <WipDrawerForm key={shown.row?.id ?? "new"} {...shown} />}</Presence>;
 }
 
 function WipDrawerForm({ open, onClose, row, users, me, defaultClosure, canInvoice, onSaved }: WipDrawerProps) {

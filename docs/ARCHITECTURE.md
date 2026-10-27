@@ -157,6 +157,24 @@ value. `<html>` carries `color-scheme`, which picks the side:
 - New colours go in the palette rule with both sides, and get a line in the `@theme inline` list so Tailwind generates
   their utilities.
 
+**Motion.** One CSS system, no animation library (`globals.css` → Motion; `components/ui/motion.tsx`):
+
+- Easing: `ease-standard` `cubic-bezier(.4,0,.2,1)` for state changes, `ease-spring` `(.22,1,.36,1)` for
+  entrances, `ease-exit` `(.4,0,1,1)` for exits. Durations: `--duration-micro` 180 ms (hover, press, menus),
+  `-base` 280 ms, `-overlay` 380 ms (modals, drawers), `-enter` 460 ms (pages, cards), `-exit` 180 ms, `-hero` 760 ms.
+- `animate-*` tokens: `page-in` (every `Page` and the dashboard fade up 10 px), `card-in` via `pm-stagger` (card
+  groups, 50 ms apart, capped at the 8th), `item-in` (list items that arrive), `value-in` (`FreshValue`: a figure
+  that changed after a refresh), `pop-in` (menus), `modal-in/out`, `drawer-in/out`, `toast-in/out`, `fade-in/out`
+  (backdrops), `word-in` (`RevealWords`, the dashboard greeting only), `delayed-in` (loading skeleton, 150 ms late).
+- Entrances play once on mount; refreshes, sorting, filtering and re-renders don't replay them, and table rows
+  are never animated. Only transform and opacity move.
+- Exits: `Modal` and `Drawer` keep their last content for 180 ms while they animate out, `inert` so they take no
+  clicks or focus. Overlays rendered conditionally go through `<Presence value={…}>`.
+- Every link, button, tab and menu item eases its hover colour and press scale (a zero-specificity base rule;
+  explicit `transition-*` utilities win). Tailwind's `scale-*` / `translate-*` set the `scale` / `translate`
+  properties, so transition lists name those, not just `transform`.
+- `prefers-reduced-motion: reduce` turns all of it off (the last rule in `globals.css`).
+
 ---
 
 ## 5. Data model (Prisma, snake_case tables, UUIDv7 keys)

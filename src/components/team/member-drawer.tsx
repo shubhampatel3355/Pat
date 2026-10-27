@@ -10,6 +10,7 @@ import type { MemberDto } from "@/server/services/team";
 import { Dropzone } from "../files/dropzone";
 import { Button } from "../ui/button";
 import { FormError, inputClass } from "../ui/field";
+import { Presence } from "../ui/motion";
 import { Drawer } from "../ui/overlay";
 import { Segmented } from "../ui/segmented";
 import { useAction, useToast } from "../ui/toast";
@@ -26,8 +27,8 @@ interface MemberDrawerProps {
 }
 
 export function MemberDrawer(props: MemberDrawerProps) {
-  if (!props.open) return null;
-  return <MemberForm key={props.member?.id ?? "new"} {...props} />;
+  // Remount per member so the form starts from their values; the last one stays while the drawer closes.
+  return <Presence value={props.open && props}>{(shown) => <MemberForm key={shown.member?.id ?? "new"} {...shown} />}</Presence>;
 }
 
 function MemberForm({ open, member, partners, canSeeCtc, canMakeOwner, canUploadDocs, onClose, onSaved }: MemberDrawerProps) {

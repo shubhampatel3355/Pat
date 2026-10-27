@@ -148,8 +148,9 @@ export function TodoCard({ todos, today }: { todos: TodoDto[]; today: string }) 
           return (
             <li
               key={t.id}
-              className="flex flex-col rounded-xl transition-[background-color,opacity] duration-300"
-              style={{ background: t.done ? "var(--color-chip-2)" : "var(--color-field)", opacity: t.done ? 0.6 : 1, animation: `pmaIn .5s cubic-bezier(.16,1,.3,1) ${i * 50}ms both` }}
+              className="flex animate-item-in flex-col rounded-xl transition-[background-color,opacity] duration-300"
+              // Stagger the first few only, so a long list is never held back.
+              style={{ background: t.done ? "var(--color-chip-2)" : "var(--color-field)", opacity: t.done ? 0.6 : 1, animationDelay: `${Math.min(i, 6) * 40}ms` }}
             >
               <div className="flex min-h-10 items-center gap-2 px-2 py-1">
                 <button

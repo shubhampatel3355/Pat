@@ -12,6 +12,7 @@ import type { UserOption } from "@/server/services/wip";
 import { Avatar, EmptyState, StatusPill } from "../ui/bits";
 import { Button, IconButton } from "../ui/button";
 import { CheckGlyph, Icon } from "../ui/icon";
+import { Presence } from "../ui/motion";
 import { Page, PageHeader } from "../ui/page";
 import { Cell, HeadCell, Row, RowHead, RowTable } from "../ui/row-table";
 import { ChoiceChips, Segmented } from "../ui/segmented";
@@ -387,7 +388,7 @@ export function FollowUpsScreen({ followUps, tasks, users, leads, me, today, now
                             setOver(null);
                           }}
                           onClick={() => setDrawerId(t.id)}
-                          className="flex cursor-grab flex-col gap-2.5 rounded-row border-0 bg-surface p-3 text-left shadow-raised transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-hover"
+                          className="flex cursor-grab flex-col gap-2.5 rounded-row border-0 bg-surface p-3 text-left shadow-raised transition-[transform,translate,scale,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-hover"
                           style={{ opacity: dragging === t.id ? 0.45 : 1, outline: dragging === t.id ? "1.5px dashed var(--color-primary)" : "none", outlineOffset: -1.5 }}
                         >
                           <span className="text-[13px] font-medium" style={{ textDecoration: t.status === "DONE" ? "line-through" : "none" }}>
@@ -413,32 +414,31 @@ export function FollowUpsScreen({ followUps, tasks, users, leads, me, today, now
         </>
       )}
 
-      {taskModal.open && (
-        <TaskModal
-          task={taskModal.task}
-          users={users}
-          leads={leads}
-          me={me}
-          today={today}
-          onClose={() => setTaskModal({ open: false, task: null })}
-          onSaved={(id) => {
-            setTaskModal({ open: false, task: null });
-            setMode("tasks");
-            if (taskModal.task && id) setDrawerId(id);
-          }}
-        />
-      )}
-      {followUpModal.open && (
-        <FollowUpModal followUp={followUpModal.followUp} users={users} leads={leads} me={me} today={today} canAssign onClose={() => setFollowUpModal({ open: false, followUp: null })} />
-      )}
-      {drawerTask && !taskModal.open && (
-        <TaskDrawer
-          task={drawerTask}
-          today={today}
-          onClose={() => setDrawerId(null)}
-          onEdit={() => setTaskModal({ open: true, task: drawerTask })}
-        />
-      )}
+      <Presence value={taskModal.open && taskModal}>
+        {(shown) => (
+          <TaskModal
+            task={shown.task}
+            users={users}
+            leads={leads}
+            me={me}
+            today={today}
+            onClose={() => setTaskModal({ open: false, task: null })}
+            onSaved={(id) => {
+              setTaskModal({ open: false, task: null });
+              setMode("tasks");
+              if (shown.task && id) setDrawerId(id);
+            }}
+          />
+        )}
+      </Presence>
+      <Presence value={followUpModal.open && followUpModal}>
+        {(shown) => (
+          <FollowUpModal followUp={shown.followUp} users={users} leads={leads} me={me} today={today} canAssign onClose={() => setFollowUpModal({ open: false, followUp: null })} />
+        )}
+      </Presence>
+      <Presence value={!taskModal.open && drawerTask}>
+        {(task) => <TaskDrawer task={task} today={today} onClose={() => setDrawerId(null)} onEdit={() => setTaskModal({ open: true, task })} />}
+      </Presence>
     </Page>
   );
 }

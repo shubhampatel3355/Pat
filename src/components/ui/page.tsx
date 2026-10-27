@@ -1,8 +1,11 @@
 import { cn } from "./cn";
 
-/** Module page wrapper: 32 px top padding, 16 px rhythm (prototype module screens). */
+/**
+ * Module page wrapper: 32 px top padding, 16 px rhythm (prototype module screens). The page fades up when it arrives;
+ * the shell around it stays still, and refreshes or filter changes on the same page don't replay it.
+ */
 export function Page({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cn("flex flex-col gap-4 pl-[clamp(0px,1vw,8px)] pt-8", className)}>{children}</div>;
+  return <div className={cn("flex animate-page-in flex-col gap-4 pl-[clamp(0px,1vw,8px)] pt-8", className)}>{children}</div>;
 }
 
 export function PageHeader({ title, meta, actions }: { title: React.ReactNode; meta?: React.ReactNode; actions?: React.ReactNode }) {

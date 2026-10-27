@@ -12,6 +12,7 @@ import { EmptyState } from "../ui/bits";
 import { Button, IconButton } from "../ui/button";
 import { FormError, inputClass } from "../ui/field";
 import { Icon } from "../ui/icon";
+import { Presence } from "../ui/motion";
 import { Modal } from "../ui/overlay";
 import { Page, PageHeader, SectionTitle } from "../ui/page";
 import { Cell, HeadCell, Row, RowHead, RowTable } from "../ui/row-table";
@@ -90,7 +91,7 @@ export function FinanceScreen({ fy, years, periodLabel, cards, entries, today, i
         }
       />
 
-      <div className="grid grid-cols-1 gap-4 min-[700px]:grid-cols-2 min-[1100px]:grid-cols-3">
+      <div className="pm-stagger grid grid-cols-1 gap-4 min-[700px]:grid-cols-2 min-[1100px]:grid-cols-3">
         {cards.map((c) => (
           <KpiCard key={c.title} {...c} />
         ))}
@@ -144,7 +145,7 @@ export function FinanceScreen({ fy, years, periodLabel, cards, entries, today, i
         )}
       </div>
 
-      {entry && <EntryModal initialType={entry} today={today} onClose={closeEntry} />}
+      <Presence value={entry}>{(type) => <EntryModal initialType={type} today={today} onClose={closeEntry} />}</Presence>
       {voiding && <VoidModal entry={voiding} onClose={() => setVoiding(null)} />}
     </Page>
   );
@@ -165,7 +166,7 @@ function ExportMenu({ fy }: { fy: number }) {
         {file.pending ? "Preparing…" : "Export"}
       </Button>
       {open && (
-        <div role="menu" className="glass-menu absolute right-0 top-12 z-40 flex w-[220px] flex-col gap-0.5 rounded-[20px] p-2 shadow-glass">
+        <div role="menu" className="glass-menu absolute right-0 top-12 z-40 flex w-[220px] origin-top-right animate-pop-in flex-col gap-0.5 rounded-[20px] p-2 shadow-glass">
           <span className="px-2.5 py-1.5 text-[11px] text-muted">Finance report</span>
           {(
             [

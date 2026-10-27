@@ -5,6 +5,7 @@ import { formatCompactINR } from "@/lib/money";
 import type { IconName } from "@/lib/icons";
 import { markAchievementsSeenAction } from "@/server/actions/todo";
 import { Icon } from "../ui/icon";
+import { Presence } from "../ui/motion";
 import { DarkOverlay } from "./dark-overlay";
 
 export interface AchievementRow {
@@ -111,7 +112,7 @@ export function AchievementsButton({ rows, headline, sub }: { rows: AchievementR
           ↗
         </span>
       </button>
-      {open && <AchievementsModal headline={headline} sub={sub} rows={rows} onClose={() => setOpen(false)} />}
+      <Presence value={open}>{() => <AchievementsModal headline={headline} sub={sub} rows={rows} onClose={() => setOpen(false)} />}</Presence>
     </>
   );
 }

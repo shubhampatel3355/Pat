@@ -9,6 +9,7 @@ import { formatINR } from "@/lib/money";
 import { convertProformaAction, emailDocumentAction } from "@/server/actions/invoices";
 import type { InvoiceListRow } from "@/server/services/invoices";
 import { Icon } from "../ui/icon";
+import { Presence } from "../ui/motion";
 import { Page, PageHeader, SectionTitle } from "../ui/page";
 import { Cell, HeadCell, Row, RowHead, RowTable } from "../ui/row-table";
 import { Segmented } from "../ui/segmented";
@@ -253,8 +254,8 @@ export function InvoiceScreen({ mode, invoices, proformas, nextInvoice, nextProf
 
       {doc && <DocViewer data={doc.doc} company={company} onClose={() => setViewing(null)} actions={docActions(doc)} />}
       {paying && <PaymentModal invoice={paying} today={today} onClose={() => setPaying(null)} />}
-      {crediting && <CreditNoteModal invoice={crediting} companyStateCode={companyState} onClose={() => setCrediting(null)} />}
-      {payments && <PaymentsModal invoice={payments} canReverse={can.record} onClose={() => setPayments(null)} />}
+      <Presence value={crediting}>{(invoice) => <CreditNoteModal invoice={invoice} companyStateCode={companyState} onClose={() => setCrediting(null)} />}</Presence>
+      <Presence value={payments}>{(invoice) => <PaymentsModal invoice={invoice} canReverse={can.record} onClose={() => setPayments(null)} />}</Presence>
     </Page>
   );
 }

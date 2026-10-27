@@ -17,7 +17,7 @@ export function inputClass(tone: FieldTone = "light", extra?: string) {
 export function FormError({ message, tone = "light" }: { message?: string | null; tone?: FieldTone }) {
   if (!message) return null;
   return (
-    <span role="alert" className={cn("text-xs", tone === "light" ? "text-danger" : "text-[#FFD2CC]")}>
+    <span role="alert" className={cn("animate-item-in text-xs", tone === "light" ? "text-danger" : "text-[#FFD2CC]")}>
       − {message}
     </span>
   );

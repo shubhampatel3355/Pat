@@ -12,6 +12,7 @@ import { EmptyState } from "../ui/bits";
 import { Button } from "../ui/button";
 import { ConfirmDialog } from "../ui/confirm-dialog";
 import { Icon } from "../ui/icon";
+import { Presence } from "../ui/motion";
 import { Page, PageHeader } from "../ui/page";
 import { Cell, HeadCell, Row, RowHead, RowTable } from "../ui/row-table";
 import { useToast } from "../ui/toast";
@@ -159,7 +160,7 @@ export function FolderScreen({
         {visible.length === 0 && <EmptyState>{files.length ? "No files match." : "This folder is empty. Use Upload to add files."}</EmptyState>}
       </RowTable>
 
-      {picker && <UploadModal folders={folders} initial={folder.key} employees={employees} me={me} limits={limits} onClose={() => setPicker(false)} />}
+      <Presence value={picker}>{() => <UploadModal folders={folders} initial={folder.key} employees={employees} me={me} limits={limits} onClose={() => setPicker(false)} />}</Presence>
       <ConfirmDialog
         open={!!removing}
         title={`Delete ${removing?.name ?? "this file"}?`}

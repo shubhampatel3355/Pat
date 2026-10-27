@@ -37,7 +37,7 @@ export function Row({ id, children, highlighted, className, style, onClick }: { 
       role="row"
       onClick={onClick}
       className={cn(
-        "grid min-h-14 items-center gap-3 rounded-row px-3 text-[13px] transition-[background-color,box-shadow] duration-[1000ms,120ms] hover:shadow-hover",
+        "grid min-h-14 items-center gap-3 rounded-row px-3 text-[13px] transition-[background-color,box-shadow,translate] duration-[1000ms,120ms,180ms] ease-standard hover:shadow-hover",
         highlighted ? "bg-primary-tint" : "bg-surface",
         onClick && "cursor-pointer",
         className,

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { IconName } from "@/lib/icons";
 import { useLive, type LiveActivity } from "../shell/live";
 import { Icon } from "../ui/icon";
+import { Presence } from "../ui/motion";
 import { DarkOverlay } from "./dark-overlay";
 
 const MODULE_ICON: Record<string, IconName> = {
@@ -68,7 +69,7 @@ export function TeamActivityButton() {
           ↗
         </span>
       </button>
-      {open && <TeamActivityModal rows={activity} onClose={() => setOpen(false)} />}
+      <Presence value={open}>{() => <TeamActivityModal rows={activity} onClose={() => setOpen(false)} />}</Presence>
     </>
   );
 }
@@ -81,7 +82,7 @@ function TeamActivityModal({ rows, onClose }: { rows: LiveActivity[]; onClose: (
   }, []);
   return (
     <DarkOverlay onClose={onClose} label="Team activity">
-      <div className="flex max-h-[calc(100%-32px)] w-full max-w-[480px] flex-col gap-3 rounded-panel bg-surface p-[18px] shadow-[0_32px_90px_rgba(0,18,51,.35)]">
+      <div className="flex max-h-[calc(100%-32px)] w-full max-w-[480px] animate-modal-in flex-col gap-3 rounded-panel bg-surface p-[18px] shadow-[0_32px_90px_rgba(0,18,51,.35)]">
         <div className="flex items-center gap-2.5">
           <span className="flex h-9 w-9 flex-none items-center justify-center rounded-pill bg-primary">
             <Icon name="user" size={16} strokeWidth={1.6} color="#fff" />
@@ -94,13 +95,13 @@ function TeamActivityModal({ rows, onClose }: { rows: LiveActivity[]; onClose: (
             <span className="h-1.5 w-1.5 rounded-pill bg-success" style={{ animation: "pmaGlow 1.6s ease-in-out infinite" }} />
             Live
           </span>
-          <button type="button" onClick={onClose} title="Close" aria-label="Close" className="hit-44 h-[34px] w-[34px] rounded-pill border-0 bg-chip-2 text-base hover:bg-raised">
+          <button type="button" onClick={onClose} title="Close" aria-label="Close" className="hit-44 h-[34px] w-[34px] rounded-pill border-0 bg-chip-2 text-base transition-colors hover:bg-raised">
             ×
           </button>
         </div>
         <ul className="pm-scroll m-0 flex max-h-[min(60vh,460px)] list-none flex-col gap-[3px] overflow-y-auto p-0">
           {rows.map((f) => (
-            <li key={f.id} className="flex min-h-11 items-center gap-2 rounded-xl bg-field px-2 py-1" style={{ animation: "pmaIn .6s cubic-bezier(.16,1,.3,1) both" }}>
+            <li key={f.id} className="flex min-h-11 animate-item-in items-center gap-2 rounded-xl bg-field px-2 py-1">
               <span className="relative flex h-7 w-7 flex-none items-center justify-center rounded-pill bg-chip text-[10px] font-medium">
                 {f.initials}
                 <span className="absolute -bottom-[3px] -right-[3px] flex h-3.5 w-3.5 items-center justify-center rounded-pill bg-primary">

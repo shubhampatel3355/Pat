@@ -75,7 +75,7 @@ export function TeamScreen({ members, partners, meta, quarterShort, canManage, c
           </>
         }
       />
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,250px),1fr))] gap-2">
+      <div className="pm-stagger grid grid-cols-[repeat(auto-fill,minmax(min(100%,250px),1fr))] gap-2">
         {visible.map((m) => {
           const pct = m.targetPaise ? Math.min(100, Math.round((m.achievedPaise / m.targetPaise) * 100)) : 0;
           const [dot, statusLabel] = STATUS[m.status];

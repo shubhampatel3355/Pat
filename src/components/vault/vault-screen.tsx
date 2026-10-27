@@ -9,6 +9,7 @@ import type { UserOption } from "@/server/services/wip";
 import { Button } from "../ui/button";
 import { EmptyState } from "../ui/bits";
 import { Icon } from "../ui/icon";
+import { Presence } from "../ui/motion";
 import { Page, PageHeader } from "../ui/page";
 import { UploadModal, type UploadLimits } from "./upload-modal";
 
@@ -33,12 +34,12 @@ export function VaultScreen({ folders, employees, me, encrypted, limits }: { fol
       {folders.length === 0 ? (
         <EmptyState className="rounded-card bg-card">You don’t have access to any vault folders yet.</EmptyState>
       ) : (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,300px),1fr))] gap-4">
+        <div className="pm-stagger grid grid-cols-[repeat(auto-fill,minmax(min(100%,300px),1fr))] gap-4">
           {folders.map((f) => (
             <Link
               key={f.key}
               href={`/vault/${f.slug}`}
-              className="bg-blue-chip relative flex min-h-[220px] flex-col gap-3.5 rounded-panel p-[22px] text-left text-white shadow-[inset_0_1px_0_rgba(255,255,255,.14),0_18px_40px_rgba(0,18,51,.24)] transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(.22,1,.36,1)] hover:-translate-y-[3px] hover:text-white hover:shadow-[inset_0_1px_0_rgba(255,255,255,.14),0_24px_56px_rgba(0,18,51,.32)] active:scale-[.98]"
+              className="bg-blue-chip relative flex min-h-[220px] flex-col gap-3.5 rounded-panel p-[22px] text-left text-white shadow-[inset_0_1px_0_rgba(255,255,255,.14),0_18px_40px_rgba(0,18,51,.24)] transition-[transform,translate,scale,box-shadow] duration-(--duration-base) ease-spring hover:-translate-y-[3px] hover:text-white hover:shadow-[inset_0_1px_0_rgba(255,255,255,.14),0_24px_56px_rgba(0,18,51,.32)] active:scale-[.98]"
             >
               <span className="flex items-center justify-between">
                 <span className="flex h-[52px] w-[52px] items-center justify-center rounded-[16px] bg-white/16">
@@ -61,7 +62,7 @@ export function VaultScreen({ folders, employees, me, encrypted, limits }: { fol
           ))}
         </div>
       )}
-      {upload && <UploadModal folders={folders} employees={employees} me={me} limits={limits} onClose={() => setUpload(false)} />}
+      <Presence value={upload}>{() => <UploadModal folders={folders} employees={employees} me={me} limits={limits} onClose={() => setUpload(false)} />}</Presence>
     </Page>
   );
 }

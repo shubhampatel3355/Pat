@@ -1,5 +1,6 @@
 import type { IconName } from "@/lib/icons";
 import { Icon } from "../ui/icon";
+import { FreshValue } from "../ui/motion";
 
 type Bars = { value: number; tip: string }[];
 type BarChart = { bars: Bars; ticks: string[] };
@@ -45,7 +46,7 @@ function Chart({ chart }: { chart: KpiChart }) {
       <div className="flex w-full flex-col gap-1.5" role="img" aria-label={chart.bars.map((b) => b.tip).join(", ")}>
         <div className="flex h-[84px] items-end justify-between gap-[3px]">
           {heights(chart.bars).map((b, i) => (
-            <span key={i} title={chart.bars[i]!.tip} className="max-w-2 flex-1 animate-bar-in rounded-pill bg-white" style={{ height: b.h, opacity: b.top ? 1 : 0.4, animationDelay: `${i * 25}ms` }} />
+            <span key={i} title={chart.bars[i]!.tip} className="max-w-2 flex-1 animate-bar-in rounded-pill bg-white transition-[height,opacity] duration-(--duration-enter) ease-standard" style={{ height: b.h, opacity: b.top ? 1 : 0.4, animationDelay: `${i * 25}ms` }} />
           ))}
         </div>
         <Ticks ticks={chart.ticks} spread="between" />
@@ -58,8 +59,8 @@ function Chart({ chart }: { chart: KpiChart }) {
         <div className="flex h-[84px] justify-around">
           {heights(chart.bars).map((b, i) => (
             <div key={i} title={chart.bars[i]!.tip} className="relative h-full w-1.5 rounded-pill" style={{ background: TRACK }}>
-              <span className="absolute inset-x-0 bottom-0 animate-bar-in rounded-pill bg-white" style={{ height: b.h }} />
-              <span className="absolute -left-0.5 h-2.5 w-2.5 animate-knob-in rounded-pill bg-white shadow-[0_0_0_2px_#023E7D]" style={{ bottom: `calc(${b.h} - 5px)` }} />
+              <span className="absolute inset-x-0 bottom-0 animate-bar-in rounded-pill bg-white transition-[height] duration-(--duration-enter) ease-standard" style={{ height: b.h }} />
+              <span className="absolute -left-0.5 h-2.5 w-2.5 animate-knob-in rounded-pill bg-white shadow-[0_0_0_2px_#023E7D] transition-[bottom] duration-(--duration-enter) ease-standard" style={{ bottom: `calc(${b.h} - 5px)` }} />
             </div>
           ))}
         </div>
@@ -114,7 +115,7 @@ function Chart({ chart }: { chart: KpiChart }) {
 /** Blue Finance KPI card (prototype finKpis: 160° gradient, radius 24, padding 22, min-height 280). */
 export function KpiCard({ title, icon, value, delta, chart }: KpiCardData) {
   return (
-    <section aria-label={title} className="bg-blue-card flex min-h-[280px] flex-col gap-3 rounded-card p-[22px] text-white shadow-blue transition-transform duration-200 ease-[cubic-bezier(.22,1,.36,1)] hover:-translate-y-0.5">
+    <section aria-label={title} className="bg-blue-card flex min-h-[280px] flex-col gap-3 rounded-card p-[22px] text-white shadow-blue transition-transform duration-(--duration-base) ease-spring hover:-translate-y-0.5">
       <div className="flex items-center gap-2.5">
         <span className="flex h-8 w-8 flex-none items-center justify-center rounded-pill bg-white/16">
           <Icon name={icon} size={14} color="#fff" />
@@ -122,7 +123,9 @@ export function KpiCard({ title, icon, value, delta, chart }: KpiCardData) {
         <h2 className="m-0 flex-1 text-sm font-medium">{title}</h2>
       </div>
       <div className="flex flex-wrap items-baseline gap-1.5">
-        <span className="text-[36px] font-light leading-10 tracking-[-.01em]">{value}</span>
+        <span className="text-[36px] font-light leading-10 tracking-[-.01em]">
+          <FreshValue value={value} />
+        </span>
         {delta && <span className="text-xs opacity-[.88]">{delta}</span>}
       </div>
       <div className="relative flex min-h-[130px] flex-1 items-end justify-center">

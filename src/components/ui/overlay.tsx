@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useId, useRef, useSyncExternalStore } from "react";
+import { useContext, useEffect, useId, useRef, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { CloseButton } from "./button";
 import { cn } from "./cn";
+import { ExitingContext, useLastWhile, usePresence } from "./motion";
 
 const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
 
@@ -74,6 +75,19 @@ function Header({ titleId, title, subtitle, onClose }: { titleId: string; title:
   );
 }
 
+/**
+ * Mount state and content for an overlay that animates out: while closing it keeps showing what it last showed,
+ * can't be clicked or focused (`inert`), and is gone after the exit animation.
+ */
+function useOverlayPresence(open: boolean, content: Pick<OverlayProps, "title" | "subtitle" | "children" | "footer">) {
+  const { mounted, closing } = usePresence(open);
+  const title = useLastWhile(open, content.title);
+  const subtitle = useLastWhile(open, content.subtitle);
+  const children = useLastWhile(open, content.children);
+  const footer = useLastWhile(open, content.footer);
+  return { mounted, closing, title, subtitle, children, footer };
+}
+
 interface OverlayProps {
   open: boolean;
   onClose: () => void;
@@ -88,14 +102,21 @@ interface OverlayProps {
 }
 
 /** Right-side frosted-glass drawer (prototype: 520 px, inset 12 px, radius 28, slide-in). */
-export function Drawer({ open, onClose, title, subtitle, children, footer, width = 520, className }: OverlayProps) {
+export function Drawer({ open: requested, onClose, width = 520, className, ...content }: OverlayProps) {
+  const exiting = useContext(ExitingContext);
+  const open = requested && !exiting;
   const root = useOverlayRoot();
   const panel = useRef<HTMLDivElement>(null);
   const titleId = useId();
   useDialogBehaviour(open, onClose, panel);
-  if (!open || !root) return null;
+  const { mounted, closing, title, subtitle, children, footer } = useOverlayPresence(open, content);
+  if (!mounted || !root) return null;
   return createPortal(
-    <div className="absolute inset-0 z-[57] bg-backdrop backdrop-blur-[4px]" onClick={onClose}>
+    <div
+      inert={closing}
+      className={cn("absolute inset-0 z-[57] bg-backdrop backdrop-blur-[4px]", closing ? "pointer-events-none animate-fade-out" : "animate-fade-in")}
+      onClick={onClose}
+    >
       <div
         ref={panel}
         role="dialog"
@@ -104,7 +125,8 @@ export function Drawer({ open, onClose, title, subtitle, children, footer, width
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         className={cn(
-          "pm-scroll glass-strong absolute bottom-3 right-3 top-3 flex animate-slide-in flex-col gap-4 overflow-y-auto overflow-x-hidden rounded-panel p-5 shadow-panel outline-none",
+          "pm-scroll glass-strong absolute bottom-3 right-3 top-3 flex flex-col gap-4 overflow-y-auto overflow-x-hidden rounded-panel p-5 shadow-panel outline-none",
+          closing ? "animate-drawer-out" : "animate-drawer-in",
           className,
         )}
         style={{ width: `min(${width}px, calc(100% - 24px))` }}
@@ -124,14 +146,25 @@ export function Drawer({ open, onClose, title, subtitle, children, footer, width
 }
 
 /** Centred frosted-glass modal (prototype: max 640 px, radius 28). */
-export function Modal({ open, onClose, title, subtitle, children, footer, width = 640, className, stacked = false }: OverlayProps) {
+export function Modal({ open: requested, onClose, width = 640, className, stacked = false, ...content }: OverlayProps) {
+  const exiting = useContext(ExitingContext);
+  const open = requested && !exiting;
   const root = useOverlayRoot();
   const panel = useRef<HTMLDivElement>(null);
   const titleId = useId();
   useDialogBehaviour(open, onClose, panel);
-  if (!open || !root) return null;
+  const { mounted, closing, title, subtitle, children, footer } = useOverlayPresence(open, content);
+  if (!mounted || !root) return null;
   return createPortal(
-    <div className={cn("absolute inset-0 flex items-center justify-center bg-backdrop p-4 backdrop-blur-[6px]", stacked ? "z-[59]" : "z-[55]")} onClick={onClose}>
+    <div
+      inert={closing}
+      className={cn(
+        "absolute inset-0 flex items-center justify-center bg-backdrop p-4 backdrop-blur-[6px]",
+        stacked ? "z-[59]" : "z-[55]",
+        closing ? "pointer-events-none animate-fade-out" : "animate-fade-in",
+      )}
+      onClick={onClose}
+    >
       <div
         ref={panel}
         role="dialog"
@@ -139,7 +172,11 @@ export function Modal({ open, onClose, title, subtitle, children, footer, width 
         aria-labelledby={titleId}
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
-        className={cn("pm-scroll glass-strong flex max-h-[calc(100%-32px)] w-full flex-col gap-4 overflow-y-auto rounded-panel p-5 shadow-panel outline-none", className)}
+        className={cn(
+          "pm-scroll glass-strong flex max-h-[calc(100%-32px)] w-full flex-col gap-4 overflow-y-auto rounded-panel p-5 shadow-panel outline-none",
+          closing ? "animate-modal-out" : "animate-modal-in",
+          className,
+        )}
         style={{ maxWidth: width }}
       >
         <Header titleId={titleId} title={title} subtitle={subtitle} onClose={onClose} />
