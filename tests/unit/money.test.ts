@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatCompactINR, formatINR, groupIndian, paiseToInput, parseRupeesToPaise, sharePaise, toPaise } from "@/lib/money";
+import { formatAmountInput, formatCompactINR, formatINR, groupIndian, paiseToInput, parseRupeesToPaise, sharePaise, toPaise } from "@/lib/money";
 
 describe("Indian digit grouping", () => {
   it.each([
@@ -11,6 +11,37 @@ describe("Indian digit grouping", () => {
     ["150000000", "15,00,00,000"],
     ["-1236640", "-12,36,640"],
   ])("%s → %s", (input, expected) => expect(groupIndian(input)).toBe(expected));
+});
+
+describe("formatAmountInput (as typed)", () => {
+  it.each([
+    ["", ""],
+    ["5", "5"],
+    ["1120555", "11,20,555"],
+    ["11,20,555", "11,20,555"],
+    ["1,1,2,0555", "11,20,555"],
+    ["₹ 2,50,000", "2,50,000"],
+    ["abc12x34", "1,234"],
+    ["007", "7"],
+    ["0", "0"],
+    ["1234.", "1,234."],
+    ["1234.5", "1,234.5"],
+    ["1234.567", "1,234.56"],
+    ["12.3.4", "12.34"],
+    [".5", "0.5"],
+    ["0.50", "0.50"],
+  ])("%j → %j", (input, expected) => expect(formatAmountInput(input)).toBe(expected));
+
+  it("whole numbers only when decimals are off", () => {
+    expect(formatAmountInput("45,00.7", false)).toBe("45,007");
+    expect(formatAmountInput("10000", false)).toBe("10,000");
+  });
+
+  it("parses back to the same paise", () => {
+    for (const typed of ["1120555", "1234.5", "99999999.99"]) {
+      expect(parseRupeesToPaise(formatAmountInput(typed))).toBe(parseRupeesToPaise(typed));
+    }
+  });
 });
 
 describe("formatINR", () => {

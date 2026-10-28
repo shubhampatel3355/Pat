@@ -9,6 +9,7 @@ import type { InvoiceInput } from "@/lib/schemas/invoice";
 import { UPLOAD_ACCEPT, uploadFiles } from "@/lib/upload-client";
 import { createProformaAction, raiseInvoiceAction } from "@/server/actions/invoices";
 import { NEW_BROKER } from "../brokers/broker-rows";
+import { AmountInput } from "../ui/amount-input";
 import { Icon } from "../ui/icon";
 import { inputClass } from "../ui/field";
 import { useAction, useToast } from "../ui/toast";
@@ -366,7 +367,7 @@ function Form({ variant, nextNumber, today, users, company, prefill, onCreated, 
             </label>
             <label className="flex flex-col gap-1.5">
               <span className={LABEL}>Total fees (₹, before GST)</span>
-              <input inputMode="decimal" value={f.fees} onChange={(e) => set("fees", e.target.value.replace(/[^\d,.]/g, ""))} placeholder="11,50,000" className={FIELD} />
+              <AmountInput value={f.fees} onChange={(v) => set("fees", v)} placeholder="11,50,000" className={FIELD} />
             </label>
             {breakdownBox}
           </div>
@@ -395,7 +396,7 @@ function Form({ variant, nextNumber, today, users, company, prefill, onCreated, 
             </label>
             <label className="flex flex-col gap-1.5">
               <span className={LABEL}>Total fees (₹)</span>
-              <input inputMode="decimal" value={f.fees} onChange={(e) => set("fees", e.target.value.replace(/[^\d,.]/g, ""))} placeholder="5,00,000" className={FIELD} />
+              <AmountInput value={f.fees} onChange={(v) => set("fees", v)} placeholder="5,00,000" className={FIELD} />
             </label>
             <label className="flex flex-col gap-1.5">
               <span className={LABEL}>Payment terms</span>

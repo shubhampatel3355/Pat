@@ -30,6 +30,7 @@ describe("WIP labels (prototype formats)", () => {
   it("formats area / seats", () => {
     expect(areaLabel("PER_SQFT", 12_500, null)).toBe("12,500 sq ft");
     expect(areaLabel("PER_SEAT", null, 60)).toBe("60 seats");
+    expect(areaLabel("PER_SEAT", null, 1200)).toBe("1,200 seats");
     expect(areaLabel("LUMPSUM", null, null)).toBe("—");
   });
 });

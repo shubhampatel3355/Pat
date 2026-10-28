@@ -8,6 +8,7 @@ import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from "@/lib/finance";
 import { PAYMENT_MODES } from "@/lib/invoice";
 import { formatCompactINR, formatINR, parseRupeesToPaise } from "@/lib/money";
 import { addLedgerEntryAction, voidLedgerEntryAction } from "@/server/actions/finance";
+import { AmountInput } from "../ui/amount-input";
 import { EmptyState } from "../ui/bits";
 import { Button, IconButton } from "../ui/button";
 import { FormError, inputClass } from "../ui/field";
@@ -245,7 +246,7 @@ function EntryModal({ initialType, today, onClose }: { initialType: EntryType; t
           <span className="text-xs font-medium text-muted">Amount</span>
           <div className="flex h-11 items-center gap-2 rounded-[14px] bg-surface px-3.5 shadow-inset focus-within:shadow-focus">
             <span className="text-sm text-muted">₹</span>
-            <input data-autofocus inputMode="decimal" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^\d,.]/g, ""))} className="min-w-0 flex-1 border-0 bg-transparent text-sm outline-none" />
+            <AmountInput data-autofocus placeholder="0" value={amount} onChange={setAmount} className="min-w-0 flex-1 border-0 bg-transparent text-sm outline-none" />
           </div>
           <span className="text-[11px] text-placeholder">{paise ? `${formatINR(paise)} · ${formatCompactINR(paise)}` : "Indian format, no decimals"}</span>
         </label>

@@ -4,12 +4,13 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { LandlordType, PricingBasis, WipRemark } from "@/generated/prisma/enums";
 import { WIP_REMARKS } from "@/lib/constants";
-import { formatCompactINR, paiseToInput, parseRupeesToPaise } from "@/lib/money";
+import { formatCompactINR, groupIndian, paiseToInput, parseRupeesToPaise } from "@/lib/money";
 import type { LeadInput } from "@/lib/schemas/wip";
 import { estimatedFeesPaise, monthlyRentPaise } from "@/lib/wip";
 import { createLeadAction, deleteLeadAction, updateLeadAction } from "@/server/actions/wip";
 import type { UserOption, WipRowDto } from "@/server/services/wip";
 import { BrokerRows, draftsFromChips, type BrokerDraft } from "../brokers/broker-rows";
+import { AmountInput } from "../ui/amount-input";
 import { Button } from "../ui/button";
 import { cn } from "../ui/cn";
 import { ConfirmDialog } from "../ui/confirm-dialog";
@@ -60,9 +61,9 @@ function initialState(row: WipRowDto | null, me: string, defaultClosure: string)
     landlordType: row.landlordType,
     landlordName: row.landlordName,
     pricingBasis: row.pricingBasis,
-    area: row.areaSqft ? String(row.areaSqft) : "",
-    seats: row.seats ? String(row.seats) : "",
-    rate: paiseToInput(row.ratePaise).replace(/,/g, ""),
+    area: row.areaSqft ? groupIndian(String(row.areaSqft)) : "",
+    seats: row.seats ? groupIndian(String(row.seats)) : "",
+    rate: paiseToInput(row.ratePaise),
     building: row.building,
     location: row.location,
     primary: draftsFromChips(row.primary),
@@ -224,21 +225,20 @@ function WipDrawerForm({ open, onClose, row, users, me, defaultClosure, canInvoi
           {f.pricingBasis === "PER_SQFT" && (
             <label className={stack}>
               <span className={label}>Area (sq ft)</span>
-              <input inputMode="numeric" value={f.area} onChange={(e) => set("area", digits(e.target.value))} placeholder="10,000" className={field} />
+              <AmountInput decimals={false} value={f.area} onChange={(v) => set("area", v)} placeholder="10,000" className={field} />
             </label>
           )}
           {f.pricingBasis === "PER_SEAT" && (
             <label className={stack}>
               <span className={label}>Seats</span>
-              <input inputMode="numeric" value={f.seats} onChange={(e) => set("seats", digits(e.target.value))} placeholder="120" className={field} />
+              <AmountInput decimals={false} value={f.seats} onChange={(v) => set("seats", v)} placeholder="120" className={field} />
             </label>
           )}
           <label className={stack}>
             <span className={label}>{f.pricingBasis === "PER_SEAT" ? "Rent / seat (₹)" : f.pricingBasis === "LUMPSUM" ? "Lumpsum amount (₹)" : "Rent / sq ft (₹)"}</span>
-            <input
-              inputMode="decimal"
+            <AmountInput
               value={f.rate}
-              onChange={(e) => set("rate", e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1"))}
+              onChange={(v) => set("rate", v)}
               placeholder={f.pricingBasis === "PER_SEAT" ? "9,500" : f.pricingBasis === "LUMPSUM" ? "5,00,000" : "90"}
               className={field}
             />

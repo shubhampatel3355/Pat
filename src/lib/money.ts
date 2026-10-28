@@ -75,6 +75,19 @@ export function paiseToInput(paise: number | null | undefined): string {
   return p ? `${groupIndian(String(rupees))}.${String(p).padStart(2, "0")}` : groupIndian(String(rupees));
 }
 
+/**
+ * What a number field shows while someone types: Indian grouping ("1120555" → "11,20,555"), leading zeros dropped,
+ * and — when `decimals` is on — one decimal point with at most two digits after it ("92.505" → "92.50").
+ */
+export function formatAmountInput(input: string, decimals = true): string {
+  const cleaned = input.replace(decimals ? /[^\d.]/g : /\D/g, "");
+  const dot = cleaned.indexOf(".");
+  const whole = (dot === -1 ? cleaned : cleaned.slice(0, dot)).replace(/^0+(?=\d)/, "");
+  if (dot === -1) return whole && groupIndian(whole);
+  const fraction = cleaned.slice(dot + 1).replace(/\./g, "").slice(0, 2);
+  return `${groupIndian(whole || "0")}.${fraction}`;
+}
+
 /** Convert a Prisma BigInt column to a safe JS number of paise. */
 export function toPaise(value: bigint | number | null | undefined): number {
   if (value === null || value === undefined) return 0;

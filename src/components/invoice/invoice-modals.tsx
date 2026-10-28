@@ -7,6 +7,7 @@ import { formatCompactINR, formatINR, paiseToInput, parseRupeesToPaise } from "@
 import { formatDate } from "@/lib/dates";
 import { issueCreditNoteAction, recordPaymentAction, reversePaymentAction } from "@/server/actions/invoices";
 import type { InvoiceListRow } from "@/server/services/invoices";
+import { AmountInput } from "../ui/amount-input";
 import { Button } from "../ui/button";
 import { FormError, inputClass } from "../ui/field";
 import { Modal } from "../ui/overlay";
@@ -54,7 +55,7 @@ export function PaymentModal({ invoice, today, onClose }: { invoice: { id: strin
           <span className="text-xs font-medium text-muted">Amount received</span>
           <div className="flex h-11 items-center gap-2 rounded-[14px] bg-surface px-3.5 shadow-inset focus-within:shadow-focus">
             <span className="text-sm text-muted">₹</span>
-            <input data-autofocus inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^\d,.]/g, ""))} className="min-w-0 flex-1 border-0 bg-transparent text-sm outline-none" />
+            <AmountInput data-autofocus value={amount} onChange={setAmount} className="min-w-0 flex-1 border-0 bg-transparent text-sm outline-none" />
           </div>
           <span className="text-[11px] text-placeholder">{paise ? `${formatINR(paise)} · ${formatCompactINR(paise)}` : "Indian format, no decimals"}</span>
         </label>
@@ -108,7 +109,7 @@ export function CreditNoteModal({ invoice, companyStateCode, onClose }: { invoic
     >
       <label className="flex flex-col gap-1.5">
         <span className="text-xs font-medium text-muted">Amount to credit (₹, before GST)</span>
-        <input data-autofocus inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^\d,.]/g, ""))} className={inputClass("light", "h-11 px-3.5")} />
+        <AmountInput data-autofocus value={amount} onChange={setAmount} className={inputClass("light", "h-11 px-3.5")} />
         <span className="text-[11px] text-muted">
           {gst.intraState ? "CGST 9% + SGST 9%" : "IGST 18%"} · total credit {formatINR(gst.totalPaise)} · up to {formatINR(invoice.creditablePaise)} before GST
         </span>

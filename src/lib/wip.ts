@@ -30,6 +30,6 @@ export function rentLine(basis: PricingBasis, monthlyPaise: number): string {
 
 export function areaLabel(basis: PricingBasis, areaSqft: number | null, seats: number | null): string {
   if (basis === "PER_SQFT" && areaSqft) return `${groupIndian(String(areaSqft))} sq ft`;
-  if (basis === "PER_SEAT" && seats) return `${seats} seats`;
+  if (basis === "PER_SEAT" && seats) return `${groupIndian(String(seats))} seats`;
   return "—";
 }

@@ -8,6 +8,7 @@ import { uploadFiles } from "@/lib/upload-client";
 import { inviteMemberAction, resendInviteAction, updateMemberAction } from "@/server/actions/team";
 import type { MemberDto } from "@/server/services/team";
 import { Dropzone } from "../files/dropzone";
+import { AmountInput } from "../ui/amount-input";
 import { Button } from "../ui/button";
 import { FormError, inputClass } from "../ui/field";
 import { Presence } from "../ui/motion";
@@ -147,7 +148,7 @@ function MemberForm({ open, member, partners, canSeeCtc, canMakeOwner, canUpload
         {canSeeCtc && (
           <label className="flex flex-col gap-1.5">
             <span className={label}>Annual CTC (₹)</span>
-            <input inputMode="decimal" value={ctc} onChange={(e) => setCtc(e.target.value.replace(/[^\d,.]/g, ""))} placeholder="9,84,000" className={field} />
+            <AmountInput value={ctc} onChange={setCtc} placeholder="9,84,000" className={field} />
           </label>
         )}
       </div>

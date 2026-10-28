@@ -5,6 +5,7 @@ import { formatINR, paiseToInput, parseRupeesToPaise } from "@/lib/money";
 import { tdsEstimate } from "@/lib/payroll";
 import { recalculateRunAction, updatePayslipAction } from "@/server/actions/payroll";
 import type { PayslipRowDto, RunDto } from "@/server/services/payroll";
+import { AmountInput } from "../ui/amount-input";
 import { Avatar, StatusPill, Toggle } from "../ui/bits";
 import { Button } from "../ui/button";
 import { FormError, inputClass } from "../ui/field";
@@ -66,7 +67,7 @@ function MoneyInput({ label, value, onChange, placeholder }: { label: string; va
       <span className="text-xs font-medium text-muted">{label}</span>
       <span className="flex h-10 items-center gap-2 rounded-[14px] bg-raised px-3 shadow-inset focus-within:shadow-focus">
         <span className="text-sm text-muted">₹</span>
-        <input inputMode="decimal" value={value} placeholder={placeholder ?? "0"} onChange={(e) => onChange(e.target.value.replace(/[^\d,.]/g, ""))} className="min-w-0 flex-1 border-0 bg-transparent text-sm outline-none" />
+        <AmountInput value={value} placeholder={placeholder ?? "0"} onChange={onChange} className="min-w-0 flex-1 border-0 bg-transparent text-sm outline-none" />
       </span>
     </label>
   );

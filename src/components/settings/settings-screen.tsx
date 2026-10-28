@@ -8,6 +8,7 @@ import { formatDateTimeShort } from "@/lib/dates";
 import { formatCompactINR, paiseToInput, parseRupeesToPaise } from "@/lib/money";
 import { saveTargetsAction, setPermissionAction } from "@/server/actions/settings";
 import type { AuditRowDto, InfoRow, IntegrationCard, RolesMatrix, TargetsView } from "@/server/services/settings";
+import { AmountInput } from "../ui/amount-input";
 import { Avatar, EmptyState, StatusPill, Toggle } from "../ui/bits";
 import { Button } from "../ui/button";
 import { cn } from "../ui/cn";
@@ -92,7 +93,7 @@ function MoneyCell({ label, value, onChange, disabled }: { label: string; value:
       <span className="sr-only">{label}</span>
       <span className="flex h-10 items-center gap-1.5 rounded-[12px] bg-raised px-3 shadow-inset focus-within:shadow-focus">
         <span className="text-sm text-muted">₹</span>
-        <input aria-label={label} inputMode="decimal" value={value} disabled={disabled} placeholder="Not set" onChange={(e) => onChange(e.target.value.replace(/[^\d,.]/g, ""))} className="min-w-0 flex-1 border-0 bg-transparent text-sm outline-none disabled:text-muted" />
+        <AmountInput aria-label={label} value={value} disabled={disabled} placeholder="Not set" onChange={onChange} className="min-w-0 flex-1 border-0 bg-transparent text-sm outline-none disabled:text-muted" />
       </span>
       <span className="h-4 text-[11px] text-muted">{paise ? formatCompactINR(paise) : ""}</span>
     </label>
