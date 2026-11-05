@@ -11,7 +11,11 @@ FROM ${NODE_IMAGE} AS base
 ENV PNPM_HOME=/pnpm \
     PATH=/pnpm:$PATH \
     NEXT_TELEMETRY_DISABLED=1
-RUN corepack enable && corepack prepare pnpm@12.3.4 --activate
+# OpenSSL: Prisma chooses its migration engine by the OpenSSL it finds, and the slim image has none.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends openssl \
+ && rm -rf /var/lib/apt/lists/* \
+ && corepack enable && corepack prepare pnpm@12.3.4 --activate
 WORKDIR /app
 
 # ── Dependencies (cached on lockfile) ────────────────────────────────────────
@@ -52,7 +56,7 @@ ENV NODE_ENV=production \
 
 # Chromium renders invoice / payslip PDFs from the app's own /print pages.
 RUN apt-get update \
- && apt-get install -y --no-install-recommends chromium fonts-noto-core tzdata ca-certificates tini \
+ && apt-get install -y --no-install-recommends chromium fonts-noto-core tzdata ca-certificates openssl tini \
  && rm -rf /var/lib/apt/lists/* \
  && groupadd --system --gid 1001 app \
  && useradd --system --uid 1001 --gid app --create-home --home-dir /home/app app

@@ -16,7 +16,8 @@ the database are run from the Postgres resource's **Terminal** in Coolify (`psql
 ## People and access
 
 - **New member**: Teams → **+ Add member**. They get an invite email with a link to set their password.
-  "Resend invite" is in their drawer.
+  "Resend invite" is in their drawer. While email isn't set up, read the link from the job queue
+  (DEPLOY → Running without email) and send it to them yourself.
 - **Someone leaves**: Teams → open them → switch **Account active** off. They are signed out everywhere
   at once and can't sign in. Their records, payslips and audit history stay.
 - **Forgotten password**: they use "Forgot password?" on the sign-in page (link valid for a limited time). Changing a
@@ -162,7 +163,7 @@ shows its contact details.
 - **The Docker image only has what tracing copied into `.next/standalone`**, while the e2e specs run through `next start`,
   which sees all of `node_modules`. A package that loads a file by a computed path works in tests and fails in production
   unless the file is listed under `outputFileTracingIncludes` in `next.config.ts` (today: Playwright's `browsers.json`).
-  CI's "Production start-up" step starts the standalone output with the restricted database role to catch this.
+  CI builds the real image and runs the e2e specs against it, with the restricted database role, to catch this.
 - A `pnpm build` on a dev machine also copies `.local` (dev mail and uploads) into `.next/standalone`. `.dockerignore` keeps
   it out of the image; don't deploy a standalone folder built by hand.
 - `pnpm-workspace.yaml` overrides `uuid` (under exceljs), `glob` (under Sentry's build plugin) and `minimatch` (under

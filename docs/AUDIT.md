@@ -127,8 +127,7 @@ show up in tests that run through `next start` with a superuser:
   `outputFileTracingIncludes`.
 - pg-boss ran `CREATE SCHEMA IF NOT EXISTS`, which Postgres refuses for `pm_app` even though the schema exists. It now only
   tries when the schema is missing.
-- Also: bad configuration left the process running and answering 500s; in production it now exits, as the docs said. CI has
-  a new step that starts the standalone output with the restricted role.
+- Also: bad configuration left the process running and answering 500s; in production it now exits, as the docs said.
 
 **Removed**: `design-reference/unpacked/` and `design-reference/assets/` (verified copies of what the offline HTML embeds and
 of `public/brand`), `pino-pretty`, the `periodOfIso` helper, 7 unused types, 3 unused icons, 4 unused colour tokens, unused
@@ -155,3 +154,22 @@ SMTP sink and a stand-in S3 API, on Windows: not Docker, not MinIO, not real mai
 - The `settings` table has no code using it. Dropping it needs a migration, so it is left for a decision.
 - Chromium in the Docker image, real MinIO and real email delivery still need the staging run in DEPLOY step 7.
 - Business decisions in section 5 are unchanged.
+
+## 9. Coolify preparation — 6 Nov 2026
+
+Reading the image and DEPLOY against Coolify's current documentation found three things to fix. None could show up on
+Windows, so CI now builds the real image and runs the e2e specs against it, with the restricted database role and MinIO user:
+- **OpenSSL**: the `node:22-bookworm-slim` image has no libssl or openssl binary (checked in its layers), so `npm install
+  prisma` would fetch the migration engine for the wrong OpenSSL. Now installed.
+- **Coolify passes every variable into the build by default**, where secrets can end up in image metadata. DEPLOY now sets
+  every variable to runtime only.
+- **MinIO left Coolify's one-click catalog**, and Services are on their own network by default. DEPLOY now runs it as Docker
+  Compose, and the app reaches it at its public HTTPS address.
+
+Email stays off for now: DEPLOY's "Running without email" lists the settings and what changes for users.
+
+**Verified without Docker**: a fresh clone built with the Dockerfile's commands and no secrets, then run in production mode
+behind an HTTPS proxy with Traefik's headers, as `pm_app`, with email off. 66 page loads as owner, admin and employee and at
+phone width, on an empty database and on demo data, with no failed assets, 4xx or 5xx responses, or console errors. First
+sign-in, PDFs, Vault, exports, and onboarding through the job-queue query in DEPLOY all worked. This used a stand-in for S3.
+**The image itself is only proven once CI runs on GitHub.**
