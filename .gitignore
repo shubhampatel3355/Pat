@@ -30,6 +30,8 @@ next-env.d.ts
 # misc
 .DS_Store
 *.pem
+# personal credentials notes: never commit
+password.txt
 npm-debug.log*
 .pnpm-debug.log*
 

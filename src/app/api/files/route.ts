@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { getApiUser } from "@/server/auth/session";
 import { db } from "@/server/db";
+import { env } from "@/server/env";
 import { can, has } from "@/server/policy";
 import { LIMITS, rateLimit } from "@/server/rate-limit";
 import { isSameOrigin, metaFromHeaders } from "@/server/request";
@@ -22,6 +23,12 @@ export async function POST(req: Request) {
 
   const limit = await rateLimit(`upload:${user.id}`, LIMITS.uploadPerUser.limit, LIMITS.uploadPerUser.windowSec);
   if (!limit.ok) return Response.json({ error: "Too many uploads. Wait a few minutes." }, { status: 429, headers: { "retry-after": String(limit.retryAfterSec) } });
+
+  // Refuse an oversized request before reading it into memory; saveUpload still checks each file.
+  const { UPLOAD_MAX_MB } = env();
+  if (Number(req.headers.get("content-length") ?? 0) > (MAX_FILES * UPLOAD_MAX_MB + 1) * 1024 * 1024) {
+    return Response.json({ error: `Upload at most ${MAX_FILES} files of ${UPLOAD_MAX_MB} MB each.` }, { status: 413 });
+  }
 
   let form: FormData;
   try {

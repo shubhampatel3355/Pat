@@ -159,3 +159,12 @@ shows its contact details.
 - Locally, `next start` warns that it "does not work with output: standalone". The e2e tests use it anyway and it works.
   Production runs `node server.js` from the standalone build in Docker.
 - The demo seed (`pnpm db:seed:demo`) refuses to run with `NODE_ENV=production`. Never point it at the production database.
+- **The Docker image only has what tracing copied into `.next/standalone`**, while the e2e specs run through `next start`,
+  which sees all of `node_modules`. A package that loads a file by a computed path works in tests and fails in production
+  unless the file is listed under `outputFileTracingIncludes` in `next.config.ts` (today: Playwright's `browsers.json`).
+  CI's "Production start-up" step starts the standalone output with the restricted database role to catch this.
+- A `pnpm build` on a dev machine also copies `.local` (dev mail and uploads) into `.next/standalone`. `.dockerignore` keeps
+  it out of the image; don't deploy a standalone folder built by hand.
+- `pnpm-workspace.yaml` overrides `uuid` (under exceljs), `glob` (under Sentry's build plugin) and `minimatch` (under
+  typescript-eslint) for security fixes the parents haven't picked up. When upgrading those parents, try removing the
+  overrides and run `pnpm audit`. The `nodemailer` peer rule is there because Auth.js's unused email provider asks for v8.

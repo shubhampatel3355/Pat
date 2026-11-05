@@ -89,6 +89,48 @@ jobs:
       - run: pnpm exec prisma migrate deploy
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm exec next build
+      # The specs run through `next start`, which sees all of node_modules. This starts what the Docker image runs: the
+      # standalone output with the least-privileged database role from docs/DEPLOY.md, background job workers included.
+      - name: Production start-up (standalone, restricted database role)
+        env:
+          PGPASSWORD: postgres
+          HOSTNAME: 0.0.0.0
+          PORT: "3199"
+          APP_URL: http://localhost:3199
+          DATABASE_URL: postgresql://pm_app:app@localhost:5432/patmichaels_startup
+          MIGRATION_DATABASE_URL: postgresql://pm_owner:owner@localhost:5432/patmichaels_startup
+          S3_PUBLIC_ENDPOINT: http://localhost:9000
+          COMPANY_BANK_NAME: CI Bank
+          COMPANY_BANK_ACCOUNT_NAME: CI
+          COMPANY_BANK_ACCOUNT_NUMBER: "0"
+          COMPANY_BANK_IFSC: CI00000000
+        run: |
+          psql -h localhost -U postgres -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE pm_owner LOGIN PASSWORD 'owner';
+          CREATE ROLE pm_app LOGIN PASSWORD 'app';
+          CREATE DATABASE patmichaels_startup OWNER pm_owner;
+          REVOKE ALL ON DATABASE patmichaels_startup FROM PUBLIC;
+          GRANT CONNECT, TEMPORARY ON DATABASE patmichaels_startup TO pm_app;
+          \c patmichaels_startup
+          ALTER SCHEMA public OWNER TO pm_owner;
+          REVOKE ALL ON SCHEMA public FROM PUBLIC;
+          GRANT USAGE ON SCHEMA public TO pm_app;
+          ALTER DEFAULT PRIVILEGES FOR ROLE pm_owner IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO pm_app;
+          ALTER DEFAULT PRIVILEGES FOR ROLE pm_owner IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO pm_app;
+          CREATE SCHEMA pgboss AUTHORIZATION pm_app;
+          SQL
+          pnpm exec prisma migrate deploy
+          node .next/standalone/server.js > "$RUNNER_TEMP/standalone.log" 2>&1 &
+          server=$!
+          for i in $(seq 1 30); do
+            if grep -q "job workers started" "$RUNNER_TEMP/standalone.log" && curl -fsS http://localhost:3199/api/health; then
+              kill "$server"
+              exit 0
+            fi
+            sleep 2
+          done
+          cat "$RUNNER_TEMP/standalone.log"
+          exit 1
       - run: pnpm test:e2e
         env:
           # The invoice spec waits for its email (with the PDF attached) to reach Mailpit.

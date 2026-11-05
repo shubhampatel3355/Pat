@@ -194,7 +194,7 @@ only in Coolify, never in the repository. The essentials:
 | `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | `pat-michaels-os`, `pm-app`, the secret from step 5 |
 | `S3_SSE` | `AES256` only if MinIO has `MINIO_KMS_SECRET_KEY`; the Vault then shows "encrypted at rest" |
 | `MAIL_DRIVER`, `SMTP_*`, `MAIL_FROM` | Hostinger: `smtp.hostinger.com`, `465`, `SMTP_SECURE=true`, mailbox user and password |
-| `COMPANY_*` | legal name, GSTIN, RERA, address, **bank details** (required; printed on invoices) |
+| `COMPANY_*` | printed on invoices. **Bank details** are required. Legal name, GSTIN, RERA, address and phone fall back to the values in `.env.example`, which came from the design prototype: set the real ones before the first invoice |
 | `SEED_OWNERS` | `Pat Michaels <pat@patmichaels.in>;Arjun Rao <arjun@patmichaels.in>` |
 | `SEED_OWNER_PASSWORD` | a temporary password for the first sign-in (remove it after step 7) |
 | `CLAMAV_HOST` | the ClamAV service's internal host, if you add one (image `clamav/clamav:stable`, port 3310) |

@@ -1,6 +1,6 @@
 import "server-only";
 import { fromPrisma, PgBoss } from "pg-boss";
-import type { Tx } from "../db";
+import { db, type Tx } from "../db";
 import { env } from "../env";
 import { logger } from "../logger";
 
@@ -44,9 +44,13 @@ let starting: Promise<PgBoss> | undefined;
 export function getBoss(): Promise<PgBoss> {
   starting ??= (async () => {
     const e = env();
+    // Postgres refuses CREATE SCHEMA IF NOT EXISTS for the least-privileged app role even when the schema exists
+    // (DEPLOY.md step 4 creates it ahead of time), so pg-boss only tries when it's really missing.
+    const schema = await db.$queryRaw<{ present: boolean }[]>`SELECT to_regnamespace('pgboss') IS NOT NULL AS present`;
     const boss = new PgBoss({
       connectionString: e.DATABASE_URL,
       schema: "pgboss",
+      createSchema: !schema[0]?.present,
       max: 4,
       application_name: "pm-os-queue",
       supervise: e.WORKER_ENABLED,

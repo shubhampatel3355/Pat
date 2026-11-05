@@ -61,7 +61,8 @@ WORKDIR /app
 COPY --from=build --chown=app:app /app/.next/standalone ./
 COPY --from=build --chown=app:app /app/.next/static ./.next/static
 COPY --from=build --chown=app:app /app/public ./public
-COPY --from=build --chown=app:app /app/prisma ./db/prisma
+COPY --from=build --chown=app:app /app/prisma/schema.prisma ./db/prisma/schema.prisma
+COPY --from=build --chown=app:app /app/prisma/migrations ./db/prisma/migrations
 COPY --from=build --chown=app:app /app/prisma7.config.ts ./db/prisma7.config.ts
 COPY --from=build --chown=app:app /app/dist/seed.mjs ./db/seed.mjs
 COPY --from=migrator --chown=app:app /migrator/node_modules ./db/node_modules

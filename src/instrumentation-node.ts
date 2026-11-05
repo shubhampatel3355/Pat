@@ -3,9 +3,20 @@ import { env } from "./server/env";
 import { errorText, logger } from "./server/logger";
 import { captureError, initSentry } from "./server/sentry";
 
+/** The validated configuration. In production a bad one stops the process, so the deploy fails instead of serving 500s. */
+function validatedEnv() {
+  try {
+    return env();
+  } catch (err) {
+    if (process.env.NODE_ENV !== "production") throw err;
+    logger.fatal(errorText(err));
+    process.exit(1);
+  }
+}
+
 /** Validate configuration (fail fast), enable error tracking and start background workers. */
 export async function registerNode() {
-  const config = env(); // throws with a readable list when configuration is incomplete
+  const config = validatedEnv();
   logger.info({ env: config.NODE_ENV, storage: config.STORAGE_DRIVER, mail: config.MAIL_DRIVER, version: process.env.APP_VERSION ?? "dev" }, "Pat Michaels OS starting");
 
   if (config.SENTRY_DSN) await initSentry(config.SENTRY_DSN, config.NODE_ENV);
