@@ -3,7 +3,7 @@
  * ISO strings ("2026-10-28"). The financial year runs April → March.
  */
 
-export const TIME_ZONE = "Asia/Kolkata";
+const TIME_ZONE = "Asia/Kolkata";
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] as const;
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] as const;
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { CompanyProfile } from "@/lib/company";
 import { tint } from "@/lib/constants";
 import { formatDate } from "@/lib/dates";
@@ -14,6 +14,7 @@ import { Page, PageHeader, SectionTitle } from "../ui/page";
 import { Cell, HeadCell, Row, RowHead, RowTable } from "../ui/row-table";
 import { Segmented } from "../ui/segmented";
 import { useAction } from "../ui/toast";
+import { useDeepLink, useFreshRow } from "../ui/use-deep-link";
 import { useDownload } from "../ui/use-download";
 import { DocViewer, type DocAction } from "./doc-viewer";
 import { DocumentForm, type FormPrefill } from "./document-form";
@@ -68,7 +69,7 @@ export function InvoiceScreen({ mode, invoices, proformas, nextInvoice, nextProf
   const [paying, setPaying] = useState<InvoiceListRow | null>(null);
   const [crediting, setCrediting] = useState<InvoiceListRow | null>(null);
   const [payments, setPayments] = useState<InvoiceListRow | null>(null);
-  const [fresh, setFresh] = useState<string | null>(null);
+  const [fresh, setFresh] = useFreshRow();
   const email = useAction(emailDocumentAction);
   const pdf = useDownload();
   const convert = useAction(convertProformaAction, {
@@ -78,14 +79,7 @@ export function InvoiceScreen({ mode, invoices, proformas, nextInvoice, nextProf
     },
   });
 
-  useEffect(() => {
-    if (params.has("focus") || params.has("lead")) router.replace(mode === "proforma" ? "/invoices?mode=proforma" : "/invoices", { scroll: false });
-  }, [params, router, mode]);
-  useEffect(() => {
-    if (!fresh) return;
-    const t = setTimeout(() => setFresh(null), 1400);
-    return () => clearTimeout(t);
-  }, [fresh]);
+  useDeepLink(mode === "proforma" ? "/invoices?mode=proforma" : "/invoices");
 
   const all = useMemo(() => [...invoices, ...proformas], [invoices, proformas]);
   const doc = viewing ? all.find((r) => r.id === viewing) : undefined;

@@ -91,7 +91,7 @@ export async function listWip(user: SessionUser): Promise<WipRowDto[]> {
   });
 }
 
-export interface WipCardsDto {
+interface WipCardsDto {
   quarterLabel: string;
   targetPaise: number | null;
   currentPaise: number;

@@ -5,7 +5,7 @@ import "server-only";
  * Allow-list: PDF, images, Office documents, ZIP, CSV/TXT. Anything else is rejected
  * (executables, HTML, SVG and other active content).
  */
-export interface SniffResult {
+interface SniffResult {
   mime: string;
   ext: string;
 }
@@ -20,7 +20,7 @@ const OLE: Record<string, string> = { doc: "application/msword", xls: "applicati
 
 const startsWith = (buf: Buffer, bytes: number[], offset = 0) => bytes.every((b, i) => buf[offset + i] === b);
 
-export function extensionOf(name: string): string {
+function extensionOf(name: string): string {
   const m = name.toLowerCase().match(/\.([a-z0-9]{1,8})$/);
   return m ? m[1]! : "";
 }

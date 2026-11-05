@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useMemo, useState } from "react";
 import type { WipRemark } from "@/generated/prisma/enums";
 import { CLOSED_REMARKS, tint, WIP_REMARK, WIP_REMARKS } from "@/lib/constants";
 import { formatDate } from "@/lib/dates";
@@ -16,9 +16,19 @@ import { FreshValue } from "../ui/motion";
 import { Page, PageHeader } from "../ui/page";
 import { Cell, HeadCell, Row, RowHead, RowTable } from "../ui/row-table";
 import { useAction } from "../ui/toast";
+import { useDeepLink, useFreshRow } from "../ui/use-deep-link";
 import { WipDrawer } from "./wip-drawer";
 
 const COLUMNS = "56px minmax(180px,1.4fr) 150px 140px minmax(150px,1fr) 160px 130px 150px 190px 130px 190px";
+
+function BrokerLine({ name, initials }: { name: string; initials: string }) {
+  return (
+    <div className="flex min-w-0 items-center gap-2">
+      <Avatar initials={initials} size={26} ring={false} />
+      <span className="truncate">{name}</span>
+    </div>
+  );
+}
 
 export interface WipCard {
   title: string;
@@ -43,26 +53,13 @@ interface WipScreenProps {
 }
 
 export function WipScreen({ rows, cards, users, me, today, monthEnd, defaultClosure, canCreate, canInvoice }: WipScreenProps) {
-  const router = useRouter();
   const params = useSearchParams();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<WipRemark | "ALL">("ALL");
   const [drawer, setDrawer] = useState<{ open: boolean; row: WipRowDto | null }>(() => ({ open: params.get("new") === "1" && canCreate, row: null }));
-  const [fresh, setFresh] = useState<string | null>(() => params.get("focus"));
+  const [fresh, setFresh] = useFreshRow(params.get("focus"));
   const remark = useAction(setRemarkAction);
-
-  // Deep links from ⌘K / notifications (?focus=id) and quick-create (?new=1): handle once, then clean the URL.
-  useEffect(() => {
-    const focus = params.get("focus");
-    if (focus) document.getElementById(`wip-${focus}`)?.scrollIntoView({ block: "center", behavior: "smooth" });
-    if (params.has("focus") || params.has("new")) router.replace("/wip", { scroll: false });
-  }, [params, router]);
-
-  useEffect(() => {
-    if (!fresh) return;
-    const t = setTimeout(() => setFresh(null), 1400);
-    return () => clearTimeout(t);
-  }, [fresh]);
+  useDeepLink("/wip", "wip");
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -179,20 +176,12 @@ export function WipScreen({ rows, cards, users, me, today, monthEnd, defaultClos
                 <Cell align="right">{formatCompactINR(r.estFeesPaise)}</Cell>
                 <Cell className="flex flex-col gap-1">
                   {r.primary.map((b) => (
-                    <div key={b.name} className="flex min-w-0 items-center gap-2">
-                      <Avatar initials={b.initials} size={26} ring={false} />
-                      <span className="truncate">{b.name}</span>
-                    </div>
+                    <BrokerLine key={b.name} {...b} />
                   ))}
                 </Cell>
                 <Cell className="flex flex-col gap-1">
                   {r.secondary.length ? (
-                    r.secondary.map((b) => (
-                      <div key={b.name} className="flex min-w-0 items-center gap-2">
-                        <Avatar initials={b.initials} size={26} ring={false} />
-                        <span className="truncate">{b.name}</span>
-                      </div>
-                    ))
+                    r.secondary.map((b) => <BrokerLine key={b.name} {...b} />)
                   ) : (
                     <div className="flex items-center gap-2">
                       <Avatar initials="—" size={26} tone="dashed" />

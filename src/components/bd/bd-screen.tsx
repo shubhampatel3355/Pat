@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useMemo, useState } from "react";
 import type { LeadTemperature } from "@/generated/prisma/enums";
 import { MEETING_MODES, MEETING_TYPES, TEMPERATURE, TEMPERATURES, tint } from "@/lib/constants";
 import { formatDate } from "@/lib/dates";
@@ -14,6 +14,7 @@ import { Icon } from "../ui/icon";
 import { Page, PageHeader } from "../ui/page";
 import { Cell, HeadCell, Row, RowHead, RowTable } from "../ui/row-table";
 import { useAction } from "../ui/toast";
+import { useDeepLink, useFreshRow } from "../ui/use-deep-link";
 import { BdDrawer } from "./bd-drawer";
 
 const COLUMNS = "150px 150px 110px minmax(170px,1fr) 150px 140px 200px 120px 140px 120px 300px";
@@ -29,23 +30,11 @@ interface BdScreenProps {
 }
 
 export function BdScreen({ rows, users, me, today, canSeeContacts }: BdScreenProps) {
-  const router = useRouter();
   const params = useSearchParams();
   const [query, setQuery] = useState("");
   const [drawer, setDrawer] = useState<{ open: boolean; row: BdRowDto | null }>(() => ({ open: params.get("new") === "1", row: null }));
-  const [fresh, setFresh] = useState<string | null>(() => params.get("focus"));
-
-  useEffect(() => {
-    const focus = params.get("focus");
-    if (focus) document.getElementById(`bd-${focus}`)?.scrollIntoView({ block: "center", behavior: "smooth" });
-    if (params.has("focus") || params.has("new")) router.replace("/business-development", { scroll: false });
-  }, [params, router]);
-
-  useEffect(() => {
-    if (!fresh) return;
-    const t = setTimeout(() => setFresh(null), 1400);
-    return () => clearTimeout(t);
-  }, [fresh]);
+  const [fresh, setFresh] = useFreshRow(params.get("focus"));
+  useDeepLink("/business-development", "bd");
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();

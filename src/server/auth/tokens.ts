@@ -30,7 +30,7 @@ export async function findValidToken(raw: string, types: AuthTokenType[]) {
 
 // ── Sign-in codes (owners and admins when AUTH_OTP_FOR_ADMINS is on) ──────────
 
-export const OTP_TTL_MINUTES = 10;
+const OTP_TTL_MINUTES = 10;
 const OTP_MAX_ATTEMPTS = 5;
 
 /** Emails a fresh six-digit code; older unused codes stop working. Only a hash keyed to the token id is stored. */

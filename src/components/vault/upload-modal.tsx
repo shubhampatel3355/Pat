@@ -6,7 +6,7 @@ import type { FolderKey } from "@/generated/prisma/enums";
 import { UPLOAD_ACCEPT, UPLOAD_TYPES_LABEL, uploadFiles, uploadSummary } from "@/lib/upload-client";
 import type { FolderCardDto } from "@/server/services/vault";
 import type { UserOption } from "@/server/services/wip";
-import { inputClass } from "../ui/field";
+import { inputClass, LABEL } from "../ui/field";
 import { Icon } from "../ui/icon";
 import { Modal } from "../ui/overlay";
 import { useToast } from "../ui/toast";
@@ -85,7 +85,7 @@ export function UploadModal({
       </div>
       {target === "EMPLOYEE_DOCUMENTS" && employees && (
         <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-muted">Whose documents</span>
+          <span className={LABEL}>Whose documents</span>
           <select value={owner} onChange={(e) => setOwner(e.target.value)} className={inputClass("light", "h-11 cursor-pointer px-3")}>
             {employees.map((u) => (
               <option key={u.id} value={u.id}>

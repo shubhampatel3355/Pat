@@ -8,10 +8,10 @@ import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from "@/lib/finance";
 import { PAYMENT_MODES } from "@/lib/invoice";
 import { formatCompactINR, formatINR, parseRupeesToPaise } from "@/lib/money";
 import { addLedgerEntryAction, voidLedgerEntryAction } from "@/server/actions/finance";
-import { AmountInput } from "../ui/amount-input";
+import { RupeeInput } from "../ui/amount-input";
 import { EmptyState } from "../ui/bits";
 import { Button, IconButton } from "../ui/button";
-import { FormError, inputClass } from "../ui/field";
+import { FIELD, FormError, LABEL } from "../ui/field";
 import { Icon } from "../ui/icon";
 import { Presence } from "../ui/motion";
 import { Modal } from "../ui/overlay";
@@ -26,7 +26,7 @@ import { KpiCard, type KpiCardData } from "./kpi-card";
 type EntryType = "INCOME" | "EXPENSE";
 type Mode = (typeof PAYMENT_MODES)[number]["value"];
 
-export interface EntryRow {
+interface EntryRow {
   id: string;
   type: EntryType;
   date: string;
@@ -243,34 +243,31 @@ function EntryModal({ initialType, today, onClose }: { initialType: EntryType; t
       {type === "INCOME" && <p className="m-0 -mt-2 text-xs text-muted">Payments against invoices are recorded from Invoice → Record payment, not here.</p>}
       <div className="grid grid-cols-1 gap-2 min-[520px]:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
         <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-muted">Amount</span>
-          <div className="flex h-11 items-center gap-2 rounded-[14px] bg-surface px-3.5 shadow-inset focus-within:shadow-focus">
-            <span className="text-sm text-muted">₹</span>
-            <AmountInput data-autofocus placeholder="0" value={amount} onChange={setAmount} className="min-w-0 flex-1 border-0 bg-transparent text-sm outline-none" />
-          </div>
+          <span className={LABEL}>Amount</span>
+          <RupeeInput data-autofocus placeholder="0" value={amount} onChange={setAmount} className="h-11 gap-2 rounded-[14px] bg-surface px-3.5" />
           <span className="text-[11px] text-placeholder">{paise ? `${formatINR(paise)} · ${formatCompactINR(paise)}` : "Indian format, no decimals"}</span>
         </label>
         <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-muted">Party</span>
-          <input value={party} onChange={(e) => setParty(e.target.value)} placeholder={type === "INCOME" ? "Customer or payer" : "Vendor or payee"} className={inputClass("light", "h-11 px-3.5")} />
+          <span className={LABEL}>Party</span>
+          <input value={party} onChange={(e) => setParty(e.target.value)} placeholder={type === "INCOME" ? "Customer or payer" : "Vendor or payee"} className={FIELD} />
         </label>
       </div>
       <div className="grid grid-cols-1 gap-2 min-[520px]:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-muted">Description</span>
-          <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What is this for?" className={inputClass("light", "h-11 px-3.5")} />
+          <span className={LABEL}>Description</span>
+          <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What is this for?" className={FIELD} />
         </label>
         <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-muted">Date</span>
-          <input type="date" max={today} value={date} onChange={(e) => setDate(e.target.value)} className={inputClass("light", "h-11 px-3.5")} />
+          <span className={LABEL}>Date</span>
+          <input type="date" max={today} value={date} onChange={(e) => setDate(e.target.value)} className={FIELD} />
         </label>
       </div>
       <div className="flex flex-col gap-1.5">
-        <span className="text-xs font-medium text-muted">Category</span>
+        <span className={LABEL}>Category</span>
         <ChoiceChips label="Category" options={categories} value={category} onChange={(v) => setCategory(v)} />
       </div>
       <div className="flex flex-col gap-1.5">
-        <span className="text-xs font-medium text-muted">Mode</span>
+        <span className={LABEL}>Mode</span>
         <ChoiceChips label="Payment mode" options={PAYMENT_MODES} value={mode} onChange={(v) => setMode(v)} />
       </div>
       <FormError message={error} />
@@ -304,8 +301,8 @@ function VoidModal({ entry, onClose }: { entry: EntryRow; onClose: () => void })
       }
     >
       <label className="flex flex-col gap-1.5">
-        <span className="text-xs font-medium text-muted">Reason</span>
-        <input data-autofocus value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. Entered twice" className={inputClass("light", "h-11 px-3.5")} />
+        <span className={LABEL}>Reason</span>
+        <input data-autofocus value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. Entered twice" className={FIELD} />
       </label>
       <FormError message={error} />
     </Modal>

@@ -2,8 +2,8 @@ import "server-only";
 import { hash, verify } from "@node-rs/argon2";
 import { ARGON2_OPTIONS as OPTIONS } from "./argon-options";
 
-export const PASSWORD_MIN = 10;
-export const PASSWORD_MAX = 128;
+const PASSWORD_MIN = 10;
+const PASSWORD_MAX = 128;
 
 export function hashPassword(plain: string): Promise<string> {
   return hash(plain, OPTIONS);

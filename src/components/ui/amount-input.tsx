@@ -2,6 +2,7 @@
 
 import { useLayoutEffect, useRef } from "react";
 import { formatAmountInput } from "@/lib/money";
+import { cn } from "./cn";
 
 type AmountInputProps = Omit<React.ComponentProps<"input">, "value" | "onChange" | "inputMode" | "type" | "ref"> & {
   value: string;
@@ -62,4 +63,14 @@ export function AmountInput({ value, onChange, decimals = true, ...rest }: Amoun
   };
 
   return <input {...rest} ref={input} inputMode={decimals ? "decimal" : "numeric"} value={value} onChange={change} />;
+}
+
+/** An amount field with the ₹ sign inside it. `className` sets its height, spacing and surface. */
+export function RupeeInput({ className, ...input }: AmountInputProps) {
+  return (
+    <span className={cn("flex items-center shadow-inset focus-within:shadow-focus", className)}>
+      <span className="text-sm text-muted">₹</span>
+      <AmountInput {...input} className="min-w-0 flex-1 border-0 bg-transparent text-sm outline-none disabled:text-muted" />
+    </span>
+  );
 }

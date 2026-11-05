@@ -3,7 +3,7 @@ import { isoDate, requiredText, text } from "./common";
 
 export const WIP_REMARK_VALUES = ["VISITS", "MEETINGS", "FOLLOW_UP_MEETINGS", "NEGOTIATIONS", "ON_HOLD", "LOST", "INVOICE_RAISED", "PAYMENT_COLLECTED"] as const;
 
-export const secondaryBrokerSchema = z.union([
+const secondaryBrokerSchema = z.union([
   z.object({ userId: z.uuid() }),
   z.object({ externalName: requiredText(80, "Type the broker's full name") }),
 ]);

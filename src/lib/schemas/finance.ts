@@ -30,5 +30,3 @@ export const financeExportQuerySchema = z.object({
   fy: z.coerce.number().int().min(2000).max(2100),
   format: z.enum(["xlsx", "pdf"]),
 });
-
-export type LedgerEntryInput = z.input<typeof ledgerEntryInputSchema>;

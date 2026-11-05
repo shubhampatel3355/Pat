@@ -22,5 +22,3 @@ export const payslipEditSchema = z.object({
 });
 
 export const runIdSchema = z.object({ id: z.uuid() });
-
-export type PayslipEditInput = z.input<typeof payslipEditSchema>;

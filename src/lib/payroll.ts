@@ -7,7 +7,7 @@ import { financialYear, fyMonths, fyOfIso, quarterBounds, type FinancialYear } f
  * above ₹ 50,000 a month) that reviewers can override; any other deduction is entered by hand.
  */
 
-export const PF_RATE = 0.12;
+const PF_RATE = 0.12;
 const TDS_RATE = 0.1;
 const TDS_FREE_PAISE = 50_000_00;
 /** Karnataka: ₹ 200 a month on salaries of ₹ 25,000 or more (₹ 300 in February, ₹ 2,500 a year). */
@@ -51,7 +51,7 @@ export function tdsEstimate(grossPaise: number): number {
   return Math.round(Math.max(0, grossPaise - TDS_FREE_PAISE) * TDS_RATE);
 }
 
-export function totalsOf(c: Pick<PayslipComponents, "basic" | "hra" | "special" | "commission" | "incentive" | "pf" | "pt" | "tds" | "other">): PayslipTotals {
+function totalsOf(c: Pick<PayslipComponents, "basic" | "hra" | "special" | "commission" | "incentive" | "pf" | "pt" | "tds" | "other">): PayslipTotals {
   const gross = c.basic + c.hra + c.special + c.commission + c.incentive;
   const deductions = c.pf + c.pt + c.tds + c.other;
   return { gross, deductions, net: gross - deductions };
@@ -63,7 +63,7 @@ export function daysInMonth(period: string): number {
   return new Date(Date.UTC(y!, m!, 0)).getUTCDate();
 }
 
-export const monthStart = (period: string) => `${period}-01`;
+const monthStart = (period: string) => `${period}-01`;
 export const monthEnd = (period: string) => `${period}-${String(daysInMonth(period)).padStart(2, "0")}`;
 
 /** Days of the month on the payroll: from the joining date (if it falls inside the month) to month end. */
@@ -126,8 +126,6 @@ export function longMonthLabel(period: string): string {
 export function shortMonthLabel(period: string): string {
   return `${MONTH_NAMES[Number(period.slice(5)) - 1]!.slice(0, 3)} ${period.slice(0, 4)}`;
 }
-
-export const periodOfIso = (iso: string) => iso.slice(0, 7);
 
 export type StatementType = "MONTHLY" | "QUARTERLY" | "YEARLY";
 

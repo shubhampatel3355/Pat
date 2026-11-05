@@ -9,13 +9,9 @@
   --font-sans: var(--font-urbanist), var(--font-urbanist-ext), "Outfit", ui-sans-serif, system-ui, sans-serif;
 
   /* Blues that stay the same in both themes */
-  --color-navy-900: #002855;
-  --color-navy-800: #023e7d;
-  --color-sky: #9cc3ff;
 
   /* Status fills (the same in both themes) */
   --color-success: #3e9b52;
-  --color-warning: #f5b73b;
   --color-danger-fill: #c93c37;
 
   /* Shape */
@@ -421,15 +417,6 @@
     cursor: pointer;
     position: relative;
     transition: transform 0.4s;
-  }
-  .theme-switch-label::after {
-    content: "";
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: max(100%, 44px);
-    height: max(100%, 44px);
-    transform: translate(-50%, -50%);
   }
   @media (hover: hover) {
     .theme-switch-label:hover {

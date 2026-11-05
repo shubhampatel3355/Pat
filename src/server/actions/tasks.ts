@@ -34,6 +34,20 @@ async function assertLeadVisible(user: SessionUser, leadId: string | null) {
 
 const taskDueAt = (date: string | null, time: string | null) => (date ? istToInstant(date, time ?? DEFAULT_TASK_TIME) : null);
 
+/** The columns a task's form sets: the same for a new task and an edit. */
+function taskColumns(input: z.output<typeof taskInputSchema>, assigneeId: string) {
+  return {
+    title: input.title,
+    assigneeId,
+    dueAt: taskDueAt(input.dueDate, input.dueTime),
+    priority: input.priority,
+    leadId: input.leadId,
+    remindInApp: input.remindInApp,
+    remindEmail: input.remindEmail,
+    remindWhatsapp: input.remindWhatsapp,
+  };
+}
+
 export const createTaskAction = defineAction({
   schema: taskInputSchema,
   authorize: (user) => can(user, "create", { type: "task" }),
@@ -41,19 +55,7 @@ export const createTaskAction = defineAction({
     const assignee = await activeUser(input.assigneeId, "assignee");
     await assertLeadVisible(user, input.leadId);
     const task = await db.$transaction(async (tx) => {
-      const created = await tx.task.create({
-        data: {
-          title: input.title,
-          assigneeId: assignee.id,
-          createdById: user.id,
-          dueAt: taskDueAt(input.dueDate, input.dueTime),
-          priority: input.priority,
-          leadId: input.leadId,
-          remindInApp: input.remindInApp,
-          remindEmail: input.remindEmail,
-          remindWhatsapp: input.remindWhatsapp,
-        },
-      });
+      const created = await tx.task.create({ data: { ...taskColumns(input, assignee.id), createdById: user.id } });
       await scheduleTaskReminder(tx, created);
       await writeAudit(tx, {
         actor: user,
@@ -90,19 +92,7 @@ export const updateTaskAction = defineAction({
     const assignee = input.assigneeId === before.assigneeId ? { id: before.assigneeId, name: "" } : await activeUser(input.assigneeId, "assignee");
     if (input.leadId !== before.leadId) await assertLeadVisible(user, input.leadId);
     await db.$transaction(async (tx) => {
-      const updated = await tx.task.update({
-        where: { id: before.id },
-        data: {
-          title: input.title,
-          assigneeId: assignee.id,
-          dueAt: taskDueAt(input.dueDate, input.dueTime),
-          priority: input.priority,
-          leadId: input.leadId,
-          remindInApp: input.remindInApp,
-          remindEmail: input.remindEmail,
-          remindWhatsapp: input.remindWhatsapp,
-        },
-      });
+      const updated = await tx.task.update({ where: { id: before.id }, data: taskColumns(input, assignee.id) });
       await scheduleTaskReminder(tx, updated);
       await writeAudit(tx, {
         actor: user,

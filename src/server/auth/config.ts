@@ -12,17 +12,17 @@ import { metaFromHeaders } from "../request";
 import { verifyPassword } from "./password";
 import { issueLoginOtp, verifyLoginOtp } from "./tokens";
 
-export class InvalidCredentials extends CredentialsSignin {
+class InvalidCredentials extends CredentialsSignin {
   code = "invalid";
 }
-export class TooManyAttempts extends CredentialsSignin {
+class TooManyAttempts extends CredentialsSignin {
   code = "rate_limited";
 }
 /** Password was right; an owner/admin must now enter the emailed sign-in code. */
-export class OtpRequired extends CredentialsSignin {
+class OtpRequired extends CredentialsSignin {
   code = "otp_required";
 }
-export class InvalidOtp extends CredentialsSignin {
+class InvalidOtp extends CredentialsSignin {
   code = "otp_invalid";
 }
 

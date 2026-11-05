@@ -4,14 +4,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
-import { FormError, inputClass } from "@/components/ui/field";
+import { FIELD, FormError, LABEL } from "@/components/ui/field";
 import { changePasswordAction, forgotPasswordAction, setPasswordAction } from "@/server/actions/auth";
 
 function PasswordInput({ label, value, onChange, autoComplete, placeholder }: { label: string; value: string; onChange: (v: string) => void; autoComplete: string; placeholder?: string }) {
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="text-xs font-medium text-muted">{label}</span>
-      <input type="password" autoComplete={autoComplete} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} className={inputClass("light", "h-11 px-3.5")} />
+      <span className={LABEL}>{label}</span>
+      <input type="password" autoComplete={autoComplete} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} className={FIELD} />
     </label>
   );
 }
@@ -84,8 +84,8 @@ export function ForgotPasswordForm() {
       }}
     >
       <label className="flex flex-col gap-1.5">
-        <span className="text-xs font-medium text-muted">Work email</span>
-        <input type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@patmichaels.in" className={inputClass("light", "h-11 px-3.5")} />
+        <span className={LABEL}>Work email</span>
+        <input type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@patmichaels.in" className={FIELD} />
       </label>
       <FormError message={error} />
       <Button type="submit" size="xl" loading={pending} className="w-full">

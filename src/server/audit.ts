@@ -5,7 +5,7 @@ import { db, type Tx } from "./db";
 import type { SessionUser } from "./policy";
 import type { RequestMeta } from "./request";
 
-export type AuditModule =
+type AuditModule =
   | "Auth"
   | "Dashboard"
   | "WIP"
@@ -19,9 +19,9 @@ export type AuditModule =
   | "Vault"
   | "Settings";
 
-export type AuditAction = "create" | "update" | "delete" | "export" | "login" | "login_failed" | "logout" | "approve" | "download" | "email";
+type AuditAction = "create" | "update" | "delete" | "export" | "login" | "login_failed" | "logout" | "approve" | "download" | "email";
 
-export interface AuditInput {
+interface AuditInput {
   actor: Pick<SessionUser, "id" | "name"> | null;
   module: AuditModule;
   action: AuditAction;
@@ -41,7 +41,7 @@ export interface AuditInput {
 const SECRET_KEY = /password|hash|token|secret|Enc$/i;
 
 /** JSON-safe, secret-free snapshot (bigint → number/string, dates → ISO, ciphertext dropped). */
-export function snapshot(value: unknown): Prisma.InputJsonValue | undefined {
+function snapshot(value: unknown): Prisma.InputJsonValue | undefined {
   if (value === undefined || value === null) return undefined;
   const json = JSON.stringify(value, (key, v) => {
     if (key && SECRET_KEY.test(key)) return undefined;

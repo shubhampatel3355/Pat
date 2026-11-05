@@ -28,7 +28,7 @@ export interface MemberDto {
   canEdit: boolean;
 }
 
-export interface TeamSummary {
+interface TeamSummary {
   members: MemberDto[];
   quarterShort: string;
   counts: { employees: number; admins: number; partners: number };

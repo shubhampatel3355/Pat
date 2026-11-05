@@ -2,12 +2,12 @@ import "server-only";
 import type { IconName } from "@/lib/icons";
 import { can, has, type SessionUser } from "./policy";
 
-export interface NavItem {
+interface NavItem {
   href: string;
   label: string;
   icon: IconName;
 }
-export interface NavGroup {
+interface NavGroup {
   label: string;
   items: NavItem[];
 }
@@ -49,7 +49,7 @@ export function navFor(user: SessionUser): NavGroup[] {
     .filter((g) => g.items.length > 0);
 }
 
-export interface QuickCreateItem {
+interface QuickCreateItem {
   label: string;
   icon: IconName;
   href: string;

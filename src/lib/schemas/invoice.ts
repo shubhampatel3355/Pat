@@ -2,12 +2,12 @@ import { z } from "../zod";
 import { checkGstin, gstinErrorMessage, normaliseGstin } from "../gstin";
 import { email, indianMobile, isoDate, requiredText, text } from "./common";
 
-export const brokerShareSchema = z.union([
+const brokerShareSchema = z.union([
   z.object({ userId: z.uuid(), sharePct: z.number().int().min(1).max(100) }),
   z.object({ externalName: requiredText(80, "Type the broker's full name"), sharePct: z.number().int().min(1).max(100) }),
 ]);
 
-export const gstinSchema = z
+const gstinSchema = z
   .string()
   .transform(normaliseGstin)
   .superRefine((v, ctx) => {
@@ -67,4 +67,3 @@ export const creditNoteInputSchema = z.object({
 });
 
 export type InvoiceInput = z.input<typeof invoiceInputSchema>;
-export type ProformaInput = z.input<typeof proformaInputSchema>;

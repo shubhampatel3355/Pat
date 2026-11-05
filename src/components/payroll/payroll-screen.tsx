@@ -9,7 +9,7 @@ import type { PayrollEmployeeDto, RunDto } from "@/server/services/payroll";
 import { Avatar, EmptyState } from "../ui/bits";
 import { Button } from "../ui/button";
 import { ConfirmDialog } from "../ui/confirm-dialog";
-import { FormError, inputClass } from "../ui/field";
+import { FIELD, FormError, LABEL } from "../ui/field";
 import { CheckGlyph, Icon } from "../ui/icon";
 import { FreshValue, Presence } from "../ui/motion";
 import { Modal } from "../ui/overlay";
@@ -246,8 +246,8 @@ function StartRunModal({ next, onClose }: { next: { period: string; payDate: str
       }
     >
       <label className="flex flex-col gap-1.5">
-        <span className="text-xs font-medium text-muted">Pay date</span>
-        <input data-autofocus type="date" value={payDate} onChange={(e) => setPayDate(e.target.value)} className={inputClass("light", "h-11 px-3.5")} />
+        <span className={LABEL}>Pay date</span>
+        <input data-autofocus type="date" value={payDate} onChange={(e) => setPayDate(e.target.value)} className={FIELD} />
       </label>
       <span className="flex items-center gap-1.5 text-xs text-muted">
         <Icon name="clock" size={13} /> Partners are not on payroll; employees without a CTC are skipped.

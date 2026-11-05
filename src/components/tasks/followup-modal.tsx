@@ -10,12 +10,11 @@ import type { FollowUpDto, LeadOption } from "@/server/services/tasks";
 import type { UserOption } from "@/server/services/wip";
 import { Button } from "../ui/button";
 import { ConfirmDialog } from "../ui/confirm-dialog";
-import { FormError, inputClass } from "../ui/field";
+import { FIELD, FormError, inputClass, LABEL } from "../ui/field";
 import { Modal } from "../ui/overlay";
 import { ChoiceChips } from "../ui/segmented";
 import { useAction } from "../ui/toast";
 
-const LABEL = "text-xs font-medium text-muted";
 
 export function FollowUpModal({
   followUp,
@@ -86,7 +85,7 @@ export function FollowUpModal({
       <div className="grid grid-cols-1 gap-2 min-[520px]:grid-cols-2">
         <label className="flex flex-col gap-1.5">
           <span className={LABEL}>Follow up with</span>
-          <input data-autofocus value={f.contactName} onChange={(e) => set("contactName", e.target.value)} placeholder="e.g. Ritika Sharma · Zeta Fintech" className={inputClass("light", "h-11 px-3.5")} />
+          <input data-autofocus value={f.contactName} onChange={(e) => set("contactName", e.target.value)} placeholder="e.g. Ritika Sharma · Zeta Fintech" className={FIELD} />
         </label>
         <label className="flex flex-col gap-1.5">
           <span className={LABEL}>Linked WIP row</span>
@@ -114,7 +113,7 @@ export function FollowUpModal({
       </div>
       <label className="flex flex-col gap-1.5">
         <span className={LABEL}>Note</span>
-        <input value={f.note} onChange={(e) => set("note", e.target.value)} placeholder="e.g. Budget confirmation" className={inputClass("light", "h-11 px-3.5")} />
+        <input value={f.note} onChange={(e) => set("note", e.target.value)} placeholder="e.g. Budget confirmation" className={FIELD} />
       </label>
       <div className="grid grid-cols-1 gap-2 min-[520px]:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)]">
         <label className="flex flex-col gap-1.5">
@@ -129,11 +128,11 @@ export function FollowUpModal({
         </label>
         <label className="flex flex-col gap-1.5">
           <span className={LABEL}>Date</span>
-          <input type="date" value={f.dueDate} onChange={(e) => set("dueDate", e.target.value)} className={inputClass("light", "h-11 px-3.5")} />
+          <input type="date" value={f.dueDate} onChange={(e) => set("dueDate", e.target.value)} className={FIELD} />
         </label>
         <label className="flex flex-col gap-1.5">
           <span className={LABEL}>Time</span>
-          <input type="time" value={f.dueTime} onChange={(e) => set("dueTime", e.target.value)} className={inputClass("light", "h-11 px-3.5")} />
+          <input type="time" value={f.dueTime} onChange={(e) => set("dueTime", e.target.value)} className={FIELD} />
         </label>
       </div>
       <FormError message={error} />

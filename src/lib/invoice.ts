@@ -1,7 +1,7 @@
 import type { InvoiceStatus, InvoiceType } from "@/generated/prisma/enums";
 import { addDaysIso } from "./dates";
 
-export const DOC_PREFIX: Record<InvoiceType, string> = { INVOICE: "PM", PROFORMA: "PF", CREDIT_NOTE: "CN" };
+const DOC_PREFIX: Record<InvoiceType, string> = { INVOICE: "PM", PROFORMA: "PF", CREDIT_NOTE: "CN" };
 
 /** PM/26-27/0001 — numbered per financial year, per document kind. */
 export function formatDocNumber(type: InvoiceType, fyShort: string, seq: number): string {
@@ -28,7 +28,7 @@ export function dueDateFromTerms(terms: string, issueIso: string): string {
   return addDaysIso(issueIso, 30);
 }
 
-export interface StatusDisplay {
+interface StatusDisplay {
   label: string;
   color: string;
 }

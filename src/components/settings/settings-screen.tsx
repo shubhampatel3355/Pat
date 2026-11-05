@@ -8,10 +8,11 @@ import { formatDateTimeShort } from "@/lib/dates";
 import { formatCompactINR, paiseToInput, parseRupeesToPaise } from "@/lib/money";
 import { saveTargetsAction, setPermissionAction } from "@/server/actions/settings";
 import type { AuditRowDto, InfoRow, IntegrationCard, RolesMatrix, TargetsView } from "@/server/services/settings";
-import { AmountInput } from "../ui/amount-input";
+import { RupeeInput } from "../ui/amount-input";
 import { Avatar, EmptyState, StatusPill, Toggle } from "../ui/bits";
 import { Button } from "../ui/button";
 import { cn } from "../ui/cn";
+import { LABEL } from "../ui/field";
 import { Icon } from "../ui/icon";
 import { Page, PageHeader } from "../ui/page";
 import { useAction } from "../ui/toast";
@@ -91,10 +92,7 @@ function MoneyCell({ label, value, onChange, disabled }: { label: string; value:
   return (
     <label className="flex min-w-0 flex-col gap-1">
       <span className="sr-only">{label}</span>
-      <span className="flex h-10 items-center gap-1.5 rounded-[12px] bg-raised px-3 shadow-inset focus-within:shadow-focus">
-        <span className="text-sm text-muted">₹</span>
-        <AmountInput aria-label={label} value={value} disabled={disabled} placeholder="Not set" onChange={onChange} className="min-w-0 flex-1 border-0 bg-transparent text-sm outline-none disabled:text-muted" />
-      </span>
+      <RupeeInput aria-label={label} value={value} disabled={disabled} placeholder="Not set" onChange={onChange} className="h-10 gap-1.5 rounded-[12px] bg-raised px-3" />
       <span className="h-4 text-[11px] text-muted">{paise ? formatCompactINR(paise) : ""}</span>
     </label>
   );
@@ -157,19 +155,19 @@ function TargetsEditor({ targets, canEdit }: { targets: TargetsView; canEdit: bo
 
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,260px),1fr))] gap-2 rounded-[14px] bg-surface p-3">
         <div className="flex flex-col gap-1">
-          <span className="text-xs font-medium text-muted">Company revenue · {targets.fy.label}</span>
+          <span className={LABEL}>Company revenue · {targets.fy.label}</span>
           <MoneyCell label={`Company revenue target ${targets.fy.label}`} value={values["COMPANY:company:REVENUE"]!} onChange={set("COMPANY:company:REVENUE")} disabled={!canEdit} />
         </div>
         {targets.partners.map((p) => (
           <div key={p.id} className="flex flex-col gap-1">
-            <span className="text-xs font-medium text-muted">
+            <span className={LABEL}>
               {p.name} · {targets.fy.label}
             </span>
             <MoneyCell label={`${p.name} revenue target`} value={values[`PARTNER:${p.id}:REVENUE`]!} onChange={set(`PARTNER:${p.id}:REVENUE`)} disabled={!canEdit} />
           </div>
         ))}
         <div className="flex flex-col gap-1">
-          <span className="text-xs font-medium text-muted">Company WIP fees · {targets.quarterLabel}</span>
+          <span className={LABEL}>Company WIP fees · {targets.quarterLabel}</span>
           <MoneyCell label={`Company WIP fees target ${targets.quarterLabel}`} value={values["COMPANY:company:WIP_FEES"]!} onChange={set("COMPANY:company:WIP_FEES")} disabled={!canEdit} />
         </div>
       </div>

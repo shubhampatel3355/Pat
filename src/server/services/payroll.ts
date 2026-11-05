@@ -155,7 +155,7 @@ export async function payrollEmployees(user: SessionUser): Promise<PayrollEmploy
   });
 }
 
-export interface Statement {
+interface Statement {
   period: StatementPeriod;
   user: Person & { dateOfJoining: string | null; email: string };
   months: string[];

@@ -20,7 +20,7 @@ import { logger } from "../logger";
  * out short-lived presigned URLs. STORAGE_DRIVER=local keeps files under .local/storage for
  * development only (rejected in production) and serves them through an HMAC-signed, expiring route.
  */
-export interface StorageDriver {
+interface StorageDriver {
   put(key: string, body: Buffer, contentType: string): Promise<void>;
   get(key: string): Promise<Buffer>;
   remove(key: string): Promise<void>;

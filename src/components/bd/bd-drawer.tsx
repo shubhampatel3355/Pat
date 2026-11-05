@@ -8,14 +8,13 @@ import type { BdRowDto } from "@/server/services/bd";
 import type { UserOption } from "@/server/services/wip";
 import { Button } from "../ui/button";
 import { ConfirmDialog } from "../ui/confirm-dialog";
-import { FormError, inputClass } from "../ui/field";
+import { FIELD, FormError, inputClass, LABEL } from "../ui/field";
 import { Icon } from "../ui/icon";
 import { Presence } from "../ui/motion";
 import { Drawer } from "../ui/overlay";
 import { ChoiceChips } from "../ui/segmented";
 import { useAction } from "../ui/toast";
 
-const LABEL = "text-xs font-medium text-muted";
 
 interface BdDrawerProps {
   open: boolean;
@@ -111,21 +110,21 @@ function BdDrawerForm({ open, row, users, me, today, canSeeContacts, onClose, on
       <div className="grid grid-cols-2 gap-2">
         <label className="flex flex-col gap-1.5">
           <span className={LABEL}>Date</span>
-          <input type="date" value={f.meetingDate} onChange={(e) => set("meetingDate", e.target.value)} className={inputClass("light", "h-11 px-3.5")} />
+          <input type="date" value={f.meetingDate} onChange={(e) => set("meetingDate", e.target.value)} className={FIELD} />
         </label>
         <label className="flex flex-col gap-1.5">
           <span className={LABEL}>Tenant name</span>
-          <input data-autofocus value={f.tenantName} onChange={(e) => set("tenantName", e.target.value)} placeholder="e.g. Zeta Fintech" className={inputClass("light", "h-11 px-3.5")} />
+          <input data-autofocus value={f.tenantName} onChange={(e) => set("tenantName", e.target.value)} placeholder="e.g. Zeta Fintech" className={FIELD} />
         </label>
       </div>
       <div className="grid grid-cols-2 gap-2">
         <label className="flex flex-col gap-1.5">
           <span className={LABEL}>Contact name</span>
-          <input value={f.contactName} onChange={(e) => set("contactName", e.target.value)} placeholder="e.g. Ritika Sharma" className={inputClass("light", "h-11 px-3.5")} />
+          <input value={f.contactName} onChange={(e) => set("contactName", e.target.value)} placeholder="e.g. Ritika Sharma" className={FIELD} />
         </label>
         <label className="flex flex-col gap-1.5">
           <span className={LABEL}>Client designation</span>
-          <input value={f.designation} onChange={(e) => set("designation", e.target.value)} placeholder="e.g. Head of Admin" className={inputClass("light", "h-11 px-3.5")} />
+          <input value={f.designation} onChange={(e) => set("designation", e.target.value)} placeholder="e.g. Head of Admin" className={FIELD} />
         </label>
       </div>
 

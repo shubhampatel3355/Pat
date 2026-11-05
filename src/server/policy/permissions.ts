@@ -10,7 +10,7 @@ import { db } from "../db";
 const TTL_MS = 30_000;
 const cache = new Map<Role, { at: number; keys: ReadonlySet<PermissionKey> }>();
 
-export const ALL_PERMISSIONS: ReadonlySet<PermissionKey> = new Set(PERMISSION_DEFS.map((p) => p.key));
+const ALL_PERMISSIONS: ReadonlySet<PermissionKey> = new Set(PERMISSION_DEFS.map((p) => p.key));
 
 export async function permissionsForRole(role: Role): Promise<ReadonlySet<PermissionKey>> {
   if (role === "OWNER") return ALL_PERMISSIONS;

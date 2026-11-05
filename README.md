@@ -3,7 +3,7 @@
 Operating system for **Pat Michaels Developers LLP** — WIP, follow-ups, business development, cabs,
 invoicing, finance, payroll, team and documents in one place.
 
-- Design source of truth: `design-reference/Pat Michaels OS (offline).html` (unpacked copy in `design-reference/unpacked/`).
+- Design source of truth: `design-reference/Pat Michaels OS (offline).html`.
 - Architecture, stack and data model: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 - Production: [`docs/DEPLOY.md`](docs/DEPLOY.md) (Hostinger VPS + Coolify) and [`docs/RUNBOOK.md`](docs/RUNBOOK.md) (operations).
 - Side-by-side screenshots of the prototype and the app: [`docs/parity/`](docs/parity/).

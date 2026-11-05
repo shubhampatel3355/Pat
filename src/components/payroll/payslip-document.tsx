@@ -4,7 +4,7 @@ import { amountInWords, formatINR } from "@/lib/money";
 import { shortMonthLabel, type PayslipComponents, type PayslipTotals, type StatementType } from "@/lib/payroll";
 import { BrandedDocument, DOC_LABEL } from "../docs/branded-document";
 
-export interface PayslipView {
+interface PayslipView {
   type: StatementType;
   periodLabel: string;
   months: string[];

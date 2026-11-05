@@ -27,7 +27,7 @@ export const isOwner = (u: SessionUser) => u.role === "OWNER";
 export const isAdminOrOwner = (u: SessionUser) => u.role === "OWNER" || u.role === "ADMIN";
 export const has = (u: SessionUser, key: PermissionKey) => u.role === "OWNER" || u.perms.has(key);
 
-export type Action =
+type Action =
   | "view"
   | "create"
   | "update"
@@ -40,7 +40,7 @@ export type Action =
   | "credit_note";
 
 /** Everything `can()` knows how to reason about. Record fields are optional for type-level checks. */
-export type Resource =
+type Resource =
   | { type: "dashboard" }
   | { type: "wip"; brokerUserIds?: string[] }
   | { type: "task"; assigneeId?: string; createdById?: string }

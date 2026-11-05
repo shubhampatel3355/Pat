@@ -104,7 +104,7 @@ export async function ledgerEntries(fromIso: string, toIso: string, take?: numbe
 
 // ── Receivables ───────────────────────────────────────────────────────────────
 
-export interface ReceivableRow {
+interface ReceivableRow {
   id: string;
   number: string;
   payeeName: string;
@@ -243,7 +243,7 @@ export interface RegisterRow {
 }
 
 /** Tax invoices and credit notes issued in the period, oldest first. */
-export async function invoiceRegister(fromIso: string, toIso: string): Promise<RegisterRow[]> {
+async function invoiceRegister(fromIso: string, toIso: string): Promise<RegisterRow[]> {
   const rows = await db.invoice.findMany({
     where: { type: { in: ["INVOICE", "CREDIT_NOTE"] }, issueDate: { gte: isoToDate(fromIso), lte: isoToDate(toIso) } },
     orderBy: [{ issueDate: "asc" }, { number: "asc" }],

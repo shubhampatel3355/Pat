@@ -10,12 +10,11 @@ import type { LeadOption, TaskDto } from "@/server/services/tasks";
 import type { UserOption } from "@/server/services/wip";
 import { Toggle } from "../ui/bits";
 import { Button } from "../ui/button";
-import { FormError, inputClass } from "../ui/field";
+import { FIELD, FormError, inputClass, LABEL } from "../ui/field";
 import { Modal } from "../ui/overlay";
 import { ChoiceChips } from "../ui/segmented";
 import { useAction } from "../ui/toast";
 
-const LABEL = "text-xs font-medium text-muted";
 const QUICK_DUES: Exclude<DueBucket, "NONE">[] = ["TODAY", "TOMORROW", "THIS_WEEK", "NEXT_WEEK"];
 
 export function TaskModal({
@@ -84,7 +83,7 @@ export function TaskModal({
     >
       <label className="flex flex-col gap-1.5">
         <span className={LABEL}>Task</span>
-        <input data-autofocus value={f.title} onChange={(e) => set("title", e.target.value)} placeholder="e.g. Send cost sheet to Vikram" className={inputClass("light", "h-11 px-3.5")} />
+        <input data-autofocus value={f.title} onChange={(e) => set("title", e.target.value)} placeholder="e.g. Send cost sheet to Vikram" className={FIELD} />
       </label>
       <div className="flex flex-col gap-1.5">
         <span className={LABEL}>Assignee</span>

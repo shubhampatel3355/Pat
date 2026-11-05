@@ -34,13 +34,13 @@ async function getBrowser(): Promise<Browser> {
   return browserPromise;
 }
 
-export type PrintTarget = { kind: "invoice"; id: string } | { kind: "payslip"; userId: string; periodType: string; period: string } | { kind: "finance"; fy: string };
+type PrintTarget = { kind: "invoice"; id: string } | { kind: "payslip"; userId: string; periodType: string; period: string } | { kind: "finance"; fy: string };
 
-export function printToken(target: PrintTarget, ttlSeconds = 120): string {
+function printToken(target: PrintTarget, ttlSeconds = 120): string {
   return signPayload("print", target as unknown as Record<string, unknown>, ttlSeconds);
 }
 
-export function printPath(target: PrintTarget): string {
+function printPath(target: PrintTarget): string {
   const token = encodeURIComponent(printToken(target));
   switch (target.kind) {
     case "invoice":

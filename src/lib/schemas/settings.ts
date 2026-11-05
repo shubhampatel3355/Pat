@@ -25,5 +25,3 @@ export const targetsSchema = z.object({
     )
     .max(400),
 });
-
-export type TargetsInput = z.input<typeof targetsSchema>;

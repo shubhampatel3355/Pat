@@ -24,7 +24,10 @@ export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
   const session = await auth();
   const uid = session?.user?.id;
   if (!uid) return null;
-  const user = await db.user.findFirst({ where: { id: uid, deletedAt: null } });
+  const user = await db.user.findFirst({
+    where: { id: uid, deletedAt: null },
+    select: { id: true, email: true, name: true, role: true, title: true, partnerId: true, active: true, sessionVersion: true, mustChangePassword: true },
+  });
   if (!user || !user.active) return null;
   if ((session.sv ?? 0) !== user.sessionVersion) return null;
   const perms = await permissionsForRole(user.role);

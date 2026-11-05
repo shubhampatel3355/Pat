@@ -38,7 +38,7 @@ const MAX_ROWS = 500;
 const person = (u: { id: string; name: string }): Person => ({ id: u.id, name: u.name, initials: initialsOf(u.name) });
 
 /** "+91 98450 22114" for Indian mobiles, digits as stored otherwise. */
-export function displayPhone(digits: string | null): string | null {
+function displayPhone(digits: string | null): string | null {
   if (!digits) return null;
   return /^\d{10}$/.test(digits) ? `+91 ${formatMobile(digits)}` : digits;
 }

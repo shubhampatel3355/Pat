@@ -1,7 +1,7 @@
 import "server-only";
 import { db } from "./db";
 
-export interface RateLimitResult {
+interface RateLimitResult {
   ok: boolean;
   count: number;
   retryAfterSec: number;

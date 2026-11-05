@@ -117,3 +117,41 @@ The application is functionally stable: all modules work end to end for both pan
 and URL attempts, and the automated suites pass. The remaining risk is in what can only be proven on the production server
 (email, storage, Docker, backups) and in the open business decisions above. It is ready for a staging deployment on the
 VPS; go-live should follow a successful staging run of DEPLOY.md step 7 and one restore test.
+
+## 8. Pre-deployment clean-up — 5 Nov 2026
+
+**Found by running the app the way the Docker image does** (standalone output, `NODE_ENV=production`, the `pm_owner` and
+`pm_app` roles from DEPLOY step 4, SMTP and an S3 API). Both blocked all email, sign-in codes and PDFs, and neither could
+show up in tests that run through `next start` with a superuser:
+- Playwright's `browsers.json` was missing from the standalone output, so the job workers could not load. Now listed in
+  `outputFileTracingIncludes`.
+- pg-boss ran `CREATE SCHEMA IF NOT EXISTS`, which Postgres refuses for `pm_app` even though the schema exists. It now only
+  tries when the schema is missing.
+- Also: bad configuration left the process running and answering 500s; in production it now exits, as the docs said. CI has
+  a new step that starts the standalone output with the restricted role.
+
+**Removed**: `design-reference/unpacked/` and `design-reference/assets/` (verified copies of what the offline HTML embeds and
+of `public/brand`), `pino-pretty`, the `periodOfIso` helper, 7 unused types, 3 unused icons, 4 unused colour tokens, unused
+`SEED_*` entries in the env schema, stale `minimumReleaseAgeExclude` entries, and the `export` keyword from 59 names only used
+in their own file.
+
+**Dependencies**: `pnpm audit` went from 18 known vulnerabilities (3 high) to 0: nodemailer 8 → 10, Next 16.4.5, Tailwind
+4.3.4, AWS SDK 3.1161, Sentry 11.10, plus the three overrides described in the runbook. No major upgrades otherwise: ESLint
+10, TypeScript 7, Vitest 5, Prisma 8 and Node types 26 are still to do.
+
+**Shared code**: `useDeepLink` and `useFreshRow` (five screens), `useOverlay` (Drawer and Modal), `RupeeInput` (four amount
+fields), `FIELD` and `LABEL` constants (about 60 repeats), `taskColumns`, `BrokerLine`.
+
+**Performance**: the dashboard pipeline adds up in the database instead of loading every lead; Vault totals take one query,
+not one per folder; saving targets reads once, not once per row; the session query no longer loads the password hash; the
+Sentry SDK loads only with a DSN (start-up memory about 163 → 137 MB, ready about 1.8 → 1.2 s, measured locally).
+
+**Verification**: typecheck, lint, 218 unit tests, 15 e2e specs; 45 screens (light, dark, employee, phone, open forms)
+pixel-compared against the previous build on identical data with no differences; the production run in the first paragraph
+through first sign-in, a proforma's PDF and email, a Vault upload and download, exports and password reset. Against a local
+SMTP sink and a stand-in S3 API, on Windows: not Docker, not MinIO, not real mail.
+
+**Still open**
+- The `settings` table has no code using it. Dropping it needs a migration, so it is left for a decision.
+- Chromium in the Docker image, real MinIO and real email delivery still need the staging run in DEPLOY step 7.
+- Business decisions in section 5 are unchanged.

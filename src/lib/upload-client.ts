@@ -1,6 +1,6 @@
 import type { FolderKey } from "@/generated/prisma/enums";
 
-export interface UploadedFile {
+interface UploadedFile {
   id: string;
   name: string;
   ext: string;

@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 import type { CarType } from "@/generated/prisma/enums";
 import { CAB_STATUS, CAR_TYPES } from "@/lib/constants";
 import { formatDate, formatTime12 } from "@/lib/dates";
@@ -10,15 +10,15 @@ import type { CabRowDto, PersonOption } from "@/server/services/vehicles";
 import { Avatar, EmptyState, StatusPill } from "../ui/bits";
 import { Button } from "../ui/button";
 import { ConfirmDialog } from "../ui/confirm-dialog";
-import { FormError, inputClass } from "../ui/field";
+import { FIELD_ON_BLUE, FormError, inputClass, LABEL_ON_BLUE } from "../ui/field";
 import { Icon } from "../ui/icon";
 import { Page, PageHeader, SectionTitle } from "../ui/page";
 import { Cell, HeadCell, Row, RowHead, RowTable } from "../ui/row-table";
 import { ChoiceChips } from "../ui/segmented";
 import { useAction } from "../ui/toast";
+import { useDeepLink, useFreshRow } from "../ui/use-deep-link";
 
 const COLUMNS = "56px minmax(180px,1.2fr) 170px 120px 120px 90px minmax(200px,1.4fr) 130px 120px 200px";
-const LABEL = "text-xs font-medium text-white/92";
 
 interface VehiclesScreenProps {
   rows: CabRowDto[];
@@ -32,12 +32,11 @@ interface VehiclesScreenProps {
 }
 
 export function VehiclesScreen({ rows, stats, people, places, me, today, defaultPickup }: VehiclesScreenProps) {
-  const router = useRouter();
   const params = useSearchParams();
   const blank = { carType: "SEDAN" as CarType, clientName: "", pickupDate: defaultPickup.date, pickupTime: defaultPickup.time, pickupLocation: "", bookedForId: me };
   const [form, setForm] = useState(blank);
   const [error, setError] = useState<string | null>(null);
-  const [fresh, setFresh] = useState<string | null>(() => params.get("focus"));
+  const [fresh, setFresh] = useFreshRow(params.get("focus"));
   const [cancelling, setCancelling] = useState<CabRowDto | null>(null);
   const set = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) => {
     setForm((f) => ({ ...f, [k]: v }));
@@ -52,17 +51,7 @@ export function VehiclesScreen({ rows, stats, people, places, me, today, default
   });
   const status = useAction(setCabStatusAction, { onSuccess: () => setCancelling(null) });
 
-  useEffect(() => {
-    const focus = params.get("focus");
-    if (focus) document.getElementById(`cab-${focus}`)?.scrollIntoView({ block: "center", behavior: "smooth" });
-    if (focus) router.replace("/vehicles", { scroll: false });
-  }, [params, router]);
-
-  useEffect(() => {
-    if (!fresh) return;
-    const t = setTimeout(() => setFresh(null), 1400);
-    return () => clearTimeout(t);
-  }, [fresh]);
+  useDeepLink("/vehicles", "cab");
 
   const submit = () => {
     if (form.clientName.trim().length < 2) return setError("Enter the client name");
@@ -90,7 +79,7 @@ export function VehiclesScreen({ rows, stats, people, places, me, today, default
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <span className={LABEL}>Type of car</span>
+            <span className={LABEL_ON_BLUE}>Type of car</span>
             <ChoiceChips
               label="Type of car"
               tone="onBlue"
@@ -108,24 +97,24 @@ export function VehiclesScreen({ rows, stats, people, places, me, today, default
           </div>
 
           <label className="flex flex-col gap-1.5">
-            <span className={LABEL}>Client name</span>
-            <input value={form.clientName} onChange={(e) => set("clientName", e.target.value)} placeholder="e.g. Zeta Fintech" className={inputClass("onBlue", "h-11 px-3.5")} />
+            <span className={LABEL_ON_BLUE}>Client name</span>
+            <input value={form.clientName} onChange={(e) => set("clientName", e.target.value)} placeholder="e.g. Zeta Fintech" className={FIELD_ON_BLUE} />
           </label>
 
           <div className="grid grid-cols-2 gap-2">
             <label className="flex flex-col gap-1.5">
-              <span className={LABEL}>Date</span>
-              <input type="date" min={today} value={form.pickupDate} onChange={(e) => set("pickupDate", e.target.value)} className={inputClass("onBlue", "h-11 px-3.5")} />
+              <span className={LABEL_ON_BLUE}>Date</span>
+              <input type="date" min={today} value={form.pickupDate} onChange={(e) => set("pickupDate", e.target.value)} className={FIELD_ON_BLUE} />
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className={LABEL}>Time</span>
-              <input type="time" value={form.pickupTime} onChange={(e) => set("pickupTime", e.target.value)} className={inputClass("onBlue", "h-11 px-3.5")} />
+              <span className={LABEL_ON_BLUE}>Time</span>
+              <input type="time" value={form.pickupTime} onChange={(e) => set("pickupTime", e.target.value)} className={FIELD_ON_BLUE} />
             </label>
           </div>
 
           <label className="flex flex-col gap-1.5">
-            <span className={LABEL}>Pick-up location</span>
-            <input value={form.pickupLocation} onChange={(e) => set("pickupLocation", e.target.value)} placeholder="e.g. Office — 14 Lavelle Road" className={inputClass("onBlue", "h-11 px-3.5")} />
+            <span className={LABEL_ON_BLUE}>Pick-up location</span>
+            <input value={form.pickupLocation} onChange={(e) => set("pickupLocation", e.target.value)} placeholder="e.g. Office — 14 Lavelle Road" className={FIELD_ON_BLUE} />
           </label>
           <div className="-mt-2 flex flex-wrap gap-1.5">
             {places.map((p) => (
@@ -136,7 +125,7 @@ export function VehiclesScreen({ rows, stats, people, places, me, today, default
           </div>
 
           <label className="flex flex-col gap-1.5">
-            <span className={LABEL}>Booked by</span>
+            <span className={LABEL_ON_BLUE}>Booked by</span>
             <select value={form.bookedForId} onChange={(e) => set("bookedForId", e.target.value)} className={inputClass("onBlue", "h-11 cursor-pointer px-3")}>
               {people.map((p) => (
                 <option key={p.id} value={p.id}>

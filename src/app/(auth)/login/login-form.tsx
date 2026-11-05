@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { Toggle } from "@/components/ui/bits";
 import { Button } from "@/components/ui/button";
-import { FormError, inputClass } from "@/components/ui/field";
+import { FIELD, FormError, inputClass, LABEL } from "@/components/ui/field";
 import { googleLoginAction, loginAction } from "@/server/actions/auth";
 import { AuthHeading } from "../auth-heading";
 
@@ -78,7 +78,7 @@ export function LoginForm({ googleEnabled, notice, next = "/dashboard" }: { goog
           </p>
         )}
         <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-muted">Work email</span>
+          <span className={LABEL}>Work email</span>
           <input
             type="email"
             name="email"
@@ -89,11 +89,11 @@ export function LoginForm({ googleEnabled, notice, next = "/dashboard" }: { goog
               setError(null);
             }}
             placeholder="you@patmichaels.in"
-            className={inputClass("light", "h-11 px-3.5")}
+            className={FIELD}
           />
         </label>
         <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-muted">Password</span>
+          <span className={LABEL}>Password</span>
           <input
             type="password"
             name="password"
@@ -104,7 +104,7 @@ export function LoginForm({ googleEnabled, notice, next = "/dashboard" }: { goog
               setError(null);
             }}
             placeholder="At least 10 characters"
-            className={inputClass("light", "h-11 px-3.5")}
+            className={FIELD}
           />
         </label>
         {error && (

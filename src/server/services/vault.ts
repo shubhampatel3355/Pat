@@ -21,7 +21,7 @@ export interface FolderCardDto {
   updated: string | null;
 }
 
-export const canOpenFolder = (user: SessionUser, key: FolderKey) => can(user, "view", { type: "vault", folder: key });
+const canOpenFolder = (user: SessionUser, key: FolderKey) => can(user, "view", { type: "vault", folder: key });
 
 /** Files of a folder the viewer may see: Employee Documents are limited to their own unless vault.employee_all. */
 function fileScope(user: SessionUser, key: FolderKey): Prisma.FileWhereInput {
@@ -40,12 +40,11 @@ export async function vaultFolders(user: SessionUser): Promise<FolderCardDto[]> 
     const f = folders.find((x) => x.key === key);
     return f && canOpenFolder(user, key) ? [f] : [];
   });
-  return Promise.all(
-    visible.map(async (f) => {
-      const agg = await db.file.aggregate({ where: fileScope(user, f.key), _count: { _all: true }, _sum: { sizeBytes: true }, _max: { createdAt: true } });
-      return { key: f.key, slug: SLUG_BY_FOLDER[f.key], name: f.name, count: agg._count._all, sizeBytes: agg._sum.sizeBytes ?? 0, updated: agg._max.createdAt ? isoDateIST(agg._max.createdAt) : null };
-    }),
-  );
+  const totals = await db.file.groupBy({ by: ["folderId"], where: searchableFiles(user), _count: { _all: true }, _sum: { sizeBytes: true }, _max: { createdAt: true } });
+  return visible.map((f) => {
+    const t = totals.find((x) => x.folderId === f.id);
+    return { key: f.key, slug: SLUG_BY_FOLDER[f.key], name: f.name, count: t?._count._all ?? 0, sizeBytes: t?._sum.sizeBytes ?? 0, updated: t?._max.createdAt ? isoDateIST(t._max.createdAt) : null };
+  });
 }
 
 export async function vaultFiles(user: SessionUser, key: FolderKey): Promise<FileDto[]> {

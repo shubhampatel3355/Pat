@@ -11,7 +11,7 @@ export interface MailAttachment {
   contentType: string;
 }
 
-export interface MailMessage {
+interface MailMessage {
   to: string;
   subject: string;
   html: string;

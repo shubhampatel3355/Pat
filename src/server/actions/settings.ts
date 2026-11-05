@@ -64,12 +64,14 @@ export const saveTargetsAction = defineAction({
     });
 
     const changes = await db.$transaction(async (tx) => {
+      const keyOf = (t: { scope: string; scopeKey: string; metric: string; period: string }) => [t.scope, t.scopeKey, t.metric, t.period].join(":");
+      const existing = await tx.target.findMany({ where: { period: { in: [fy.key, quarterKey] } } });
+      const currentOf = new Map(existing.map((t) => [keyOf(t), Number(t.amountPaise)]));
       const changed: { label: string; before: number | null; after: number | null }[] = [];
       for (const r of rows) {
-        const where = { scope_scopeKey_metric_period: { scope: r.scope, scopeKey: r.scopeKey, metric: r.metric, period: r.period } };
-        const existing = await tx.target.findUnique({ where });
-        const current = existing ? Number(existing.amountPaise) : null;
+        const current = currentOf.get(keyOf(r)) ?? null;
         if (current === r.amountPaise) continue;
+        const where = { scope_scopeKey_metric_period: { scope: r.scope, scopeKey: r.scopeKey, metric: r.metric, period: r.period } };
         if (r.amountPaise === null) await tx.target.delete({ where });
         else await tx.target.upsert({ where, update: { amountPaise: BigInt(r.amountPaise) }, create: { scope: r.scope, scopeKey: r.scopeKey, metric: r.metric, period: r.period, amountPaise: BigInt(r.amountPaise) } });
         changed.push({ label: `${nameOf(r.scope, r.scopeKey)} ${r.metric === "REVENUE" ? "revenue" : "WIP fees"} ${r.period}`, before: current, after: r.amountPaise });

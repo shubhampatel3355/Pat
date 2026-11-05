@@ -4,7 +4,7 @@
  */
 
 const CHARSET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-export const GSTIN_PATTERN = /^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/;
+const GSTIN_PATTERN = /^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/;
 
 export function gstinCheckChar(first14: string): string {
   let factor = 2;
@@ -18,7 +18,7 @@ export function gstinCheckChar(first14: string): string {
   return CHARSET[(36 - (sum % 36)) % 36];
 }
 
-export type GstinCheck = { ok: true; stateCode: string } | { ok: false; reason: "length" | "format" | "checksum" | "state" };
+type GstinCheck = { ok: true; stateCode: string } | { ok: false; reason: "length" | "format" | "checksum" | "state" };
 
 export function normaliseGstin(input: string): string {
   return input.toUpperCase().replace(/[^0-9A-Z]/g, "");
@@ -57,7 +57,7 @@ export const STATE_NAMES: Record<string, string> = {
   "36": "Telangana", "37": "Andhra Pradesh", "38": "Ladakh",
 };
 
-export interface GstSplit {
+interface GstSplit {
   intraState: boolean;
   cgstPaise: number;
   sgstPaise: number;

@@ -9,7 +9,7 @@ function encryptionKey(): Buffer {
   return Buffer.from(env().ENCRYPTION_KEY, "base64");
 }
 
-export function encryptField(plain: string): string {
+function encryptField(plain: string): string {
   const iv = randomBytes(12);
   const cipher = createCipheriv("aes-256-gcm", encryptionKey(), iv);
   const ct = Buffer.concat([cipher.update(plain, "utf8"), cipher.final()]);
@@ -17,7 +17,7 @@ export function encryptField(plain: string): string {
   return ["v1", iv.toString("base64url"), tag.toString("base64url"), ct.toString("base64url")].join(".");
 }
 
-export function decryptField(value: string): string {
+function decryptField(value: string): string {
   const [version, iv, tag, ct] = value.split(".");
   if (version !== "v1" || !iv || !tag || ct === undefined) throw new Error("Unsupported ciphertext format");
   const decipher = createDecipheriv("aes-256-gcm", encryptionKey(), Buffer.from(iv, "base64url"));

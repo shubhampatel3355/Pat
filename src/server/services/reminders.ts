@@ -12,7 +12,7 @@ import { enqueue, QUEUES, type ReminderJob } from "../queue";
  * so rescheduling or completing a to-do silently cancels older jobs.
  */
 
-export function todoDueInstant(todo: { dueDate: Date | null; dueTime: string | null }): Date | null {
+function todoDueInstant(todo: { dueDate: Date | null; dueTime: string | null }): Date | null {
   if (!todo.dueDate) return null;
   return istToInstant(dateToIso(todo.dueDate), todo.dueTime ?? "09:00");
 }

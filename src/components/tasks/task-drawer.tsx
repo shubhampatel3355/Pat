@@ -11,6 +11,7 @@ import type { TaskDto } from "@/server/services/tasks";
 import { Avatar, Toggle } from "../ui/bits";
 import { Button } from "../ui/button";
 import { ConfirmDialog } from "../ui/confirm-dialog";
+import { LABEL } from "../ui/field";
 import { Drawer } from "../ui/overlay";
 import { Segmented } from "../ui/segmented";
 import { useAction } from "../ui/toast";
@@ -74,7 +75,7 @@ export function TaskDrawer({ task, today, onClose, onEdit }: { task: TaskDto; to
       </div>
 
       <div className="flex flex-col gap-2 rounded-[20px] bg-surface p-3">
-        <span className="text-xs font-medium text-muted">Reminders</span>
+        <span className={LABEL}>Reminders</span>
         <div className="flex flex-wrap gap-4">
           <Toggle showLabel label="In-app" checked={task.reminders.inApp} disabled={!task.canEdit || reminders.pending} onChange={(v) => setReminder("remindInApp", v)} />
           <Toggle showLabel label="Email" checked={task.reminders.email} disabled={!task.canEdit || reminders.pending} onChange={(v) => setReminder("remindEmail", v)} />
@@ -85,7 +86,7 @@ export function TaskDrawer({ task, today, onClose, onEdit }: { task: TaskDto; to
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <span className="text-xs font-medium text-muted">Comments</span>
+        <span className={LABEL}>Comments</span>
         {task.comments.length === 0 ? (
           <div className="flex items-start gap-2.5">
             <Avatar initials="—" size={28} ring={false} />

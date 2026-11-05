@@ -10,7 +10,7 @@ import type { MemberDto } from "@/server/services/team";
 import { Dropzone } from "../files/dropzone";
 import { AmountInput } from "../ui/amount-input";
 import { Button } from "../ui/button";
-import { FormError, inputClass } from "../ui/field";
+import { FIELD, FormError, inputClass, LABEL } from "../ui/field";
 import { Presence } from "../ui/motion";
 import { Drawer } from "../ui/overlay";
 import { Segmented } from "../ui/segmented";
@@ -83,8 +83,6 @@ function MemberForm({ open, member, partners, canSeeCtc, canMakeOwner, canUpload
     else void invite.run(data);
   };
 
-  const field = inputClass("light", "h-11 px-3.5");
-  const label = "text-xs font-medium text-muted";
   const roleOptions = [
     { value: "EMPLOYEE" as Role, label: "Employee" },
     { value: "ADMIN" as Role, label: "Admin" },
@@ -114,47 +112,47 @@ function MemberForm({ open, member, partners, canSeeCtc, canMakeOwner, canUpload
       }
     >
       <label className="flex flex-col gap-1.5">
-        <span className={label}>Full name</span>
-        <input data-autofocus value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Priya Menon" className={field} />
+        <span className={LABEL}>Full name</span>
+        <input data-autofocus value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Priya Menon" className={FIELD} />
       </label>
       <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] gap-2">
         <label className="flex flex-col gap-1.5">
-          <span className={label}>Mobile</span>
+          <span className={LABEL}>Mobile</span>
           <div className="flex gap-1.5">
             <span className="flex h-11 items-center rounded-[14px] bg-surface px-2.5 text-sm">+91</span>
             <input inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="98450 00000" className={inputClass("light", "h-11 flex-1 px-3")} />
           </div>
         </label>
         <label className="flex flex-col gap-1.5">
-          <span className={label}>Email</span>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@patmichaels.in" className={field} />
+          <span className={LABEL}>Email</span>
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@patmichaels.in" className={FIELD} />
         </label>
       </div>
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-2">
         <label className="flex flex-col gap-1.5">
-          <span className={label}>Designation</span>
-          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Sales executive" className={field} />
+          <span className={LABEL}>Designation</span>
+          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Sales executive" className={FIELD} />
         </label>
         <div className="flex flex-col gap-1.5">
-          <span className={label}>Access</span>
+          <span className={LABEL}>Access</span>
           <Segmented label="Access role" size="sm" value={role} onChange={setRole} options={roleOptions} className="h-11 items-center" />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-2">
         <label className="flex flex-col gap-1.5">
-          <span className={label}>Date of joining</span>
-          <input type="date" value={doj} onChange={(e) => setDoj(e.target.value)} className={field} />
+          <span className={LABEL}>Date of joining</span>
+          <input type="date" value={doj} onChange={(e) => setDoj(e.target.value)} className={FIELD} />
         </label>
         {canSeeCtc && (
           <label className="flex flex-col gap-1.5">
-            <span className={label}>Annual CTC (₹)</span>
-            <AmountInput value={ctc} onChange={setCtc} placeholder="9,84,000" className={field} />
+            <span className={LABEL}>Annual CTC (₹)</span>
+            <AmountInput value={ctc} onChange={setCtc} placeholder="9,84,000" className={FIELD} />
           </label>
         )}
       </div>
       {role !== "OWNER" && (
         <label className="flex flex-col gap-1.5">
-          <span className={label}>Partner</span>
+          <span className={LABEL}>Partner</span>
           <select value={partnerId} onChange={(e) => setPartnerId(e.target.value)} className={inputClass("light", "h-11 cursor-pointer px-3")}>
             <option value="">No partner</option>
             {partners.map((p) => (
@@ -168,7 +166,7 @@ function MemberForm({ open, member, partners, canSeeCtc, canMakeOwner, canUpload
       {canUploadDocs && (
         <div className="flex flex-col gap-2">
           <div className="flex items-baseline justify-between">
-            <span className={label}>Documents</span>
+            <span className={LABEL}>Documents</span>
             <span className="text-[11px] text-muted">ID proof, PAN, offer letter, certificates</span>
           </div>
           <Dropzone files={docs} onChange={setDocs} />

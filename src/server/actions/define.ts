@@ -19,7 +19,7 @@ export class UserError extends Error {
   }
 }
 
-export interface ActionContext<I> {
+interface ActionContext<I> {
   user: SessionUser;
   input: I;
   meta: RequestMeta;

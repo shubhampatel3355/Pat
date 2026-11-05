@@ -7,9 +7,9 @@ import { formatCompactINR, formatINR, paiseToInput, parseRupeesToPaise } from "@
 import { formatDate } from "@/lib/dates";
 import { issueCreditNoteAction, recordPaymentAction, reversePaymentAction } from "@/server/actions/invoices";
 import type { InvoiceListRow } from "@/server/services/invoices";
-import { AmountInput } from "../ui/amount-input";
+import { AmountInput, RupeeInput } from "../ui/amount-input";
 import { Button } from "../ui/button";
-import { FormError, inputClass } from "../ui/field";
+import { FIELD, FormError, inputClass, LABEL } from "../ui/field";
 import { Modal } from "../ui/overlay";
 import { ChoiceChips } from "../ui/segmented";
 import { useAction } from "../ui/toast";
@@ -52,25 +52,22 @@ export function PaymentModal({ invoice, today, onClose }: { invoice: { id: strin
       </div>
       <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-2">
         <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-muted">Amount received</span>
-          <div className="flex h-11 items-center gap-2 rounded-[14px] bg-surface px-3.5 shadow-inset focus-within:shadow-focus">
-            <span className="text-sm text-muted">₹</span>
-            <AmountInput data-autofocus value={amount} onChange={setAmount} className="min-w-0 flex-1 border-0 bg-transparent text-sm outline-none" />
-          </div>
+          <span className={LABEL}>Amount received</span>
+          <RupeeInput data-autofocus value={amount} onChange={setAmount} className="h-11 gap-2 rounded-[14px] bg-surface px-3.5" />
           <span className="text-[11px] text-placeholder">{paise ? `${formatINR(paise)} · ${formatCompactINR(paise)}` : "Indian format, no decimals"}</span>
         </label>
         <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-muted">Date received</span>
-          <input type="date" max={today} value={date} onChange={(e) => setDate(e.target.value)} className={inputClass("light", "h-11 px-3.5")} />
+          <span className={LABEL}>Date received</span>
+          <input type="date" max={today} value={date} onChange={(e) => setDate(e.target.value)} className={FIELD} />
         </label>
       </div>
       <div className="flex flex-col gap-1.5">
-        <span className="text-xs font-medium text-muted">Mode</span>
+        <span className={LABEL}>Mode</span>
         <ChoiceChips label="Payment mode" options={PAYMENT_MODES} value={mode} onChange={(v) => setMode(v)} />
       </div>
       <label className="flex flex-col gap-1.5">
-        <span className="text-xs font-medium text-muted">Reference / UTR</span>
-        <input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="e.g. HDFCN52026100612345" className={inputClass("light", "h-11 px-3.5")} />
+        <span className={LABEL}>Reference / UTR</span>
+        <input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="e.g. HDFCN52026100612345" className={FIELD} />
       </label>
       <FormError message={error} />
     </Modal>
@@ -108,15 +105,15 @@ export function CreditNoteModal({ invoice, companyStateCode, onClose }: { invoic
       }
     >
       <label className="flex flex-col gap-1.5">
-        <span className="text-xs font-medium text-muted">Amount to credit (₹, before GST)</span>
-        <AmountInput data-autofocus value={amount} onChange={setAmount} className={inputClass("light", "h-11 px-3.5")} />
+        <span className={LABEL}>Amount to credit (₹, before GST)</span>
+        <AmountInput data-autofocus value={amount} onChange={setAmount} className={FIELD} />
         <span className="text-[11px] text-muted">
           {gst.intraState ? "CGST 9% + SGST 9%" : "IGST 18%"} · total credit {formatINR(gst.totalPaise)} · up to {formatINR(invoice.creditablePaise)} before GST
         </span>
       </label>
       <label className="flex flex-col gap-1.5">
-        <span className="text-xs font-medium text-muted">Reason</span>
-        <input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. Fee revised after LOI renegotiation" className={inputClass("light", "h-11 px-3.5")} />
+        <span className={LABEL}>Reason</span>
+        <input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. Fee revised after LOI renegotiation" className={FIELD} />
       </label>
       <FormError message={error} />
     </Modal>

@@ -24,7 +24,7 @@ function createClient() {
   });
 }
 
-export type Database = ReturnType<typeof createClient>;
+type Database = ReturnType<typeof createClient>;
 
 // The interactive-transaction client of the *extended* client (inferred from the callback overload).
 function _transactionClientOf(d: Database) {

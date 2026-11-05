@@ -4,7 +4,7 @@ import { createContext, Fragment, useEffect, useState } from "react";
 import { cn } from "./cn";
 
 /** How long a closing overlay stays mounted for its exit animation — keep equal to --duration-exit in globals.css. */
-export const EXIT_MS = 180;
+const EXIT_MS = 180;
 
 /**
  * Keeps an overlay mounted while it animates out: open → mounted; closed → `closing` for EXIT_MS, then unmounted.

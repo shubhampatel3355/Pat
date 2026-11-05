@@ -1,8 +1,7 @@
 # Pat Michaels OS — Architecture
 
 Production web application for **Pat Michaels Developers LLP** (commercial real-estate advisory, Bengaluru).
-The visual source of truth is `design-reference/Pat Michaels OS (offline).html` (unpacked into
-`design-reference/unpacked/`). This document confirms the stack, the data model and the delivery plan.
+The visual source of truth is `design-reference/Pat Michaels OS (offline).html`. This document confirms the stack, the data model and the delivery plan.
 
 ---
 
@@ -11,9 +10,9 @@ The visual source of truth is `design-reference/Pat Michaels OS (offline).html` 
 | Concern | Choice | Version | Notes |
 |---|---|---|---|
 | Runtime | Node.js | ≥ 22.13 | Docker image `node:22-bookworm-slim` |
-| Framework | Next.js App Router + React Server Components | 16.4.2 / React 19.3 | Turbopack build, `output: 'standalone'`, `proxy.ts` (Node runtime). `cacheComponents` **off**: every screen is per-user and dynamic. |
+| Framework | Next.js App Router + React Server Components | 16.4.5 / React 19.3 | Turbopack build, `output: 'standalone'`, `proxy.ts` (Node runtime). `cacheComponents` **off**: every screen is per-user and dynamic. |
 | Language | TypeScript | 5.9.3 | TS 7 (native port) not yet used by Next's type tooling. |
-| Styling | Tailwind CSS v4 (`@tailwindcss/turbopack`) | 4.3.3 | Design tokens as CSS variables: fixed values in `@theme`, themed colours in a light/dark palette rule (see §4). |
+| Styling | Tailwind CSS v4 (`@tailwindcss/turbopack`) | 4.3.4 | Design tokens as CSS variables: fixed values in `@theme`, themed colours in a light/dark palette rule (see §4). |
 | Font | Urbanist, self-hosted from `@fontsource-variable/urbanist` via `next/font/local` | 5.3.0 | The prototype ships the Urbanist variable font; weights 300/400/500 (+600/700 used on a few labels). |
 | Database | PostgreSQL | 17 | Coolify-managed in production; `docker-compose` locally; `embedded-postgres` for Docker-less dev. |
 | ORM | Prisma (`prisma-client` generator + `@prisma/adapter-pg`) | 7.10.1 | Config in `prisma7.config.ts`; migrations checked in. Prisma 8 is still RC. |
@@ -21,7 +20,7 @@ The visual source of truth is `design-reference/Pat Michaels OS (offline).html` 
 | Passwords | argon2id (`@node-rs/argon2`) | 2.2.2 | Prebuilt binaries for Windows/Linux, no node-gyp. |
 | Validation | Zod (shared client/server schemas in `src/lib/schemas`) | 4.6.7 | |
 | Jobs / email queue | pg-boss (Postgres-backed, no Redis) | 12.38.0 | Jobs enqueued **inside** the business transaction via `fromPrisma(tx)` (transactional outbox). Worker runs in-process, started from `instrumentation.ts`. |
-| Email | Nodemailer (SMTP: Hostinger mail or Resend SMTP) | 8.0.x | Dev: Mailpit (compose) or a file transport. |
+| Email | Nodemailer (SMTP: Hostinger mail or Resend SMTP) | 10.x | Dev: Mailpit (compose) or a file transport. |
 | File storage | S3-compatible (MinIO on the VPS via Coolify, or Hostinger Object Storage) via AWS SDK v3 | 3.x | Uploads go through the app (validation, MIME sniffing, optional ClamAV), downloads are short-lived **presigned URLs** only. |
 | PDF | Headless Chromium (`playwright-core`) printing the app's own `/print/*` pages | 1.64.1 | One layout for on-screen preview, browser print, emailed PDF and payslips. Chromium is installed in the runtime image. |
 | Spreadsheets | ExcelJS | 4.4.0 | Finance export. |

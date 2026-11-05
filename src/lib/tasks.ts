@@ -3,7 +3,7 @@ import { addDaysIso, formatDayMonth, formatTime12, isoDateIST, istToInstant, tim
 /** Default time for tasks given only a day (prototype: "Today 6:00 pm"). */
 export const DEFAULT_TASK_TIME = "18:00";
 
-export type DueTone = "overdue" | "today" | "later" | "none";
+type DueTone = "overdue" | "today" | "later" | "none";
 
 /** Pill colours (prototype: overdue = solid blue, today = blue tint, later = grey chip). */
 export const DUE_TONE_STYLE: Record<DueTone, { bg: string; fg: string }> = {

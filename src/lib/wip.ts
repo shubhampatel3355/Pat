@@ -8,7 +8,7 @@ export function monthlyRentPaise(basis: PricingBasis, ratePaise: number, areaSqf
   return ratePaise;
 }
 
-export const FEE_MONTHS = 1;
+const FEE_MONTHS = 1;
 
 export function estimatedFeesPaise(basis: PricingBasis, ratePaise: number, areaSqft: number | null, seats: number | null): number {
   return monthlyRentPaise(basis, ratePaise, areaSqft, seats) * FEE_MONTHS;

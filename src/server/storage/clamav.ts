@@ -2,7 +2,7 @@ import "server-only";
 import { connect } from "node:net";
 import { env } from "../env";
 
-export type ScanVerdict = { status: "CLEAN" } | { status: "SKIPPED" } | { status: "INFECTED"; signature: string };
+type ScanVerdict = { status: "CLEAN" } | { status: "SKIPPED" } | { status: "INFECTED"; signature: string };
 
 /**
  * Optional virus scan through a clamd daemon (CLAMAV_HOST), using the INSTREAM protocol.

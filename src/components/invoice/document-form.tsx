@@ -11,7 +11,7 @@ import { createProformaAction, raiseInvoiceAction } from "@/server/actions/invoi
 import { NEW_BROKER } from "../brokers/broker-rows";
 import { AmountInput } from "../ui/amount-input";
 import { Icon } from "../ui/icon";
-import { inputClass } from "../ui/field";
+import { FIELD_ON_BLUE, inputClass, LABEL_ON_BLUE } from "../ui/field";
 import { useAction, useToast } from "../ui/toast";
 import { DocViewer } from "./doc-viewer";
 
@@ -42,8 +42,6 @@ interface DocumentFormProps {
   onClearPrefill: () => void;
 }
 
-const FIELD = inputClass("onBlue", "h-11 px-3.5");
-const LABEL = "text-xs font-medium text-white/92";
 
 function blankState(prefill: FormPrefill | null) {
   return {
@@ -330,44 +328,44 @@ function Form({ variant, nextNumber, today, users, company, prefill, onCreated, 
         <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] gap-4">
           <div className="flex flex-col gap-3.5">
             <label className="flex flex-col gap-1.5">
-              <span className={LABEL}>Payee name</span>
-              <input value={f.payee} onChange={(e) => set("payee", e.target.value)} placeholder="e.g. Zeta Fintech Pvt Ltd" className={FIELD} />
+              <span className={LABEL_ON_BLUE}>Payee name</span>
+              <input value={f.payee} onChange={(e) => set("payee", e.target.value)} placeholder="e.g. Zeta Fintech Pvt Ltd" className={FIELD_ON_BLUE} />
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className={LABEL}>Bill to address</span>
+              <span className={LABEL_ON_BLUE}>Bill to address</span>
               <textarea rows={3} value={f.address} onChange={(e) => set("address", e.target.value)} placeholder="Building, street, area, city, PIN" className={inputClass("onBlue", "resize-y px-3.5 py-2.5 leading-5")} />
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className={LABEL}>GST details</span>
+              <span className={LABEL_ON_BLUE}>GST details</span>
               <input value={f.gstin} maxLength={15} onChange={(e) => set("gstin", normaliseGstin(e.target.value))} placeholder="GSTIN · e.g. 29AAKFP4821L1ZR" className={inputClass("onBlue", "h-11 px-3.5 uppercase tracking-[.04em]")} />
               <span className="text-[11px] text-white/88">{gstHint}</span>
             </label>
             <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] gap-2">
               <label className="flex flex-col gap-1.5">
-                <span className={LABEL}>Mobile</span>
+                <span className={LABEL_ON_BLUE}>Mobile</span>
                 <div className="flex gap-1.5">
                   <span className="flex h-11 items-center rounded-[14px] bg-white/16 px-2.5 text-sm">+91</span>
                   <input inputMode="tel" value={f.mobile} onChange={(e) => set("mobile", e.target.value)} placeholder="98450 00000" className={inputClass("onBlue", "h-11 flex-1 px-3")} />
                 </div>
               </label>
               <label className="flex flex-col gap-1.5">
-                <span className={LABEL}>Email</span>
-                <input type="email" value={f.email} onChange={(e) => set("email", e.target.value)} placeholder="accounts@company.com" className={FIELD} />
+                <span className={LABEL_ON_BLUE}>Email</span>
+                <input type="email" value={f.email} onChange={(e) => set("email", e.target.value)} placeholder="accounts@company.com" className={FIELD_ON_BLUE} />
               </label>
             </div>
           </div>
           <div className="flex flex-col gap-3.5">
             <label className="flex flex-col gap-1.5">
-              <span className={LABEL}>Narration</span>
+              <span className={LABEL_ON_BLUE}>Narration</span>
               <textarea rows={3} value={f.narration} onChange={(e) => set("narration", e.target.value)} placeholder="e.g. Brokerage for leasing 12,500 sq ft at Prestige Tech Park" className={inputClass("onBlue", "resize-y px-3.5 py-2.5 leading-5")} />
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className={LABEL}>Payment terms</span>
-              <input value={f.terms} onChange={(e) => set("terms", e.target.value)} placeholder="e.g. Net 30 days from invoice date" className={FIELD} />
+              <span className={LABEL_ON_BLUE}>Payment terms</span>
+              <input value={f.terms} onChange={(e) => set("terms", e.target.value)} placeholder="e.g. Net 30 days from invoice date" className={FIELD_ON_BLUE} />
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className={LABEL}>Total fees (₹, before GST)</span>
-              <AmountInput value={f.fees} onChange={(v) => set("fees", v)} placeholder="11,50,000" className={FIELD} />
+              <span className={LABEL_ON_BLUE}>Total fees (₹, before GST)</span>
+              <AmountInput value={f.fees} onChange={(v) => set("fees", v)} placeholder="11,50,000" className={FIELD_ON_BLUE} />
             </label>
             {breakdownBox}
           </div>
@@ -376,41 +374,41 @@ function Form({ variant, nextNumber, today, users, company, prefill, onCreated, 
         <>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,240px),1fr))] gap-3">
             <label className="flex flex-col gap-1.5">
-              <span className={LABEL}>Payee name</span>
-              <input value={f.payee} onChange={(e) => set("payee", e.target.value)} placeholder="e.g. Halcyon Health Pvt Ltd" className={FIELD} />
+              <span className={LABEL_ON_BLUE}>Payee name</span>
+              <input value={f.payee} onChange={(e) => set("payee", e.target.value)} placeholder="e.g. Halcyon Health Pvt Ltd" className={FIELD_ON_BLUE} />
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className={LABEL}>GST details (GSTIN)</span>
+              <span className={LABEL_ON_BLUE}>GST details (GSTIN)</span>
               <input value={f.gstin} maxLength={15} onChange={(e) => set("gstin", normaliseGstin(e.target.value))} placeholder="15-character GSTIN" aria-describedby="pf-gst-hint" className={inputClass("onBlue", "h-11 px-3.5 uppercase tracking-[.04em]")} />
               <span id="pf-gst-hint" className="text-[11px] text-white/88">
                 {gstHint}
               </span>
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className={LABEL}>Mobile</span>
-              <input inputMode="tel" value={f.mobile} onChange={(e) => set("mobile", e.target.value)} placeholder="98450 00000" className={FIELD} />
+              <span className={LABEL_ON_BLUE}>Mobile</span>
+              <input inputMode="tel" value={f.mobile} onChange={(e) => set("mobile", e.target.value)} placeholder="98450 00000" className={FIELD_ON_BLUE} />
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className={LABEL}>Email</span>
-              <input type="email" value={f.email} onChange={(e) => set("email", e.target.value)} placeholder="accounts@company.com" className={FIELD} />
+              <span className={LABEL_ON_BLUE}>Email</span>
+              <input type="email" value={f.email} onChange={(e) => set("email", e.target.value)} placeholder="accounts@company.com" className={FIELD_ON_BLUE} />
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className={LABEL}>Total fees (₹)</span>
-              <AmountInput value={f.fees} onChange={(v) => set("fees", v)} placeholder="5,00,000" className={FIELD} />
+              <span className={LABEL_ON_BLUE}>Total fees (₹)</span>
+              <AmountInput value={f.fees} onChange={(v) => set("fees", v)} placeholder="5,00,000" className={FIELD_ON_BLUE} />
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className={LABEL}>Payment terms</span>
-              <input value={f.terms} onChange={(e) => set("terms", e.target.value)} placeholder="e.g. 50% on acceptance, balance on LOI" className={FIELD} />
+              <span className={LABEL_ON_BLUE}>Payment terms</span>
+              <input value={f.terms} onChange={(e) => set("terms", e.target.value)} placeholder="e.g. 50% on acceptance, balance on LOI" className={FIELD_ON_BLUE} />
             </label>
           </div>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] gap-3">
             <label className="flex flex-col gap-1.5">
-              <span className={LABEL}>Bill-to address</span>
-              <input value={f.address} onChange={(e) => set("address", e.target.value)} placeholder="Registered office address" className={FIELD} />
+              <span className={LABEL_ON_BLUE}>Bill-to address</span>
+              <input value={f.address} onChange={(e) => set("address", e.target.value)} placeholder="Registered office address" className={FIELD_ON_BLUE} />
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className={LABEL}>Narration</span>
-              <input value={f.narration} onChange={(e) => set("narration", e.target.value)} placeholder="e.g. Brokerage — 180 seats at Embassy Golf Links" className={FIELD} />
+              <span className={LABEL_ON_BLUE}>Narration</span>
+              <input value={f.narration} onChange={(e) => set("narration", e.target.value)} placeholder="e.g. Brokerage — 180 seats at Embassy Golf Links" className={FIELD_ON_BLUE} />
             </label>
           </div>
           <div className="flex flex-col gap-1.5">

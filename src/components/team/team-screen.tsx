@@ -1,13 +1,14 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 import { formatCompactINR } from "@/lib/money";
 import type { MemberDto, MemberStatus } from "@/server/services/team";
 import { Button } from "../ui/button";
 import { cn } from "../ui/cn";
 import { Page, PageHeader } from "../ui/page";
 import { Ring } from "../ui/ring";
+import { useDeepLink, useFreshRow } from "../ui/use-deep-link";
 import { MemberDrawer } from "./member-drawer";
 
 const STATUS: Record<MemberStatus, [string, string]> = {
@@ -28,7 +29,6 @@ interface TeamScreenProps {
 }
 
 export function TeamScreen({ members, partners, meta, quarterShort, canManage, canSeeCtc, canMakeOwner, canUploadDocs }: TeamScreenProps) {
-  const router = useRouter();
   const params = useSearchParams();
   const [partner, setPartner] = useState<string>("ALL");
   const [drawer, setDrawer] = useState<{ open: boolean; member: MemberDto | null }>(() => {
@@ -36,16 +36,8 @@ export function TeamScreen({ members, partners, meta, quarterShort, canManage, c
     const m = focus ? members.find((x) => x.id === focus) : undefined;
     return { open: Boolean(m?.canEdit), member: m ?? null };
   });
-  const [fresh, setFresh] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (params.has("focus")) router.replace("/teams", { scroll: false });
-  }, [params, router]);
-  useEffect(() => {
-    if (!fresh) return;
-    const t = setTimeout(() => setFresh(null), 1400);
-    return () => clearTimeout(t);
-  }, [fresh]);
+  const [fresh, setFresh] = useFreshRow();
+  useDeepLink("/teams");
 
   const visible = members.filter((m) => partner === "ALL" || m.partnerId === partner);
   const chips = [{ id: "ALL", name: "All" }, ...partners];

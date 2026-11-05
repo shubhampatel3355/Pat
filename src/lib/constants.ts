@@ -58,7 +58,7 @@ export const CAR_TYPES: { value: CarType; label: string; seats: string }[] = [
   { value: "SUV", label: "SUV", seats: "6 seats" },
 ];
 
-export const CAB_STATUSES: { value: CabStatus; label: string; color: string }[] = [
+const CAB_STATUSES: { value: CabStatus; label: string; color: string }[] = [
   { value: "REQUESTED", label: "Requested", color: "#E8B84A" },
   { value: "CONFIRMED", label: "Confirmed", color: "#023E7D" },
   { value: "COMPLETED", label: "Completed", color: "#3E9B52" },

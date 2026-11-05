@@ -75,19 +75,6 @@ function Header({ titleId, title, subtitle, onClose }: { titleId: string; title:
   );
 }
 
-/**
- * Mount state and content for an overlay that animates out: while closing it keeps showing what it last showed,
- * can't be clicked or focused (`inert`), and is gone after the exit animation.
- */
-function useOverlayPresence(open: boolean, content: Pick<OverlayProps, "title" | "subtitle" | "children" | "footer">) {
-  const { mounted, closing } = usePresence(open);
-  const title = useLastWhile(open, content.title);
-  const subtitle = useLastWhile(open, content.subtitle);
-  const children = useLastWhile(open, content.children);
-  const footer = useLastWhile(open, content.footer);
-  return { mounted, closing, title, subtitle, children, footer };
-}
-
 interface OverlayProps {
   open: boolean;
   onClose: () => void;
@@ -102,18 +89,35 @@ interface OverlayProps {
 }
 
 /**
- * Right-side frosted-glass drawer (prototype: 520 px, inset 12 px, radius 28, slide-in). A long form scrolls
- * above the footer, so its actions stay in reach.
+ * What Drawer and Modal share: focus, Escape and Tab handling, the portal target (null when there is nothing to show)
+ * and the state for animating out. While closing, an overlay keeps showing what it last showed, can't be clicked or
+ * focused (`inert`), and is gone after the exit animation.
  */
-export function Drawer({ open: requested, onClose, width = 520, className, ...content }: OverlayProps) {
+function useOverlay(requested: boolean, onClose: () => void, content: Pick<OverlayProps, "title" | "subtitle" | "children" | "footer">) {
   const exiting = useContext(ExitingContext);
   const open = requested && !exiting;
   const root = useOverlayRoot();
   const panel = useRef<HTMLDivElement>(null);
   const titleId = useId();
   useDialogBehaviour(open, onClose, panel);
-  const { mounted, closing, title, subtitle, children, footer } = useOverlayPresence(open, content);
-  if (!mounted || !root) return null;
+  const { mounted, closing } = usePresence(open);
+  const title = useLastWhile(open, content.title);
+  const subtitle = useLastWhile(open, content.subtitle);
+  const children = useLastWhile(open, content.children);
+  const footer = useLastWhile(open, content.footer);
+  return { root: mounted ? root : null, panel, titleId, closing, title, subtitle, children, footer };
+}
+
+const dialogProps = (titleId: string) =>
+  ({ role: "dialog", "aria-modal": true, "aria-labelledby": titleId, tabIndex: -1, onClick: (e: React.MouseEvent) => e.stopPropagation() }) as const;
+
+/**
+ * Right-side frosted-glass drawer (prototype: 520 px, inset 12 px, radius 28, slide-in). A long form scrolls
+ * above the footer, so its actions stay in reach.
+ */
+export function Drawer({ open, onClose, width = 520, className, ...content }: OverlayProps) {
+  const { root, panel, titleId, closing, title, subtitle, children, footer } = useOverlay(open, onClose, content);
+  if (!root) return null;
   return createPortal(
     <div
       inert={closing}
@@ -122,11 +126,7 @@ export function Drawer({ open: requested, onClose, width = 520, className, ...co
     >
       <div
         ref={panel}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-        tabIndex={-1}
-        onClick={(e) => e.stopPropagation()}
+        {...dialogProps(titleId)}
         className={cn(
           "glass-strong absolute bottom-3 right-3 top-3 flex flex-col overflow-hidden rounded-panel shadow-panel outline-none",
           closing ? "animate-drawer-out" : "animate-drawer-in",
@@ -146,15 +146,9 @@ export function Drawer({ open: requested, onClose, width = 520, className, ...co
 }
 
 /** Centred frosted-glass modal (prototype: max 640 px, radius 28). */
-export function Modal({ open: requested, onClose, width = 640, className, stacked = false, ...content }: OverlayProps) {
-  const exiting = useContext(ExitingContext);
-  const open = requested && !exiting;
-  const root = useOverlayRoot();
-  const panel = useRef<HTMLDivElement>(null);
-  const titleId = useId();
-  useDialogBehaviour(open, onClose, panel);
-  const { mounted, closing, title, subtitle, children, footer } = useOverlayPresence(open, content);
-  if (!mounted || !root) return null;
+export function Modal({ open, onClose, width = 640, className, stacked = false, ...content }: OverlayProps) {
+  const { root, panel, titleId, closing, title, subtitle, children, footer } = useOverlay(open, onClose, content);
+  if (!root) return null;
   return createPortal(
     <div
       inert={closing}
@@ -167,11 +161,7 @@ export function Modal({ open: requested, onClose, width = 640, className, stacke
     >
       <div
         ref={panel}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-        tabIndex={-1}
-        onClick={(e) => e.stopPropagation()}
+        {...dialogProps(titleId)}
         className={cn(
           "pm-scroll glass-strong flex max-h-[calc(100%-32px)] w-full flex-col gap-4 overflow-y-auto rounded-panel p-5 shadow-panel outline-none",
           closing ? "animate-modal-out" : "animate-modal-in",

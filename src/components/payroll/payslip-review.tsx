@@ -5,10 +5,10 @@ import { formatINR, paiseToInput, parseRupeesToPaise } from "@/lib/money";
 import { tdsEstimate } from "@/lib/payroll";
 import { recalculateRunAction, updatePayslipAction } from "@/server/actions/payroll";
 import type { PayslipRowDto, RunDto } from "@/server/services/payroll";
-import { AmountInput } from "../ui/amount-input";
+import { RupeeInput } from "../ui/amount-input";
 import { Avatar, StatusPill, Toggle } from "../ui/bits";
 import { Button } from "../ui/button";
-import { FormError, inputClass } from "../ui/field";
+import { FormError, inputClass, LABEL } from "../ui/field";
 import { Drawer } from "../ui/overlay";
 import { useAction } from "../ui/toast";
 
@@ -64,11 +64,8 @@ export function PayslipReview({ run, canEdit, onClose }: { run: RunDto; canEdit:
 function MoneyInput({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="text-xs font-medium text-muted">{label}</span>
-      <span className="flex h-10 items-center gap-2 rounded-[14px] bg-raised px-3 shadow-inset focus-within:shadow-focus">
-        <span className="text-sm text-muted">₹</span>
-        <AmountInput value={value} placeholder={placeholder ?? "0"} onChange={onChange} className="min-w-0 flex-1 border-0 bg-transparent text-sm outline-none" />
-      </span>
+      <span className={LABEL}>{label}</span>
+      <RupeeInput value={value} placeholder={placeholder ?? "0"} onChange={onChange} className="h-10 gap-2 rounded-[14px] bg-raised px-3" />
     </label>
   );
 }
@@ -95,7 +92,7 @@ function PayslipEditor({ slip, onDone }: { slip: PayslipRowDto; onDone: () => vo
         <MoneyInput label="Other deductions" value={other} onChange={setOther} />
       </div>
       <label className="flex flex-col gap-1.5">
-        <span className="text-xs font-medium text-muted">Note on the payslip</span>
+        <span className={LABEL}>Note on the payslip</span>
         <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Includes Q2 incentive" className={inputClass("light", "h-10 bg-raised px-3")} />
       </label>
       <div className="flex flex-wrap items-center justify-between gap-2">

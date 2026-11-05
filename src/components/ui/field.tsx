@@ -13,6 +13,12 @@ export function inputClass(tone: FieldTone = "light", extra?: string) {
   return cn(INPUT_BASE, INPUT_TONE[tone], extra);
 }
 
+/** The standard single-line field and its label: on glass / grey surfaces, and on the blue cards. */
+export const FIELD = inputClass("light", "h-11 px-3.5");
+export const FIELD_ON_BLUE = inputClass("onBlue", "h-11 px-3.5");
+export const LABEL = "text-xs font-medium text-muted";
+export const LABEL_ON_BLUE = "text-xs font-medium text-white/92";
+
 /** "− message" error line used under forms in the prototype. */
 export function FormError({ message, tone = "light" }: { message?: string | null; tone?: FieldTone }) {
   if (!message) return null;

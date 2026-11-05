@@ -82,13 +82,12 @@ function monthStart(today: string) {
 }
 
 async function pipelineFor(where: Prisma.LeadWhereInput) {
-  const leads = await db.lead.findMany({ where, select: { remark: true, estFeesPaise: true } });
-  const open = leads.filter((l) => !CLOSED_REMARKS.includes(l.remark));
+  const groups = await db.lead.groupBy({ by: ["remark"], where: { AND: [where, { remark: { notIn: CLOSED_REMARKS } }] }, _count: { _all: true }, _sum: { estFeesPaise: true } });
   const stages = WIP_REMARKS.filter((r) => !CLOSED_REMARKS.includes(r.value)).map((r) => {
-    const rows = open.filter((l) => l.remark === r.value);
-    return { remark: r.value, label: r.label, color: r.color, count: rows.length, paise: rows.reduce((a, l) => a + toPaise(l.estFeesPaise), 0) };
+    const group = groups.find((g) => g.remark === r.value);
+    return { remark: r.value, label: r.label, color: r.color, count: group?._count._all ?? 0, paise: toPaise(group?._sum.estFeesPaise) };
   });
-  return { totalPaise: stages.reduce((a, s) => a + s.paise, 0), open: open.length, stages };
+  return { totalPaise: stages.reduce((a, s) => a + s.paise, 0), open: stages.reduce((a, s) => a + s.count, 0), stages };
 }
 
 async function todosOf(userId: string): Promise<TodoDto[]> {

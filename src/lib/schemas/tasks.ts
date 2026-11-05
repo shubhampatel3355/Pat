@@ -32,6 +32,3 @@ const followUpFields = {
 export const followUpInputSchema = z.object(followUpFields);
 export const followUpUpdateSchema = z.object({ id: z.uuid(), ...followUpFields });
 export const followUpRescheduleSchema = z.object({ id: z.uuid(), dueDate: isoDate, dueTime: hhmm });
-
-export type TaskInput = z.input<typeof taskInputSchema>;
-export type FollowUpInput = z.input<typeof followUpInputSchema>;

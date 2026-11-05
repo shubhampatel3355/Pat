@@ -30,7 +30,7 @@ const SIZES: Record<Size, string> = {
   xl: "h-12 px-5 text-[13px]",
 };
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
   size?: Size;
   icon?: IconName;

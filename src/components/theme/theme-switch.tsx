@@ -20,7 +20,7 @@ export function ThemeSwitch({ serverTheme = null, className }: { serverTheme?: T
         checked={theme === "dark"}
         onChange={(e) => setTheme(e.target.checked ? "dark" : "light")}
       />
-      <label htmlFor={id} className="theme-switch-label" aria-hidden="true" />
+      <label htmlFor={id} className="theme-switch-label hit-44" aria-hidden="true" />
     </span>
   );
 }

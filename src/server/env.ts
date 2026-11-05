@@ -92,8 +92,6 @@ const schema = z
       .default("")
       .transform((s) => new Set(s.split(",").map((f) => f.trim()).filter(Boolean))),
     WORKER_ENABLED: bool(true),
-    SEED_OWNERS: z.string().default("Pat Michaels <pat@patmichaels.in>;Arjun Rao <arjun@patmichaels.in>"),
-    SEED_OWNER_PASSWORD: optionalString,
   })
   .superRefine((env, ctx) => {
     const isProd = env.NODE_ENV === "production";
@@ -126,7 +124,7 @@ const schema = z
     }
   });
 
-export type Env = z.infer<typeof schema>;
+type Env = z.infer<typeof schema>;
 
 let cached: Env | undefined;
 

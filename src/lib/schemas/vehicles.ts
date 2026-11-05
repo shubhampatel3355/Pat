@@ -14,5 +14,3 @@ export const cabStatusInputSchema = z.object({
   id: z.uuid(),
   status: z.enum(["CONFIRMED", "COMPLETED", "CANCELLED"]),
 });
-
-export type CabBookingInput = z.input<typeof cabBookingInputSchema>;
