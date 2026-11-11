@@ -72,6 +72,10 @@ export async function request<T>(path: string, opts: RequestOptions = {}): Promi
     handlers.passwordChange?.();
     throw new ApiError(body.error ?? "Change your password to continue.", 403, "password_change");
   }
+  // A server whose web app predates the mobile API has no /api/mobile routes at all.
+  if (res.status === 404 && path.startsWith("/api/mobile/") && !body.error) {
+    throw new ApiError("This server doesn't support the mobile app yet. The web app needs updating to the latest version.", 404, "no_mobile_api");
+  }
   // Endpoints that answer { ok: false, error } (sign-in, actions) are returned to the caller as data.
   if (!res.ok && typeof body.ok !== "boolean") {
     throw new ApiError(body.error ?? `The server answered ${res.status}. Please try again.`, res.status, body.code);
