@@ -13,6 +13,7 @@ import { db } from "../db";
 import { passwordResetEmail } from "../email/templates";
 import { env, googleAuthEnabled } from "../env";
 import { logger } from "../logger";
+import { inMobileApi } from "../mobile/context";
 import { enqueue, QUEUES } from "../queue";
 import { LIMITS, rateLimit } from "../rate-limit";
 import { isSameOrigin, metaFromHeaders } from "../request";
@@ -151,7 +152,8 @@ export const changePasswordAction = defineAction({
       await writeAudit(tx, { actor: user, module: "Auth", action: "update", text: `${user.name} changed their password`, entityType: "User", entityId: user.id, meta });
     });
     // Keep this device signed in with the new session version; every other session is now invalid.
-    await unstable_update({});
+    // (The mobile app has no cookie session: its route issues a fresh token instead.)
+    if (!inMobileApi()) await unstable_update({});
     return ok("Password changed. Other devices have been signed out.");
   },
 });

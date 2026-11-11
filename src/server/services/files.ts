@@ -43,6 +43,31 @@ export function canDeleteFile(user: SessionUser, f: FileAccessRow): boolean {
   return f.invoiceId ? has(user, "invoices.create") : user.role === "OWNER";
 }
 
+/** A live (not deleted) file with its folder, or null for an unknown or malformed id. */
+export async function findFile(id: string) {
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
+  return db.file.findFirst({ where: { id, deletedAt: null }, include: { folder: { select: { key: true, name: true } } } });
+}
+
+/**
+ * Download: permission check, audit, then a 60-second presigned URL (never served from the app disk in production).
+ * Null when the file doesn't exist or the user may not see it. The web redirects to the URL; the mobile app opens it.
+ */
+export async function fileDownloadUrl(user: SessionUser, id: string, meta: RequestMeta): Promise<{ url: string; name: string; mime: string } | null> {
+  const file = await findFile(id);
+  if (!file || !canViewFile(user, file)) return null;
+  await writeAudit(db, {
+    actor: user,
+    module: file.invoiceId ? "Invoices" : "Vault",
+    action: "download",
+    text: `${user.name} downloaded ${file.name}`,
+    entityType: "File",
+    entityId: file.id,
+    meta,
+  });
+  return { url: await storage().signedDownloadUrl(file.storageKey, file.name, 60), name: file.name, mime: file.mime };
+}
+
 interface SaveInput {
   user: SessionUser;
   meta: RequestMeta;

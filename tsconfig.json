@@ -27,5 +27,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules", "design-reference", ".local"]
+  "exclude": ["node_modules", "design-reference", ".local", "mobile"]
 }

@@ -1,10 +1,13 @@
 import "server-only";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
 import { db } from "../db";
 import type { SessionUser } from "../policy";
 import { permissionsForRole } from "../policy/permissions";
+import { bearerToken } from "../request";
 import { auth } from "./config";
+import { verifyMobileToken } from "./mobile-token";
 
 export function initialsOf(name: string): string {
   return name
@@ -15,21 +18,30 @@ export function initialsOf(name: string): string {
     .join("");
 }
 
+/** Who is calling: the mobile app's bearer token, or else the browser's Auth.js session. */
+async function caller(): Promise<{ uid: string; sv: number } | null> {
+  const token = bearerToken(await headers());
+  // A request with a bearer token is authenticated by that token alone, never by cookies.
+  if (token !== null) return verifyMobileToken(token);
+  const session = await auth();
+  const uid = session?.user?.id;
+  return uid ? { uid, sv: session.sv ?? 0 } : null;
+}
+
 /**
  * The signed-in user, re-validated against the database on every request:
  * deactivated users and sessions issued before a password change are rejected immediately.
  * Memoised per request.
  */
 export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
-  const session = await auth();
-  const uid = session?.user?.id;
-  if (!uid) return null;
+  const who = await caller();
+  if (!who) return null;
   const user = await db.user.findFirst({
-    where: { id: uid, deletedAt: null },
+    where: { id: who.uid, deletedAt: null },
     select: { id: true, email: true, name: true, role: true, title: true, partnerId: true, active: true, sessionVersion: true, mustChangePassword: true },
   });
   if (!user || !user.active) return null;
-  if ((session.sv ?? 0) !== user.sessionVersion) return null;
+  if (who.sv !== user.sessionVersion) return null;
   const perms = await permissionsForRole(user.role);
   return {
     id: user.id,

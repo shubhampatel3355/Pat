@@ -21,5 +21,7 @@ export default defineConfig([
     "playwright-report/**",
     "test-results/**",
     "dist/**",
+    // The Expo app has its own lint setup (mobile/package.json).
+    "mobile/**",
   ]),
 ]);

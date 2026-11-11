@@ -2,33 +2,17 @@ import { writeAudit } from "@/server/audit";
 import { getApiUser } from "@/server/auth/session";
 import { db } from "@/server/db";
 import { isSameOrigin, metaFromHeaders } from "@/server/request";
-import { canDeleteFile, canViewFile } from "@/server/services/files";
+import { canDeleteFile, canViewFile, fileDownloadUrl, findFile } from "@/server/services/files";
 import { storage } from "@/server/storage";
-
-async function load(id: string) {
-  if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
-  return db.file.findFirst({ where: { id, deletedAt: null }, include: { folder: { select: { key: true, name: true } } } });
-}
 
 /** Download: permission check, audit, then a 60-second presigned redirect. Never streams from the app disk in production. */
 export async function GET(req: Request, ctx: RouteContext<"/api/files/[id]">) {
   const user = await getApiUser();
   if (!user) return Response.json({ error: "Please sign in again." }, { status: 401 });
   const { id } = await ctx.params;
-  const file = await load(id);
-  if (!file || !canViewFile(user, file)) return Response.json({ error: "File not found." }, { status: 404 });
-
-  await writeAudit(db, {
-    actor: user,
-    module: file.invoiceId ? "Invoices" : "Vault",
-    action: "download",
-    text: `${user.name} downloaded ${file.name}`,
-    entityType: "File",
-    entityId: file.id,
-    meta: metaFromHeaders(req.headers),
-  });
-  const url = await storage().signedDownloadUrl(file.storageKey, file.name, 60);
-  return new Response(null, { status: 302, headers: { location: url, "cache-control": "no-store" } });
+  const link = await fileDownloadUrl(user, id, metaFromHeaders(req.headers));
+  if (!link) return Response.json({ error: "File not found." }, { status: 404 });
+  return new Response(null, { status: 302, headers: { location: link.url, "cache-control": "no-store" } });
 }
 
 export async function DELETE(req: Request, ctx: RouteContext<"/api/files/[id]">) {
@@ -36,7 +20,7 @@ export async function DELETE(req: Request, ctx: RouteContext<"/api/files/[id]">)
   const user = await getApiUser();
   if (!user) return Response.json({ error: "Please sign in again." }, { status: 401 });
   const { id } = await ctx.params;
-  const file = await load(id);
+  const file = await findFile(id);
   if (!file || !canViewFile(user, file)) return Response.json({ error: "File not found." }, { status: 404 });
   if (!canDeleteFile(user, file)) return Response.json({ error: "You can't delete this file." }, { status: 403 });
 

@@ -1,6 +1,6 @@
 "use server";
 
-import { refresh } from "next/cache";
+import { refresh } from "./refresh";
 import { z } from "zod";
 import { ok } from "@/lib/action-result";
 import { FOLLOW_UP_TYPES, TASK_STATUS } from "@/lib/constants";

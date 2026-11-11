@@ -8,6 +8,8 @@ test-results
 playwright-report
 blob-report
 design-reference
+mobile
+mobile.html
 docs
 tests
 src/generated

@@ -30,10 +30,14 @@ export async function listPartners(): Promise<PartnerOption[]> {
 
 /** Company / Partner view chosen in the top bar (owners and admins only). */
 export async function currentView(user: SessionUser): Promise<ViewState> {
+  return viewFor(user, (await cookies()).get(VIEW_COOKIE)?.value ?? "company");
+}
+
+/** The view for a requested value: "company" or a partner id (the cookie on the web, a parameter in the mobile app). */
+export async function viewFor(user: SessionUser, requested: string): Promise<ViewState> {
   const partners = await listPartners();
   const canSwitch = isAdminOrOwner(user);
-  const raw = (await cookies()).get(VIEW_COOKIE)?.value ?? "company";
-  const partner = canSwitch ? (partners.find((p) => p.id === raw) ?? null) : null;
+  const partner = canSwitch ? (partners.find((p) => p.id === requested) ?? null) : null;
   return { value: partner ? partner.id : "company", partner, partners, canSwitch };
 }
 

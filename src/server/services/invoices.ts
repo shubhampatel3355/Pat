@@ -5,11 +5,14 @@ import type { InvoiceDocData } from "@/lib/company";
 import { addDaysIso, dateToIso, formatDate, fyOfIso, isoDateIST, isoToDate, type FinancialYear } from "@/lib/dates";
 import { computeGst, STATE_NAMES } from "@/lib/gstin";
 import { dueDateFromTerms, formatDocNumber, invoiceStatusDisplay } from "@/lib/invoice";
-import { formatINR, toPaise } from "@/lib/money";
+import { formatINR, paiseToInput, toPaise } from "@/lib/money";
 import { formatMobile } from "@/lib/schemas/common";
+import { areaLabel } from "@/lib/wip";
 import { db, type Tx } from "../db";
 import { companyStateCode } from "../env";
 import { has, type SessionUser } from "../policy";
+import { wipScope } from "../policy/scopes";
+import { leadInclude } from "./wip";
 
 export const invoiceInclude = {
   brokers: { orderBy: { position: "asc" as const }, include: { user: { select: { id: true, name: true } } } },
@@ -212,4 +215,40 @@ export async function listDocuments(user: SessionUser, kinds: InvoiceType[]): Pr
       payments: r.payments.map((p) => ({ id: p.id, amountPaise: toPaise(p.amountPaise), receivedOn: dateToIso(p.receivedOn), mode: p.mode, reference: p.reference, recordedBy: p.recordedBy.name })),
     };
   });
+}
+
+// ── Prefill from a WIP row ("Raise invoice") ──────────────────────────────────
+
+/** Equal split that always totals 100 (e.g. 34 / 33 / 33). */
+function evenShares(n: number): number[] {
+  const base = Math.floor(100 / n);
+  return Array.from({ length: n }, (_, i) => base + (i < 100 - base * n ? 1 : 0));
+}
+
+export interface InvoicePrefill {
+  leadId: string;
+  leadName: string;
+  payeeName: string;
+  narration: string;
+  feesRupees: string;
+  brokers: ({ kind: "user"; userId: string; pct: string } | { kind: "external"; name: string; pct: string })[];
+}
+
+/** Payee, narration, estimated fees and an even broker split from a WIP row the user can see (web and mobile app). */
+export async function invoicePrefill(user: SessionUser, leadId: string): Promise<InvoicePrefill | null> {
+  if (!/^[0-9a-f-]{36}$/i.test(leadId) || !has(user, "invoices.create")) return null;
+  const lead = await db.lead.findFirst({ where: { AND: [wipScope(user), { id: leadId }] }, include: leadInclude });
+  if (!lead) return null;
+  const shares = evenShares(Math.max(1, lead.brokers.length));
+  const space = areaLabel(lead.pricingBasis, lead.areaSqft, lead.seats);
+  return {
+    leadId: lead.id,
+    leadName: lead.tenantName,
+    payeeName: lead.tenantName,
+    narration: `Brokerage — ${space !== "—" ? `${space} at ` : ""}${lead.building ?? lead.location}`,
+    feesRupees: paiseToInput(toPaise(lead.estFeesPaise)),
+    brokers: lead.brokers.map((b, i) =>
+      b.userId ? { kind: "user" as const, userId: b.userId, pct: String(shares[i]) } : { kind: "external" as const, name: b.externalName ?? "", pct: String(shares[i]) },
+    ),
+  };
 }

@@ -33,7 +33,8 @@ const credentialsSchema = z.object({
   otp: z.string().regex(/^\d{6}$/).optional(),
 });
 
-async function authorizeWithPassword(raw: Partial<Record<string, unknown>>, request: Request) {
+/** Also used by the mobile app's sign-in (src/app/api/mobile/v1/auth/login), so both apply the same rules. */
+export async function authorizeWithPassword(raw: Partial<Record<string, unknown>>, request: Request) {
   const meta = metaFromHeaders(request.headers);
   const parsed = credentialsSchema.safeParse(raw);
   if (!parsed.success) throw new InvalidCredentials();

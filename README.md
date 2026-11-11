@@ -7,6 +7,9 @@ invoicing, finance, payroll, team and documents in one place.
 - Architecture, stack and data model: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 - Production: [`docs/DEPLOY.md`](docs/DEPLOY.md) (Hostinger VPS + Coolify) and [`docs/RUNBOOK.md`](docs/RUNBOOK.md) (operations).
 - Side-by-side screenshots of the prototype and the app: [`docs/parity/`](docs/parity/).
+- Mobile app (Expo, iOS and Android): [`mobile/`](mobile/README.md). It uses this backend through
+  `/api/mobile/v1` (bearer-token sign-in, the same services and server actions), so both apps share one
+  database and one set of rules. Design source: `mobile.html`.
 
 > Status: all five milestones. Foundation, WIP, Teams, Dashboard, Invoice/Proforma (PDF, print, email,
 > payments and reversals, credit notes), Finance (XLSX/PDF export), Payroll, Contracts & Vault, Vehicle
