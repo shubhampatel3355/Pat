@@ -77,6 +77,12 @@ jobs:
       DATABASE_URL: postgresql://pm_owner:ci-owner@localhost:5432/patmichaels_e2e
       ENCRYPTION_KEY: Y2ktb25seS1lbmNyeXB0aW9uLWtleS0zMi1ieXRlcyE=
       SEED_OWNER_PASSWORD: E2e-Owner-Password-2026
+      # tests/e2e/prepare-db.ts loads the demo data, whose sample vault files go to the bucket the app reads.
+      S3_ENDPOINT: http://127.0.0.1:9000
+      S3_BUCKET: pat-michaels-os
+      S3_ACCESS_KEY_ID: pm-app
+      S3_SECRET_ACCESS_KEY: ci-storage-secret
+      S3_FORCE_PATH_STYLE: "true"
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
