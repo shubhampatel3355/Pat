@@ -75,7 +75,7 @@ src/theme/          Colours, radii, fonts (Urbanist) from mobile.html
 ```bash
 npm run typecheck      # TypeScript, including the shared ../src/lib files
 npm run export:check   # bundles the app for Android, as Expo Go would load it
-npm run deps:check     # every dependency at the version Expo SDK 58 expects
+npm run deps:check     # every dependency at Expo's latest SDK 58 patch; `npx expo install --fix` updates them
 ```
 
 ## Notes
