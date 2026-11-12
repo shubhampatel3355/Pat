@@ -242,7 +242,7 @@ image already runs in production mode.
 | `COMPANY_BANK_NAME`, `COMPANY_BANK_ACCOUNT_NAME`, `COMPANY_BANK_ACCOUNT_NUMBER`, `COMPANY_BANK_IFSC` | Yes | Printed on invoices. **The app won't start without them** |
 | `COMPANY_LEGAL_NAME`, `COMPANY_GSTIN`, `COMPANY_RERA`, `COMPANY_ADDRESS`, `COMPANY_PHONE`, `COMPANY_EMAIL`, `COMPANY_WEBSITE`, `COMPANY_PAN`, `COMPANY_BANK_BRANCH` | Check | Printed on invoices. Without them the app uses the values in `.env.example`, which came from the design prototype: set the real ones before the first invoice |
 | `SEED_OWNER_PASSWORD` | First deploy | A temporary password for the owners' first sign-in. Remove it after step 7 |
-| `SEED_OWNERS` | Optional | Who gets an owner account. Default: `Pat Michaels <pat@patmichaels.in>;Arjun Rao <arjun@patmichaels.in>` |
+| `SEED_OWNERS` | First start | The first owner accounts, e.g. `Asha Rao <asha@yourcompany.com>;Ravi Iyer <ravi@yourcompany.com>`. Only used while the database has no owners; after that, people are managed in the app |
 | `S3_SSE` | Optional | `AES256` only if MinIO has `MINIO_KMS_SECRET_KEY`; the Vault then shows "encrypted at rest" |
 | `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_FROM` | With email | Hostinger: `smtp.hostinger.com`, `465`, `SMTP_SECURE=true`, mailbox user and password |
 | `CLAMAV_HOST` | Optional | The ClamAV service's address, if you add one |

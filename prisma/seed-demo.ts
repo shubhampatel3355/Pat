@@ -12,7 +12,7 @@ import type { WipRemark } from "../src/generated/prisma/enums";
 import { ARGON2_OPTIONS } from "../src/server/auth/argon-options";
 import { addDaysIso, currentFy, formatDate, fyQuarterOfIso, isoDateIST, isoToDate, istToInstant } from "../src/lib/dates";
 import { estimatedFeesPaise } from "../src/lib/wip";
-import { createSeedClient, seedBase } from "./seed";
+import { createSeedClient, seedBase, seedCompanyTargets } from "./seed";
 import { seedDemoFinance } from "./seed-demo-finance";
 import { seedDemoOps } from "./seed-demo-ops";
 import { seedDemoPayroll } from "./seed-demo-payroll";
@@ -107,6 +107,8 @@ const FEED: [Key, string, string][] = [
 
 export async function seedDemo(prisma: PrismaClient, log: (m: string) => void = console.log) {
   await seedBase(prisma, log);
+  // Demo only: the prototype's company targets (production starts without targets).
+  await seedCompanyTargets(prisma, { revenue: 24, wipFees: 1.5 });
   const password = await hash(process.env.SEED_DEMO_PASSWORD || "Demo-Password-2026", ARGON2_OPTIONS);
   const ids = {} as Record<Key, string>;
 

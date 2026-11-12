@@ -146,6 +146,7 @@ jobs:
             -e SMTP_HOST=localhost -e SMTP_PORT=1025 -e SMTP_SECURE=false \
             -e COMPANY_BANK_NAME="CI Bank" -e COMPANY_BANK_ACCOUNT_NAME=CI -e COMPANY_BANK_ACCOUNT_NUMBER=0 -e COMPANY_BANK_IFSC=CI00000000 \
             -e SEED_OWNER_PASSWORD \
+            -e SEED_OWNERS="Pat Michaels <pat@patmichaels.in>;Arjun Rao <arjun@patmichaels.in>" \
             pat-michaels-os
       - name: Wait for migrations, seed, job workers and the image's health check
         run: |

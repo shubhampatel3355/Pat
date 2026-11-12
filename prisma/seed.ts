@@ -1,9 +1,10 @@
 /**
  * Production-safe, idempotent seed. Safe to run on every deploy:
- *  - creates the owners from SEED_OWNERS if they don't exist (never resets an existing password),
+ *  - on a database with no owners, creates them from SEED_OWNERS (required in production; the dev/demo
+ *    default is the prototype's two partners) — never touches owners once any exist,
  *  - inserts missing permission defaults (never overrides a toggle changed in Settings),
  *  - creates the three vault folders,
- *  - creates current-FY targets if none exist.
+ *  - creates company targets only when SEED_TARGET_REVENUE_CR / SEED_TARGET_WIP_CR are set.
  *
  *   pnpm db:seed
  */
@@ -30,9 +31,36 @@ function parseOwners(raw: string): { name: string; email: string }[] {
     });
 }
 
+/** Development and demo databases only: the prototype's two partners. */
+const DEV_OWNERS = "Pat Michaels <pat@patmichaels.in>;Arjun Rao <arjun@patmichaels.in>";
+
+/** Company targets for the current FY (revenue) and quarter (WIP fees), each only when missing. */
+export async function seedCompanyTargets(prisma: PrismaClient, crore: { revenue?: number; wipFees?: number }) {
+  const fy = currentFy();
+  const quarter = fyQuarterOfIso(isoDateIST());
+  const rows = [
+    crore.revenue !== undefined ? { metric: "REVENUE" as const, period: fy.key, amount: crore.revenue } : null,
+    crore.wipFees !== undefined ? { metric: "WIP_FEES" as const, period: quarter.key, amount: crore.wipFees } : null,
+  ];
+  for (const r of rows) {
+    if (!r) continue;
+    await prisma.target.upsert({
+      where: { scope_scopeKey_metric_period: { scope: "COMPANY", scopeKey: "company", metric: r.metric, period: r.period } },
+      update: {},
+      create: { scope: "COMPANY", scopeKey: "company", metric: r.metric, period: r.period, amountPaise: BigInt(Math.round(r.amount * CRORE_PAISE)) },
+    });
+  }
+}
+
 export async function seedBase(prisma: PrismaClient, log: (msg: string) => void = console.log) {
-  // Owners
-  const owners = parseOwners(process.env.SEED_OWNERS ?? "Pat Michaels <pat@patmichaels.in>;Arjun Rao <arjun@patmichaels.in>");
+  // Owners: only the very first ones, on a database that has none. After that, people are managed in the app,
+  // so renaming or removing a seeded owner never brings them back on the next deploy.
+  const ownerCount = await prisma.user.count({ where: { role: "OWNER", deletedAt: null } });
+  const rawOwners = process.env.SEED_OWNERS ?? (process.env.NODE_ENV === "production" ? null : DEV_OWNERS);
+  if (!ownerCount && !rawOwners) {
+    throw new Error('No owner accounts yet. Set SEED_OWNERS to create the first ones, e.g. SEED_OWNERS="Asha Rao <asha@yourcompany.com>"');
+  }
+  const owners = ownerCount ? [] : parseOwners(rawOwners!);
   for (const owner of owners) {
     const existing = await prisma.user.findUnique({ where: { email: owner.email } });
     if (existing) {
@@ -66,21 +94,11 @@ export async function seedBase(prisma: PrismaClient, log: (msg: string) => void 
   ] as const;
   for (const f of folders) await prisma.folder.upsert({ where: { key: f.key }, update: {}, create: f });
 
-  // Targets for the current financial year (only when missing)
-  const fy = currentFy();
-  const quarter = fyQuarterOfIso(isoDateIST());
-  const revenueTarget = BigInt(Math.round(Number(process.env.SEED_TARGET_REVENUE_CR ?? 24) * CRORE_PAISE));
-  const wipTarget = BigInt(Math.round(Number(process.env.SEED_TARGET_WIP_CR ?? 1.5) * CRORE_PAISE));
-  await prisma.target.upsert({
-    where: { scope_scopeKey_metric_period: { scope: "COMPANY", scopeKey: "company", metric: "REVENUE", period: fy.key } },
-    update: {},
-    create: { scope: "COMPANY", scopeKey: "company", metric: "REVENUE", period: fy.key, amountPaise: revenueTarget },
-  });
-  await prisma.target.upsert({
-    where: { scope_scopeKey_metric_period: { scope: "COMPANY", scopeKey: "company", metric: "WIP_FEES", period: quarter.key } },
-    update: {},
-    create: { scope: "COMPANY", scopeKey: "company", metric: "WIP_FEES", period: quarter.key, amountPaise: wipTarget },
-  });
+  // Targets: none are invented. Set them in Settings → General, or seed them with SEED_TARGET_REVENUE_CR /
+  // SEED_TARGET_WIP_CR (crore). A target already set is never changed.
+  const revenue = process.env.SEED_TARGET_REVENUE_CR;
+  const wipFees = process.env.SEED_TARGET_WIP_CR;
+  await seedCompanyTargets(prisma, { revenue: revenue ? Number(revenue) : undefined, wipFees: wipFees ? Number(wipFees) : undefined });
 }
 
 export function createSeedClient() {
