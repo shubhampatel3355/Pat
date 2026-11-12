@@ -1,6 +1,6 @@
 # Deploying Pat Michaels OS — Hostinger VPS + Coolify
 
-This guide takes a fresh Hostinger VPS to a running `https://os.patmichaels.in`. Day-to-day operations
+This guide takes a fresh Hostinger VPS to a running `https://os.patmichaels.com`. Day-to-day operations
 (backups, restores, incidents, secret rotation) are in [`RUNBOOK.md`](RUNBOOK.md).
 
 **There is no separate frontend to build or upload.** This is one Next.js application: pages, API routes and background
@@ -13,9 +13,9 @@ so there is no backend URL to configure.
 
 | Piece | How | Reachable from the internet |
 |---|---|---|
-| App (UI, API and job workers, plus Chromium for PDFs) | Coolify *Application*, built from this repo's `Dockerfile` | `https://os.patmichaels.in` |
+| App (UI, API and job workers, plus Chromium for PDFs) | Coolify *Application*, built from this repo's `Dockerfile` | `https://os.patmichaels.com` |
 | PostgreSQL 17 | Coolify *Database* | No — internal network only |
-| MinIO (S3 storage for uploads and PDFs) | Coolify *Docker Compose* service | API only, at `https://files.patmichaels.in`. The bucket stays private; downloads use 60-second signed links |
+| MinIO (S3 storage for uploads and PDFs) | Coolify *Docker Compose* service | API only, at `https://files.patmichaels.com`. The bucket stays private; downloads use 60-second signed links |
 | Email | Hostinger mailbox over SMTP (or Resend) — [can wait](#running-without-email) | — |
 | ClamAV (optional upload scanning) | Coolify *Service* | No |
 
@@ -76,7 +76,7 @@ curl -fsSL https://cdn.coollabs.io/coolify/install.sh | sudo bash
 ```
 
 1. Open `http://<vps-ip>:8000` **straight away** and create the admin account. The first visitor becomes the admin.
-2. Settings → General → **Instance domain** `https://coolify.patmichaels.in`. Coolify requests a certificate.
+2. Settings → General → **Instance domain** `https://coolify.patmichaels.com`. Coolify requests a certificate.
 3. Enable two-factor authentication on the admin account (Profile → Two-factor).
 4. Close the temporary port: `sudo ufw delete allow 8000/tcp`.
 5. Create a **Project** "Pat Michaels OS" with an environment "production". Everything below goes in it.
@@ -163,7 +163,7 @@ Then, before starting it:
 
 - **Environment Variables**: set `MINIO_ROOT_USER` and `MINIO_ROOT_PASSWORD` (`openssl rand -hex 24`). They are for
   administration only; the app gets its own user below.
-- **Domains**: add a domain for the `minio` service, including the internal port: `https://files.patmichaels.in:9000`.
+- **Domains**: add a domain for the `minio` service, including the internal port: `https://files.patmichaels.com:9000`.
   Don't give the console (9001) a domain.
 - To encrypt uploads at rest, also add `MINIO_KMS_SECRET_KEY=pm-os-key:<base64 of 32 random bytes>`
   (`openssl rand -base64 32`) and pass it through in `environment`. **Store this key in the password manager too.** Without
@@ -210,7 +210,7 @@ or **Public Repository** with its URL. Branch `main`. Then:
 | Base Directory | `/` |
 | Dockerfile Location | `/Dockerfile` |
 | Ports Exposes | `3000` |
-| Domains | `https://os.patmichaels.in` |
+| Domains | `https://os.patmichaels.com` |
 | Advanced → Build → Build arguments | **Managed manually in Dockerfile** |
 | Healthcheck | Leave it: Coolify uses the image's `HEALTHCHECK`, which calls `/api/health` |
 | Resource limits | Memory 2 GB is comfortable (Chromium renders PDFs inside the container) |
@@ -219,7 +219,7 @@ or **Public Repository** with its URL. Branch `main`. Then:
 
 ```
 # coolify: literal buildtime=false
-APP_URL=https://os.patmichaels.in
+APP_URL=https://os.patmichaels.com
 ```
 
 **Set every variable to runtime only** (`buildtime=false`, or "Not available during build" in Normal view). New variables
@@ -228,12 +228,12 @@ image already runs in production mode.
 
 | Variable | Required | Value |
 |---|---|---|
-| `APP_URL` | Yes | `https://os.patmichaels.in`. Used in links and cookies |
+| `APP_URL` | Yes | `https://os.patmichaels.com`. Used in links and cookies |
 | `DATABASE_URL` | Yes | `pm_app` connection string from step 4 |
 | `MIGRATION_DATABASE_URL` | Yes | `pm_owner` connection string from step 4 |
 | `AUTH_SECRET` | Yes | `openssl rand -base64 32` |
 | `ENCRYPTION_KEY` | Yes | `openssl rand -base64 32`. Encrypts client contacts: **losing it loses them**, so keep a copy in the password manager |
-| `S3_ENDPOINT` | Yes | `https://files.patmichaels.in` |
+| `S3_ENDPOINT` | Yes | `https://files.patmichaels.com` |
 | `S3_BUCKET` | Yes | `pat-michaels-os` |
 | `S3_ACCESS_KEY_ID` | Yes | `pm-app` |
 | `S3_SECRET_ACCESS_KEY` | Yes | the secret from step 5 |
@@ -256,14 +256,14 @@ local storage, or file-based mail in production.
 
 1. Press **Deploy** and watch the logs. You should see `[entrypoint] applying database migrations`, then
    `running idempotent seed` with `Created owner …` lines, then `Pat Michaels OS starting` and `job workers started`.
-2. Open `https://os.patmichaels.in/api/health`. It should show `{"status":"ok","db":"ok",…}`.
+2. Open `https://os.patmichaels.com/api/health`. It should show `{"status":"ok","db":"ok",…}`.
 3. Sign in as each owner with the temporary password. The app asks for a new one immediately.
 4. Remove `SEED_OWNER_PASSWORD` from the environment and restart. The seed never resets an existing
    password, but the temporary one shouldn't stay stored anywhere.
 
 **After deployment, check:**
 
-- [ ] `https://os.patmichaels.in` shows a valid certificate, and `http://` redirects to `https://`.
+- [ ] `https://os.patmichaels.com` shows a valid certificate, and `http://` redirects to `https://`.
 - [ ] Every item in the left rail opens without an error, as an owner and as an employee.
 - [ ] Settings → Integrations shows document storage as **Connected**.
 - [ ] Raise a test proforma, then **Download PDF**: it has the logo and the company's details.
@@ -271,7 +271,7 @@ local storage, or file-based mail in production.
 - [ ] Finance → export both XLSX and PDF.
 - [ ] Add a test member and sign in as them (with no email yet, see below).
 - [ ] Restart the app in Coolify: your test records and the file are still there.
-- [ ] `https://files.patmichaels.in/pat-michaels-os/` from a browser is refused, not a file listing.
+- [ ] `https://files.patmichaels.com/pat-michaels-os/` from a browser is refused, not a file listing.
 - [ ] The database has no public port, and the MinIO console has no domain.
 - [ ] Logs show no `"level":50` lines other than expected email failures.
 - [ ] The database backup has run once and shows in Coolify.
@@ -338,7 +338,7 @@ image Coolify builds and runs the Playwright suite against it, with the restrict
 ## 10. Security checklist
 
 - [ ] SSH keys only; root password login off; ufw on (22, 80, 443).
-- [ ] Coolify admin has 2FA; dashboard only at `https://coolify.patmichaels.in`.
+- [ ] Coolify admin has 2FA; dashboard only at `https://coolify.patmichaels.com`.
 - [ ] GitHub repository is private.
 - [ ] Postgres and MinIO have no public ports; MinIO console has no domain.
 - [ ] App uses `pm_app` (row access only); migrations use `pm_owner`.

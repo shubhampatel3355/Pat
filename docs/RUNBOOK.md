@@ -7,7 +7,7 @@ the database are run from the Postgres resource's **Terminal** in Coolify (`psql
 
 | Question | Look at |
 |---|---|
-| Is it up? | `https://os.patmichaels.in/api/health`: `ok` with `db: ok`; `503 degraded` means the database is unreachable |
+| Is it up? | `https://os.patmichaels.com/api/health`: `ok` with `db: ok`; `503 degraded` means the database is unreachable |
 | What happened? | Coolify → app → **Logs**. JSON lines with `reqId`, `userId`, and slow queries (> `SLOW_QUERY_MS`) |
 | Who did it? | In the app: Settings → **Audit log** (filter by module; before/after values for every change, downloads, sign-ins) |
 | Are email and storage wired up? | Settings → **Integrations** (owners/admins) |
