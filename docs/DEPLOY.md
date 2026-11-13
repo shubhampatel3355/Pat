@@ -157,14 +157,29 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+    # Routing for the storage domain. Only the S3 API (9000) is published; the console (9001) stays private.
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.pm-files.entrypoints=https
+      - traefik.http.routers.pm-files.rule=Host(`files.patmichaels.com`)
+      - traefik.http.routers.pm-files.tls=true
+      - traefik.http.routers.pm-files.tls.certresolver=letsencrypt
+      - traefik.http.routers.pm-files.service=pm-files
+      - traefik.http.services.pm-files.loadbalancer.server.port=9000
 ```
 
 Then, before starting it:
 
-- **Environment Variables**: set `MINIO_ROOT_USER` and `MINIO_ROOT_PASSWORD` (`openssl rand -hex 24`). They are for
-  administration only; the app gets its own user below.
-- **Domains**: add a domain for the `minio` service, including the internal port: `https://files.patmichaels.com:9000`.
-  Don't give the console (9001) a domain.
+- **Environment Variables** (on Coolify 4.7, the **MinIO · Admin User** and **Admin Password** boxes under General): set
+  `MINIO_ROOT_USER` and `MINIO_ROOT_PASSWORD` (`openssl rand -hex 24`). They are for administration only; the app gets
+  its own user below.
+- **Domain**: the `labels` above route `files.patmichaels.com` to the S3 port; change the host there if yours differs.
+  A domain added in Coolify's **Domains** screen was not applied to this service on Coolify 4.7.5 (the container got no
+  routing labels, so the address answered 503), which is why the routing is written into the Compose file. The DNS
+  record must be a plain `A` record to the server: a subdomain created under hPanel → Websites points it at Hostinger's
+  web hosting instead.
+- **Applying changes**: after editing the Compose file, **Stop** the service, then **Deploy**. *Restart current version*
+  restarts the old definition and ignores the edit.
 - To encrypt uploads at rest, also add `MINIO_KMS_SECRET_KEY=pm-os-key:<base64 of 32 random bytes>`
   (`openssl rand -base64 32`) and pass it through in `environment`. **Store this key in the password manager too.** Without
   it, every stored file becomes unreadable. Then set `S3_SSE=AES256` on the app and add `mc encrypt set sse-s3 pm/pat-michaels-os`
