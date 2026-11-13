@@ -41,6 +41,8 @@ export async function uploadFiles(files: File[], target: { folder?: FolderKey; o
 }
 
 export function formatBytes(bytes: number): string {
+  // A tiny file still reads "1 KB", but an empty folder reads "0 KB", not "1 KB".
+  if (bytes <= 0) return "0 KB";
   return bytes >= 1e6 ? `${(bytes / 1e6).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1e3))} KB`;
 }
 
