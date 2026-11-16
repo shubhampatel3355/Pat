@@ -1,7 +1,7 @@
 import { longMonthLabel } from "@shared/payroll";
 import { Redirect, router } from "expo-router";
 import { useState } from "react";
-import { Alert, View } from "react-native";
+import { View } from "react-native";
 import { errorText } from "@/api/client";
 import { runAction, useAction, usePayroll } from "@/api/queries";
 import type { PayrollEmployee, PayrollRun } from "@/api/types";
@@ -10,6 +10,7 @@ import { Avatar, Button, Card, ErrorState, Hero, KeyValue, ListCard, ListRow, Lo
 import { Screen } from "@/components/ui/screen";
 import { Sheet } from "@/components/ui/sheet";
 import { T } from "@/components/ui/text";
+import { confirmAlert } from "@/lib/confirm";
 import { formatCompactINR, formatDate, formatINR } from "@/lib/format";
 import { colors } from "@/theme/tokens";
 
@@ -135,7 +136,7 @@ function RunCard({ run, canRun, next }: { run: PayrollRun; canRun: boolean; next
                 style={{ flex: 1 }}
                 loading={approve.isPending}
                 onPress={() =>
-                  Alert.alert(`Approve ${run.label} payroll?`, `${formatINR(run.totals.net)} net for ${run.totals.live} people. Payslips can't be edited after this.`, [
+                  confirmAlert(`Approve ${run.label} payroll?`, `${formatINR(run.totals.net)} net for ${run.totals.live} people. Payslips can't be edited after this.`, [
                     { text: "Cancel", style: "cancel" },
                     { text: "Approve", onPress: () => void runAction(approve, { id: run.id }) },
                   ])
@@ -149,7 +150,7 @@ function RunCard({ run, canRun, next }: { run: PayrollRun; canRun: boolean; next
               style={{ flex: 1 }}
               loading={disburse.isPending}
               onPress={() =>
-                Alert.alert(`Disburse ${run.label} payroll?`, "Salaries post to the ledger, and each person is told their payslip is ready.", [
+                confirmAlert(`Disburse ${run.label} payroll?`, "Salaries post to the ledger, and each person is told their payslip is ready.", [
                   { text: "Cancel", style: "cancel" },
                   { text: "Disburse", onPress: () => void runAction(disburse, { id: run.id }) },
                 ])

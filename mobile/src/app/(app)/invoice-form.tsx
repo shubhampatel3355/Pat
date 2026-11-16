@@ -1,12 +1,13 @@
 import { checkGstin, computeGst, gstinErrorMessage, normaliseGstin, STATE_NAMES } from "@shared/gstin";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { errorText } from "@/api/client";
 import { runAction, useAction, useInvoices } from "@/api/queries";
 import type { InvoicesResponse } from "@/api/types";
 import { AmountField, Field, FieldError, FieldLabel, NumberField, Segmented, Select } from "@/components/ui/form";
 import { Icon } from "@/components/ui/icon";
+import { PressableScale } from "@/components/ui/motion";
 import { Button, Card, ErrorState, KeyValue, Loading } from "@/components/ui/primitives";
 import { FormScreen, Screen } from "@/components/ui/screen";
 import { T } from "@/components/ui/text";
@@ -130,9 +131,9 @@ function Form({ data, kind }: { data: InvoicesResponse; kind: Kind }) {
             <View style={{ flex: 1 }}>
               <Select value={s.who} onChange={(who) => setShares(shares.map((x, j) => (j === i ? { ...x, who } : x)))} options={people} placeholder="Broker" />
             </View>
-            <Pressable onPress={() => setShares(shares.filter((_, j) => j !== i))} hitSlop={10} accessibilityLabel="Remove broker">
+            <PressableScale onPress={() => setShares(shares.filter((_, j) => j !== i))} scaleTo={0.85} hitSlop={10} accessibilityLabel="Remove broker">
               <Icon name="close" color={colors.muted} />
-            </Pressable>
+            </PressableScale>
           </View>
           {s.who === "external" ? <Field value={s.name} onChangeText={(name) => setShares(shares.map((x, j) => (j === i ? { ...x, name } : x)))} placeholder="Broker's full name" autoCapitalize="words" /> : null}
           <NumberField label="Share %" value={s.pct} onChange={(pct) => setShares(shares.map((x, j) => (j === i ? { ...x, pct } : x)))} />

@@ -1,9 +1,10 @@
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { Pressable, StyleSheet, TextInput, View } from "react-native";
+import { StyleSheet, TextInput, View } from "react-native";
 import { errorText } from "@/api/client";
 import { useSearch } from "@/api/queries";
 import { Icon, iconForWeb } from "@/components/ui/icon";
+import { PressableScale } from "@/components/ui/motion";
 import { EmptyState, ErrorState, IconWell, ListCard, ListRow, Section } from "@/components/ui/primitives";
 import { Screen } from "@/components/ui/screen";
 import { T } from "@/components/ui/text";
@@ -26,9 +27,9 @@ export default function Search() {
         <Icon name="search" color={colors.muted} />
         <TextInput value={text} onChangeText={setText} autoFocus placeholder="Tenant, invoice, person, document…" placeholderTextColor={colors.faint} style={styles.input} returnKeyType="search" accessibilityLabel="Search" />
         {text ? (
-          <Pressable onPress={() => setText("")} hitSlop={10} accessibilityLabel="Clear">
+          <PressableScale onPress={() => setText("")} haptic="select" scaleTo={0.85} hitSlop={10} accessibilityLabel="Clear">
             <Icon name="close" color={colors.muted} />
-          </Pressable>
+          </PressableScale>
         ) : null}
       </View>
       {q.length < 2 ? (

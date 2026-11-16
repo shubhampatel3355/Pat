@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Switch, View } from "react-native";
+import { View } from "react-native";
 import { errorText } from "@/api/client";
 import { runAction, useAction, useSettings } from "@/api/queries";
 import type { AuditRow, SettingsResponse, SettingsTab, TargetsView } from "@/api/types";
-import { AmountField, Segmented } from "@/components/ui/form";
+import { AmountField, Segmented, Toggle } from "@/components/ui/form";
 import { Avatar, Button, Card, Chip, ChipRow, ErrorState, KeyValue, ListCard, ListRow, Loading, Pill, Section } from "@/components/ui/primitives";
 import { Screen } from "@/components/ui/screen";
 import { Sheet } from "@/components/ui/sheet";
@@ -168,13 +168,11 @@ function Roles({ r }: { r: NonNullable<SettingsResponse["roles"]> }) {
                   <View style={{ flexDirection: "row", gap: 12 }}>
                     {(["ADMIN", "EMPLOYEE"] as const).map((role) => (
                       <View key={role} style={{ alignItems: "center", gap: 2 }}>
-                        <Switch
+                        <Toggle
                           value={role === "ADMIN" ? row.admin : row.employee}
                           disabled={!r.canEdit}
-                          onValueChange={(allowed) => void runAction(toggle, { role, key: row.key, allowed })}
-                          trackColor={{ true: colors.navy, false: "rgba(0,0,0,0.18)" }}
-                          thumbColor={colors.white}
-                          accessibilityLabel={`${row.label} for ${role === "ADMIN" ? "admins" : "employees"}`}
+                          onChange={(allowed) => void runAction(toggle, { role, key: row.key, allowed })}
+                          label={`${row.label} for ${role === "ADMIN" ? "admins" : "employees"}`}
                         />
                         <T variant="caption" style={{ fontSize: 10 }}>
                           {role === "ADMIN" ? "Admin" : "Employee"}

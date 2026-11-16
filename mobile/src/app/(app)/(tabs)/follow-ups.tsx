@@ -8,6 +8,7 @@ import { useFollowUps } from "@/api/queries";
 import { Fab } from "@/components/fab";
 import { TopActions } from "@/components/top-actions";
 import { FollowUpItem, TaskItem } from "@/components/work-items";
+import { MotionList, MotionRow } from "@/components/ui/motion";
 import { Chip, ChipRow, EmptyState, ErrorState, ListCard, Loading, Section } from "@/components/ui/primitives";
 import { Screen } from "@/components/ui/screen";
 import { ChoiceSheet } from "@/components/ui/sheet";
@@ -52,9 +53,13 @@ export default function FollowUps() {
         ) : !d ? null : mode === "followups" ? (
           visibleFollowUps.length ? (
             <ListCard style={{ marginTop: 16 }}>
-              {visibleFollowUps.map((f, i) => (
-                <FollowUpItem key={f.id} f={f} now={d.now} today={d.today} first={i === 0} />
-              ))}
+              <MotionList>
+                {visibleFollowUps.map((f, i) => (
+                  <MotionRow key={f.id}>
+                    <FollowUpItem f={f} now={d.now} today={d.today} first={i === 0} />
+                  </MotionRow>
+                ))}
+              </MotionList>
             </ListCard>
           ) : (
             <EmptyState icon="calendarCheck" title={EMPTY[tab][0]} text={EMPTY[tab][1]} />
@@ -66,9 +71,13 @@ export default function FollowUps() {
             return (
               <Section key={s.value} title={`${s.label} · ${list.length}`}>
                 <ListCard>
-                  {list.map((t, i) => (
-                    <TaskItem key={t.id} t={t} now={d.now} today={d.today} first={i === 0} />
-                  ))}
+                  <MotionList>
+                    {list.map((t, i) => (
+                      <MotionRow key={t.id}>
+                        <TaskItem t={t} now={d.now} today={d.today} first={i === 0} />
+                      </MotionRow>
+                    ))}
+                  </MotionList>
                 </ListCard>
               </Section>
             );

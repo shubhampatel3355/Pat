@@ -2,15 +2,17 @@ import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import * as WebBrowser from "expo-web-browser";
 import { useState } from "react";
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { errorText } from "@/api/client";
 import { apiHost, apiUrl, defaultApiUrl, saveApiUrl } from "@/api/config";
 import { useSession } from "@/auth/session";
 import { Field } from "@/components/ui/form";
+import { PressableScale } from "@/components/ui/motion";
 import { Button, IconButton } from "@/components/ui/primitives";
 import { Sheet } from "@/components/ui/sheet";
 import { T } from "@/components/ui/text";
+import { haptics } from "@/lib/haptics";
 import { colors, heroGradient } from "@/theme/tokens";
 
 /**
@@ -28,27 +30,32 @@ export default function SignIn() {
   const [busy, setBusy] = useState(false);
   const [serverOpen, setServerOpen] = useState(false);
 
+  // A refused sign-in is felt as well as read.
+  const fail = (message: string) => {
+    haptics.error();
+    setError(message);
+  };
+
   async function submit() {
     setError(null);
     if (!email.trim() || !password) {
-      setError("Enter your work email and password.");
+      fail("Enter your work email and password.");
       return;
     }
     if (otpSentTo && !/^\d{6}$/.test(otp)) {
-      setError("Enter the 6-digit code.");
+      fail("Enter the 6-digit code.");
       return;
     }
     setBusy(true);
     try {
       const res = await signIn(email.trim(), password, otpSentTo ? otp : undefined);
-      if (!res.ok) {
-        if (res.otpRequired && res.otpSentTo) {
-          setOtpSentTo(res.otpSentTo);
-          setOtp("");
-        } else setError(res.error);
-      }
+      if (res.ok) haptics.success();
+      else if (res.otpRequired && res.otpSentTo) {
+        setOtpSentTo(res.otpSentTo);
+        setOtp("");
+      } else fail(res.error);
     } catch (e) {
-      setError(errorText(e));
+      fail(errorText(e));
     } finally {
       setBusy(false);
     }
@@ -96,19 +103,19 @@ export default function SignIn() {
             ) : null}
             <Button label={otpSentTo ? "Verify & continue" : "Sign in"} onPress={submit} loading={busy} size="lg" />
             {!otpSentTo ? (
-              <Pressable onPress={() => void WebBrowser.openBrowserAsync(`${apiUrl()}/forgot-password`)} hitSlop={8} style={{ alignSelf: "center" }} accessibilityRole="link">
+              <PressableScale onPress={() => void WebBrowser.openBrowserAsync(`${apiUrl()}/forgot-password`)} haptic="select" scaleTo={0.95} hitSlop={8} style={{ alignSelf: "center" }} accessibilityRole="link">
                 <T variant="strong" style={{ textDecorationLine: "underline" }}>
                   Forgot password?
                 </T>
-              </Pressable>
+              </PressableScale>
             ) : null}
           </View>
 
-          <Pressable onPress={() => setServerOpen(true)} hitSlop={8} style={styles.server} accessibilityRole="button" accessibilityLabel="Change server">
+          <PressableScale onPress={() => setServerOpen(true)} haptic="select" scaleTo={0.95} hitSlop={8} style={styles.server} accessibilityRole="button" accessibilityLabel="Change server">
             <T variant="caption" color={colors.ice}>
               Server: {apiHost()} · Change
             </T>
-          </Pressable>
+          </PressableScale>
           <T variant="caption" color={colors.ice} align="center" style={{ marginTop: 8 }}>
             © {new Date().getFullYear()} Pat Michaels Developers LLP
           </T>

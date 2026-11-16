@@ -1,13 +1,13 @@
 import { DUE_BUCKETS, DUE_LABEL, dateToBucket, type DueBucket } from "@shared/todo";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { Alert } from "react-native";
 import { errorText } from "@/api/client";
 import { runAction, useAction, useDashboard } from "@/api/queries";
 import type { TodoDto } from "@/api/types";
 import { DateField, Field, Segmented, SwitchRow, TimeField } from "@/components/ui/form";
 import { Button, Card, ErrorState, Loading } from "@/components/ui/primitives";
 import { FormScreen, Screen } from "@/components/ui/screen";
+import { confirmAlert } from "@/lib/confirm";
 import { fieldErrors, param } from "@/lib/forms";
 import { useView } from "@/lib/view-store";
 
@@ -81,7 +81,7 @@ function EditTodo({ todo, today }: { todo: TodoDto; today: string }) {
           kind="ghost"
           size="lg"
           onPress={() =>
-            Alert.alert("Delete this to-do?", todo.text, [
+            confirmAlert("Delete this to-do?", todo.text, [
               { text: "Cancel", style: "cancel" },
               {
                 text: "Delete",

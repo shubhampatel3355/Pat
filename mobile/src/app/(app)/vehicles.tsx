@@ -1,7 +1,7 @@
 import { CAB_STATUS, CAR_TYPES } from "@shared/constants";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Alert, View } from "react-native";
+import { View } from "react-native";
 import { errorText } from "@/api/client";
 import { runAction, useAction, useVehicles } from "@/api/queries";
 import type { CabStatus } from "@/api/prisma-enums";
@@ -10,6 +10,7 @@ import { Fab } from "@/components/fab";
 import { Avatar, Button, Card, Chip, ChipRow, EmptyState, ErrorState, Loading, Pill, StatGrid } from "@/components/ui/primitives";
 import { Screen } from "@/components/ui/screen";
 import { T } from "@/components/ui/text";
+import { confirmAlert } from "@/lib/confirm";
 import { formatTime12, relativeDayLabel } from "@/lib/format";
 
 /** Vehicle Management: cab bookings (the web's /vehicles). Anyone can book; managers confirm and complete. */
@@ -93,7 +94,7 @@ function Booking({ r, today }: { r: CabRow; today: string }) {
               kind="ghost"
               style={{ flex: 1 }}
               onPress={() =>
-                Alert.alert("Cancel this booking?", `${r.bookedFor.name} · ${relativeDayLabel(r.date, today)}, ${formatTime12(r.time)}`, [
+                confirmAlert("Cancel this booking?", `${r.bookedFor.name} · ${relativeDayLabel(r.date, today)}, ${formatTime12(r.time)}`, [
                   { text: "Keep", style: "cancel" },
                   { text: "Cancel booking", style: "destructive", onPress: () => change("CANCELLED") },
                 ])

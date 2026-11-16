@@ -13,9 +13,11 @@ import { SessionProvider, useSession } from "@/auth/session";
 import { Button, IconWell } from "@/components/ui/primitives";
 import { T } from "@/components/ui/text";
 import { ToastProvider } from "@/components/toast";
+import { loadHapticsPreference } from "@/lib/haptics";
 import { colors } from "@/theme/tokens";
 
 void SplashScreen.preventAutoHideAsync();
+void loadHapticsPreference();
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({ Urbanist_300Light, Urbanist_400Regular, Urbanist_500Medium, Urbanist_600SemiBold, Urbanist_700Bold });

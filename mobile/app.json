@@ -10,7 +10,10 @@
     "backgroundColor": "#F2F2F2",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "in.patmichaels.os"
+      "bundleIdentifier": "in.patmichaels.os",
+      "infoPlist": {
+        "CADisableMinimumFrameDurationOnPhone": true
+      }
     },
     "android": {
       "package": "in.patmichaels.os",

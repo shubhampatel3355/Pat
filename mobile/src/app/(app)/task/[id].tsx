@@ -2,7 +2,7 @@ import { TASK_PRIORITY, TASK_STATUSES } from "@shared/constants";
 import { instantLabel } from "@shared/tasks";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { Alert, View } from "react-native";
+import { View } from "react-native";
 import { errorText } from "@/api/client";
 import { runAction, useAction, useFollowUps } from "@/api/queries";
 import type { TaskStatus } from "@/api/prisma-enums";
@@ -10,6 +10,7 @@ import { Field, Segmented, SwitchRow } from "@/components/ui/form";
 import { Avatar, Button, Card, EmptyState, ErrorState, KeyValue, ListCard, ListRow, Loading, Pill, Section } from "@/components/ui/primitives";
 import { Screen } from "@/components/ui/screen";
 import { T } from "@/components/ui/text";
+import { confirmAlert } from "@/lib/confirm";
 import { ago } from "@/lib/format";
 
 /** A task: status, reminders, comments (the web's task drawer). */
@@ -102,7 +103,7 @@ export default function TaskDetail() {
           kind="ghost"
           style={{ marginTop: 26 }}
           onPress={() =>
-            Alert.alert("Delete this task?", t.title, [
+            confirmAlert("Delete this task?", t.title, [
               { text: "Cancel", style: "cancel" },
               {
                 text: "Delete",

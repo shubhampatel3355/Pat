@@ -10,7 +10,7 @@ export default function TabsLayout() {
   const me = useMe();
   const hidden = me.user.role === "EMPLOYEE" ? ["pipeline"] : [];
   return (
-    <Tabs screenOptions={{ headerShown: false, sceneStyle: { backgroundColor: "transparent" } }} tabBar={(props) => <FloatingTabBar {...props} hidden={hidden} />}>
+    <Tabs screenOptions={{ headerShown: false, sceneStyle: { backgroundColor: "transparent" }, animation: "shift" }} tabBar={(props) => <FloatingTabBar {...props} hidden={hidden} />}>
       <Tabs.Screen name="index" />
       <Tabs.Screen name="wip" />
       <Tabs.Screen name="pipeline" />

@@ -1,7 +1,8 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { KeyboardAvoidingView, Platform, RefreshControl, ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
+import { FlatList, KeyboardAvoidingView, Platform, RefreshControl, ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { haptics } from "@/lib/haptics";
 import { colors } from "@/theme/tokens";
 import { Button, IconButton } from "./primitives";
 import { T } from "./text";
@@ -12,6 +13,24 @@ export const TAB_BAR_SPACE = 120;
 interface Refreshable {
   isRefetching: boolean;
   refetch: () => unknown;
+}
+
+/**
+ * Pull-to-refresh, with a tap when it triggers. A plain function returning the RefreshControl element, not a
+ * component: on Android (and the web) the scroll view is cloned *into* this element as its child, so a wrapper
+ * component that doesn't pass `children` through would leave the screen blank.
+ */
+function refreshControl(query: Refreshable) {
+  return (
+    <RefreshControl
+      refreshing={query.isRefetching}
+      onRefresh={() => {
+        haptics.tap();
+        void query.refetch();
+      }}
+      tintColor={colors.navy}
+    />
+  );
 }
 
 function Backdrop() {
@@ -78,7 +97,7 @@ export function Screen({
           <ScrollView
             contentContainerStyle={[styles.content, { paddingBottom: bottom }, contentStyle]}
             keyboardShouldPersistTaps="handled"
-            refreshControl={query ? <RefreshControl refreshing={query.isRefetching} onRefresh={() => void query.refetch()} tintColor={colors.navy} /> : undefined}
+            refreshControl={query ? refreshControl(query) : undefined}
           >
             {head}
             {children}
@@ -91,6 +110,66 @@ export function Screen({
         )}
       </View>
       {footer ? <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>{footer}</View> : null}
+    </View>
+  );
+}
+
+/**
+ * A tab or stack screen whose body is a long list (WIP): like Screen, but virtualised, so only the rows on
+ * screen are drawn and scrolling stays smooth however many there are. `top` sits above the rows (search,
+ * filters, totals); `empty` replaces them while loading, on error, or when nothing matches.
+ */
+export function ScreenList<Row>({
+  title,
+  sub,
+  right,
+  query,
+  tabs,
+  top,
+  rows,
+  rowKey,
+  renderRow,
+  empty,
+  gap = 12,
+}: {
+  title: string;
+  sub?: string;
+  right?: React.ReactNode;
+  query?: Refreshable;
+  tabs?: boolean;
+  top?: React.ReactNode;
+  rows: readonly Row[];
+  rowKey: (row: Row) => string;
+  renderRow: (row: Row) => React.ReactElement;
+  empty: React.ReactNode;
+  gap?: number;
+}) {
+  const insets = useSafeAreaInsets();
+  return (
+    <View style={styles.root}>
+      <Backdrop />
+      <View style={{ paddingTop: insets.top + 6, flex: 1 }}>
+        <FlatList
+          data={rows}
+          keyExtractor={rowKey}
+          renderItem={({ item, index }) => <View style={{ marginTop: index === 0 ? 16 : gap }}>{renderRow(item)}</View>}
+          ListHeaderComponent={
+            <>
+              <ScreenHeader title={title} sub={sub} right={right} />
+              {top}
+            </>
+          }
+          ListEmptyComponent={<>{empty}</>}
+          contentContainerStyle={[styles.content, { paddingBottom: tabs ? TAB_BAR_SPACE + insets.bottom : 36 + insets.bottom }]}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          refreshControl={query ? refreshControl(query) : undefined}
+          initialNumToRender={5}
+          maxToRenderPerBatch={6}
+          windowSize={9}
+          removeClippedSubviews={Platform.OS === "android"}
+        />
+      </View>
     </View>
   );
 }

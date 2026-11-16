@@ -2,9 +2,12 @@ import DateTimePicker, { DateTimePickerAndroid } from "@react-native-community/d
 import { formatDate, formatTime12, isoDateIST, istToInstant, timeIST } from "@shared/dates";
 import { formatAmountInput } from "@shared/money";
 import { useState } from "react";
-import { Platform, Pressable, StyleSheet, Switch, TextInput, View, type KeyboardTypeOptions } from "react-native";
+import { Platform, StyleSheet, Switch, TextInput, View, type KeyboardTypeOptions } from "react-native";
+import Animated from "react-native-reanimated";
+import { haptics } from "@/lib/haptics";
 import { colors, fonts, radius } from "@/theme/tokens";
 import { Icon } from "./icon";
+import { PressableScale, useSlidingPill } from "./motion";
 import { Button } from "./primitives";
 import { ChoiceSheet, Sheet, type Choice } from "./sheet";
 import { T } from "./text";
@@ -87,9 +90,9 @@ export function Field({
           accessibilityLabel={label}
         />
         {secure ? (
-          <Pressable onPress={() => setShow((s) => !s)} hitSlop={10} accessibilityRole="button" accessibilityLabel={show ? "Hide password" : "Show password"}>
+          <PressableScale onPress={() => setShow((s) => !s)} haptic="select" scaleTo={0.85} hitSlop={10} accessibilityRole="button" accessibilityLabel={show ? "Hide password" : "Show password"}>
             <Icon name={show ? "eyeOff" : "eye"} color={colors.muted} />
-          </Pressable>
+          </PressableScale>
         ) : null}
       </View>
       {hint && !error ? (
@@ -137,12 +140,12 @@ function PressField({ label, text, placeholder, onPress, error, icon = "down" as
   return (
     <View>
       {label ? <FieldLabel>{label}</FieldLabel> : null}
-      <Pressable onPress={onPress} style={({ pressed }) => [styles.input, error ? styles.inputError : null, pressed && { opacity: 0.7 }]} accessibilityRole="button" accessibilityLabel={label}>
+      <PressableScale onPress={onPress} haptic="select" scaleTo={0.985} pressedOpacity={0.7} style={[styles.input, error ? styles.inputError : null]} accessibilityRole="button" accessibilityLabel={label}>
         <T variant="strong" color={text ? colors.text : colors.faint} style={{ flex: 1 }} numberOfLines={1}>
           {text ?? placeholder}
         </T>
         <Icon name={icon} size={18} color={colors.muted} />
-      </Pressable>
+      </PressableScale>
       <FieldError message={error} />
     </View>
   );
@@ -195,8 +198,15 @@ export function MultiSelect({
   const [open, setOpen] = useState(false);
   const names = options.filter((o) => values.includes(o.value)).map((o) => o.label);
   const toggle = (v: string) => {
-    if (values.includes(v)) onChange(values.filter((x) => x !== v));
-    else if (!max || values.length < max) onChange([...values, v]);
+    if (values.includes(v)) {
+      haptics.toggle(false);
+      onChange(values.filter((x) => x !== v));
+    } else if (!max || values.length < max) {
+      haptics.toggle(true);
+      onChange([...values, v]);
+    } else {
+      haptics.warning(); // at the limit
+    }
   };
   return (
     <>
@@ -206,12 +216,12 @@ export function MultiSelect({
           {options.map((o, i) => {
             const on = values.includes(o.value);
             return (
-              <Pressable key={o.value} onPress={() => toggle(o.value)} style={[styles.multiRow, i > 0 && styles.multiBorder]} accessibilityRole="checkbox" accessibilityState={{ checked: on }}>
+              <PressableScale key={o.value} onPress={() => toggle(o.value)} haptic="none" scaleTo={0.985} pressedOpacity={0.7} style={[styles.multiRow, i > 0 && styles.multiBorder]} accessibilityRole="checkbox" accessibilityState={{ checked: on }}>
                 <T variant="strong" style={{ flex: 1 }}>
                   {o.label}
                 </T>
                 <Icon name={on ? "checkCircle" : "circle"} color={on ? colors.navy : colors.faint} />
-              </Pressable>
+              </PressableScale>
             );
           })}
         </View>
@@ -221,24 +231,61 @@ export function MultiSelect({
   );
 }
 
-/** Equal-width choice buttons (pricing basis, income/expense…). */
+const SEGMENT_PAD = 4;
+const SEGMENT_GAP = 6;
+
+/** Equal-width choice buttons (pricing basis, income/expense…); the navy pill glides to the choice. */
 export function Segmented<V extends string>({ label, value, options, onChange }: { label?: string; value: V; options: { value: V; label: string }[]; onChange: (v: V) => void }) {
+  const { onLayout, pill } = useSlidingPill(
+    options.length,
+    options.findIndex((o) => o.value === value),
+    SEGMENT_GAP,
+    SEGMENT_PAD,
+  );
   return (
     <View>
       {label ? <FieldLabel>{label}</FieldLabel> : null}
-      <View style={styles.segmented}>
+      <View style={styles.segmented} onLayout={onLayout}>
+        <Animated.View pointerEvents="none" style={[styles.segmentPill, pill]} />
         {options.map((o) => {
           const on = o.value === value;
           return (
-            <Pressable key={o.value} onPress={() => onChange(o.value)} style={[styles.segment, on && styles.segmentOn]} accessibilityRole="button" accessibilityState={{ selected: on }}>
+            <PressableScale
+              key={o.value}
+              haptic={on ? "none" : "select"}
+              scaleTo={0.95}
+              onPress={() => {
+                if (!on) onChange(o.value);
+              }}
+              style={styles.segment}
+              accessibilityRole="button"
+              accessibilityState={{ selected: on }}
+            >
               <T variant="small" color={on ? colors.white : colors.muted} align="center" numberOfLines={1}>
                 {o.label}
               </T>
-            </Pressable>
+            </PressableScale>
           );
         })}
       </View>
     </View>
+  );
+}
+
+/** A labelled switch that clicks as it flips. */
+export function Toggle({ value, onChange, disabled, label }: { value: boolean; onChange: (v: boolean) => void; disabled?: boolean; label: string }) {
+  return (
+    <Switch
+      value={value}
+      onValueChange={(v) => {
+        haptics.toggle(v);
+        onChange(v);
+      }}
+      disabled={disabled}
+      trackColor={{ true: colors.navy, false: "rgba(0,0,0,0.18)" }}
+      thumbColor={colors.white}
+      accessibilityLabel={label}
+    />
   );
 }
 
@@ -249,13 +296,23 @@ export function SwitchRow({ label, sub, value, onChange, disabled }: { label: st
         <T variant="strong">{label}</T>
         {sub ? <T variant="small">{sub}</T> : null}
       </View>
-      <Switch value={value} onValueChange={onChange} disabled={disabled} trackColor={{ true: colors.navy, false: "rgba(0,0,0,0.18)" }} thumbColor={colors.white} accessibilityLabel={label} />
+      <Toggle value={value} onChange={onChange} disabled={disabled} label={label} />
     </View>
   );
 }
 
 function openAndroid(mode: "date" | "time", value: Date, onPick: (d: Date) => void) {
-  DateTimePickerAndroid.open({ value, mode, is24Hour: false, timeZoneName: IST, onValueChange: (_e, d) => onPick(d) });
+  // The Android dialog has no feel of its own: tick when a value is chosen. (iOS pickers tick by themselves.)
+  DateTimePickerAndroid.open({
+    value,
+    mode,
+    is24Hour: false,
+    timeZoneName: IST,
+    onValueChange: (_e, d) => {
+      haptics.select();
+      onPick(d);
+    },
+  });
 }
 
 /** "YYYY-MM-DD" in IST. */
@@ -267,11 +324,11 @@ export function DateField({ label, value, onChange, error, placeholder = "Pick a
     <>
       <PressField label={label} text={value ? formatDate(value) : null} placeholder={placeholder} icon="calendar" error={error} onPress={() => (Platform.OS === "android" ? openAndroid("date", current, pick) : setOpen(true))} />
       {clearable && value ? (
-        <Pressable onPress={() => onChange(null)} hitSlop={8} style={{ alignSelf: "flex-start", marginTop: 6 }}>
+        <PressableScale onPress={() => onChange(null)} haptic="select" scaleTo={0.94} hitSlop={8} style={{ alignSelf: "flex-start", marginTop: 6 }}>
           <T variant="caption" style={{ textDecorationLine: "underline" }}>
             Clear date
           </T>
-        </Pressable>
+        </PressableScale>
       ) : null}
       {Platform.OS === "ios" ? (
         <Sheet visible={open} onClose={() => setOpen(false)} title={label ?? "Date"}>
@@ -316,9 +373,9 @@ const styles = StyleSheet.create({
   multiline: { alignItems: "flex-start" },
   inputError: { borderColor: colors.danger },
   textInput: { flex: 1, minHeight: 48, fontFamily: fonts.medium, fontSize: 15, color: colors.text, paddingVertical: 0 },
-  segmented: { flexDirection: "row", gap: 6, padding: 4, borderRadius: 22, backgroundColor: colors.chip },
+  segmented: { flexDirection: "row", gap: SEGMENT_GAP, padding: SEGMENT_PAD, borderRadius: 22, backgroundColor: colors.chip },
   segment: { flex: 1, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center", paddingHorizontal: 8 },
-  segmentOn: { backgroundColor: colors.navy },
+  segmentPill: { position: "absolute", left: SEGMENT_PAD, top: SEGMENT_PAD, bottom: SEGMENT_PAD, borderRadius: 19, backgroundColor: colors.navy },
   switchRow: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 10 },
   multiList: { backgroundColor: colors.card, borderRadius: 24, paddingHorizontal: 16 },
   multiRow: { flexDirection: "row", alignItems: "center", gap: 12, minHeight: 52 },

@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { Alert, View } from "react-native";
+import { View } from "react-native";
 import { errorText } from "@/api/client";
 import { downloadAndShare, openStoredFile, pickDocuments, uploadDocuments } from "@/api/files";
 import { runAction, useAction, useInvoices } from "@/api/queries";
@@ -12,6 +12,7 @@ import { Button, Card, EmptyState, ErrorState, IconWell, KeyValue, ListCard, Lis
 import { Screen } from "@/components/ui/screen";
 import { Sheet } from "@/components/ui/sheet";
 import { T } from "@/components/ui/text";
+import { confirmAlert } from "@/lib/confirm";
 import { formatDate, formatINR } from "@/lib/format";
 import { colors } from "@/theme/tokens";
 
@@ -80,7 +81,7 @@ function Detail({ row, can, query }: { row: InvoiceRow; can: { create: boolean; 
             loading={email.isPending}
             style={{ flex: 1 }}
             onPress={() =>
-              Alert.alert(`Email ${row.number}?`, `The PDF goes to ${row.email}.`, [
+              confirmAlert(`Email ${row.number}?`, `The PDF goes to ${row.email}.`, [
                 { text: "Cancel", style: "cancel" },
                 { text: "Send", onPress: () => void runAction(email, { id: row.id }) },
               ])
@@ -102,7 +103,7 @@ function Detail({ row, can, query }: { row: InvoiceRow; can: { create: boolean; 
           loading={convert.isPending}
           style={{ marginTop: 10 }}
           onPress={() =>
-            Alert.alert("Convert this proforma?", "A tax invoice is issued with the next invoice number. A linked WIP row moves to Invoice Raised.", [
+            confirmAlert("Convert this proforma?", "A tax invoice is issued with the next invoice number. A linked WIP row moves to Invoice Raised.", [
               { text: "Cancel", style: "cancel" },
               { text: "Convert", onPress: () => void runAction(convert, { id: row.id }) },
             ])

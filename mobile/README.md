@@ -57,6 +57,32 @@ To point the app somewhere else:
 For local development, run the web app (`pnpm dev` in the repository root) and use your computer's LAN
 address, e.g. `http://192.168.0.115:3000`. `localhost` on a phone is the phone itself.
 
+### Judging speed and smoothness
+
+`npx expo start` runs the JavaScript in development mode, which is much slower (extra checks, no
+minification). To feel the app as people will, use production mode:
+
+```bash
+npm run start:fast     # npx expo start --no-dev --minify
+```
+
+## Feel and motion
+
+- **Vibration** (`src/lib/haptics.ts`): named by meaning — `tap` (buttons), `select` (tabs, chips, segments,
+  rows), `toggle` (switches, ticks), `press` (the + button), `success` / `warning` / `error` (outcomes and
+  confirmations). Android uses the system haptics engine, so it follows the phone's touch-feedback setting
+  and needs no vibration permission; iOS uses the Taptic Engine. People can switch it off under More →
+  Vibration (saved on the phone). Confirmation dialogs go through `confirmAlert` (`src/lib/confirm.ts`).
+- **Motion** (`src/components/ui/motion.tsx`): presses, the tab and segment pills, sheets (spring up, drag down
+  to close), toasts, list rows and progress bars animate on the UI thread with Reanimated, so they stay
+  smooth while JavaScript is busy, and they follow the system's Reduce Motion setting.
+- **Refresh rate**: the phone decides it. iPhones with ProMotion run apps at up to 120 Hz only when the app
+  allows it; Expo Go does, and `ios.infoPlist.CADisableMinimumFrameDurationOnPhone` in `app.json` does the
+  same for our own builds. Android phones with 90/120 Hz screens pick the rate themselves (most raise it
+  while you scroll or something animates); there is no app setting for it. What the app controls is not
+  dropping frames, which is what the UI-thread animations and the virtualised list are for.
+- **Long lists**: WIP is virtualised (`ScreenList`), so only the cards on screen are drawn.
+
 ## Structure
 
 ```
@@ -65,8 +91,8 @@ src/app/            Screens (Expo Router). (app)/(tabs) = Home, WIP, Pipeline, F
 src/api/            client.ts (requests + token), queries.ts (data hooks, actions), files.ts (PDFs,
                     uploads, signed links), types.ts (response contract), prisma-enums.ts
 src/auth/           Session: token in the device keychain, sign-in, forced password change
-src/components/     UI kit (ui/*) in the prototype's style, tab bar, list rows, toast
-src/lib/            Formatting re-exports, web-link → screen mapping, storage, form helpers
+src/components/     UI kit (ui/*) in the prototype's style, motion (ui/motion.tsx), tab bar, list rows, toast
+src/lib/            Formatting re-exports, web-link → screen mapping, storage, form helpers, haptics
 src/theme/          Colours, radii, fonts (Urbanist) from mobile.html
 ```
 

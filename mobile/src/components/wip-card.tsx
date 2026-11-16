@@ -1,11 +1,12 @@
 import { CLOSED_REMARKS, WIP_REMARK } from "@shared/constants";
 import { areaLabel, rateLabel, rentLine } from "@shared/wip";
 import { router } from "expo-router";
-import { Pressable, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import type { WipRow } from "@/api/types";
 import { formatCompactINR, formatDate } from "@/lib/format";
 import { colors } from "@/theme/tokens";
 import { Icon } from "./ui/icon";
+import { PressableScale } from "./ui/motion";
 import { Avatar, Button, Card, Pill } from "./ui/primitives";
 import { T } from "./ui/text";
 
@@ -18,7 +19,7 @@ export function WipCard({ row, today }: { row: WipRow; today: string }) {
   const open = () => router.push(`/lead/${row.id}`);
   return (
     <Card>
-      <Pressable onPress={open} style={({ pressed }) => [styles.top, pressed && { opacity: 0.7 }]} accessibilityRole="button" accessibilityLabel={`${row.tenantName}, ${remark.label}`}>
+      <PressableScale onPress={open} haptic="select" scaleTo={0.98} pressedOpacity={0.7} style={styles.top} accessibilityRole="button" accessibilityLabel={`${row.tenantName}, ${remark.label}`}>
         <Avatar initials={row.initials} name={row.tenantName} size={48} />
         <View style={{ flex: 1, minWidth: 0 }}>
           <T variant="strong" style={{ fontSize: 16 }} numberOfLines={1}>
@@ -30,7 +31,7 @@ export function WipCard({ row, today }: { row: WipRow; today: string }) {
           </T>
         </View>
         <Pill label={remark.label} color={remark.color} />
-      </Pressable>
+      </PressableScale>
       <View style={styles.box}>
         <View style={styles.line}>
           <Icon name="building" size={16} color={colors.text} />

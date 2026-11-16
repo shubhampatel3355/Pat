@@ -1,9 +1,12 @@
-import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
+import Animated, { cancelAnimation, Easing, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withSpring, withTiming } from "react-native-reanimated";
 import Svg, { Circle } from "react-native-svg";
+import { haptics } from "@/lib/haptics";
 import { avatarGradient, colors, heroGradient, radius, shadow, tint, toneFor } from "@/theme/tokens";
 import { Icon, type IconName } from "./icon";
+import { motion, PressableScale } from "./motion";
 import { T } from "./text";
 
 // ── Surfaces ────────────────────────────────────────────────────────────────
@@ -12,9 +15,9 @@ export function Card({ children, style, padded = true, onPress }: { children: Re
   const body = [styles.card, padded && styles.cardPad, style];
   if (!onPress) return <View style={body}>{children}</View>;
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [body, pressed && styles.pressed]} accessibilityRole="button">
+    <PressableScale onPress={onPress} style={body} scaleTo={0.985} haptic="select" accessibilityRole="button">
       {children}
-    </Pressable>
+    </PressableScale>
   );
 }
 
@@ -94,9 +97,52 @@ export function ListRow({
   const style = [styles.row, !first && styles.rowBorder];
   if (!onPress) return <View style={style}>{content}</View>;
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [style, pressed && styles.rowPressed]} accessibilityRole="button">
+    <PressableScale onPress={onPress} style={style} scaleTo={0.985} pressedOpacity={0.6} haptic="select" accessibilityRole="button">
       {content}
-    </Pressable>
+    </PressableScale>
+  );
+}
+
+/**
+ * The round tick on to-dos and tasks. It ticks at once (with a small pop and a success vibration) while the
+ * server catches up, and goes back if the server refuses.
+ */
+export function CheckCircle({ checked, onToggle, disabled, label, size = 26 }: { checked: boolean; onToggle: (next: boolean) => Promise<{ ok: boolean }>; disabled?: boolean; label: string; size?: number }) {
+  const [pending, setPending] = useState<boolean | null>(null);
+  const shown = pending ?? checked;
+  const pop = useSharedValue(1);
+  useEffect(() => {
+    // Fresh data from the server: show what it says.
+    setPending(null);
+  }, [checked]);
+  const popStyle = useAnimatedStyle(() => ({ transform: [{ scale: pop.get() }] }));
+  return (
+    <PressableScale
+      disabled={disabled}
+      haptic="none"
+      scaleTo={0.85}
+      hitSlop={10}
+      accessibilityRole="checkbox"
+      accessibilityState={{ checked: shown, disabled }}
+      aria-checked={shown}
+      accessibilityLabel={label}
+      onPress={async () => {
+        const next = !shown;
+        setPending(next);
+        if (next) {
+          haptics.success();
+          pop.set(withSequence(withTiming(1.25, { duration: 110 }), withSpring(1, motion.release)));
+        } else {
+          haptics.toggle(false);
+        }
+        const res = await onToggle(next);
+        if (!res.ok) setPending(null);
+      }}
+    >
+      <Animated.View style={popStyle}>
+        <Icon name={shown ? "checkCircle" : "circle"} size={size} color={shown ? colors.success : colors.muted} />
+      </Animated.View>
+    </PressableScale>
   );
 }
 
@@ -125,23 +171,24 @@ export function Button({
 }) {
   const fg = kind === "primary" || kind === "danger" ? colors.white : kind === "light" ? colors.navy : colors.text;
   const height = size === "lg" ? 54 : size === "sm" ? 38 : 46;
+  const off = Boolean(disabled || loading);
   return (
-    <Pressable
+    <PressableScale
       onPress={() => {
-        if (loading || disabled) return;
-        void Haptics.selectionAsync().catch(() => undefined);
-        onPress();
+        if (!off) onPress();
       }}
-      disabled={disabled || loading}
+      haptic={off ? "none" : "tap"}
+      scaleTo={0.96}
+      disabled={off}
       accessibilityRole="button"
-      accessibilityState={{ disabled: disabled || loading, busy: loading }}
-      style={({ pressed }) => [styles.button, { height, borderRadius: height / 2 }, buttonKinds[kind], (disabled || loading) && styles.disabled, pressed && styles.pressedScale, style]}
+      accessibilityState={{ disabled: off, busy: loading }}
+      style={[styles.button, { height, borderRadius: height / 2 }, buttonKinds[kind], off && styles.disabled, style]}
     >
       {loading ? <ActivityIndicator color={fg} /> : icon ? <Icon name={icon} size={18} color={fg} /> : null}
       <T variant="strong" color={fg} style={{ fontSize: size === "sm" ? 13.5 : 15, flexShrink: 1 }} numberOfLines={1}>
         {label}
       </T>
-    </Pressable>
+    </PressableScale>
   );
 }
 
@@ -156,16 +203,17 @@ const buttonKinds = StyleSheet.create({
 /** Round 44 pt button (back, search, bell, filters). */
 export function IconButton({ name, onPress, label, dot, dark, size = 44 }: { name: IconName; onPress: () => void; label: string; dot?: string | false; dark?: boolean; size?: number }) {
   return (
-    <Pressable
+    <PressableScale
       onPress={onPress}
+      scaleTo={0.9}
       accessibilityRole="button"
       accessibilityLabel={label}
       hitSlop={6}
-      style={({ pressed }) => [styles.iconButton, { width: size, height: size, borderRadius: size / 2 }, dark && styles.iconButtonDark, pressed && styles.pressedScale]}
+      style={[styles.iconButton, { width: size, height: size, borderRadius: size / 2 }, dark && styles.iconButtonDark]}
     >
       <Icon name={name} size={20} color={dark ? colors.white : colors.text} />
       {dot ? <View style={[styles.dot, { backgroundColor: dot }]} /> : null}
-    </Pressable>
+    </PressableScale>
   );
 }
 
@@ -173,11 +221,13 @@ export function IconButton({ name, onPress, label, dot, dark, size = 44 }: { nam
 
 export function Chip({ label, active, onPress, count, small }: { label: string; active?: boolean; onPress: () => void; count?: number; small?: boolean }) {
   return (
-    <Pressable
+    <PressableScale
       onPress={onPress}
+      haptic="select"
+      scaleTo={0.94}
       accessibilityRole="button"
       accessibilityState={{ selected: !!active }}
-      style={({ pressed }) => [styles.chip, small && styles.chipSmall, active ? styles.chipActive : null, pressed && styles.pressed]}
+      style={[styles.chip, small && styles.chipSmall, active ? styles.chipActive : null]}
     >
       <T variant="small" color={active ? colors.white : colors.muted} style={{ fontSize: small ? 12.5 : 13.5 }}>
         {label}
@@ -189,7 +239,7 @@ export function Chip({ label, active, onPress, count, small }: { label: string; 
           </T>
         </View>
       ) : null}
-    </Pressable>
+    </PressableScale>
   );
 }
 
@@ -239,11 +289,21 @@ export function IconWell({ name, size = 38, color = colors.text, bg = colors.wel
 
 // ── Numbers ─────────────────────────────────────────────────────────────────
 
+/** Fills to `pct` with an ease-out glide when it appears or changes (a transform, so no layout work per frame). */
 export function ProgressBar({ pct, height = 6, color = colors.navy, track = colors.track }: { pct: number; height?: number; color?: string; track?: string }) {
-  const width = `${Math.max(0, Math.min(100, pct))}%` as const;
+  const target = Math.max(0, Math.min(100, pct));
+  const fill = useSharedValue(0);
+  const trackWidth = useSharedValue(0);
+  useEffect(() => {
+    fill.set(withTiming(target, { duration: 650, easing: Easing.out(Easing.cubic) }));
+  }, [fill, target]);
+  const fillStyle = useAnimatedStyle(() => ({
+    opacity: trackWidth.get() > 0 ? 1 : 0,
+    transform: [{ translateX: ((fill.get() - 100) / 100) * trackWidth.get() }],
+  }));
   return (
-    <View style={{ height, borderRadius: height / 2, backgroundColor: track, overflow: "hidden" }}>
-      <View style={{ height, width, borderRadius: height / 2, backgroundColor: color }} />
+    <View onLayout={(e) => trackWidth.set(e.nativeEvent.layout.width)} style={{ height, borderRadius: height / 2, backgroundColor: track, overflow: "hidden" }}>
+      <Animated.View style={[{ height, width: "100%", borderRadius: height / 2, backgroundColor: color }, fillStyle]} />
     </View>
   );
 }
@@ -321,11 +381,11 @@ export function Section({ title, action, onAction, children, style }: { title?: 
         <View style={styles.sectionHead}>
           <T variant="h3">{title}</T>
           {action && onAction ? (
-            <Pressable onPress={onAction} hitSlop={10} accessibilityRole="button">
+            <PressableScale onPress={onAction} haptic="select" scaleTo={0.94} hitSlop={10} accessibilityRole="button">
               <T variant="small" style={{ textDecorationLine: "underline" }}>
                 {action}
               </T>
-            </Pressable>
+            </PressableScale>
           ) : null}
         </View>
       ) : null}
@@ -359,13 +419,20 @@ export function EmptyState({ icon = "search", title, text, action, onAction }: {
   );
 }
 
+/** Placeholder cards that breathe gently while a screen loads. */
 export function Loading() {
+  const pulse = useSharedValue(0);
+  useEffect(() => {
+    pulse.set(withRepeat(withTiming(1, { duration: 850, easing: Easing.inOut(Easing.quad) }), -1, true));
+    return () => cancelAnimation(pulse);
+  }, [pulse]);
+  const breathe = useAnimatedStyle(() => ({ opacity: interpolate(pulse.get(), [0, 1], [1, 0.45]) }));
   return (
-    <View style={{ gap: 12, paddingTop: 18 }}>
+    <Animated.View style={[{ gap: 12, paddingTop: 18 }, breathe]}>
       {[0, 1, 2].map((i) => (
         <View key={i} style={[styles.skeleton, { height: i === 0 ? 200 : 120 }]} />
       ))}
-    </View>
+    </Animated.View>
   );
 }
 
@@ -403,10 +470,7 @@ const styles = StyleSheet.create({
   row: { flexDirection: "row", alignItems: "center", gap: 12, minHeight: 64, paddingVertical: 10 },
   rowOuter: { flexDirection: "row", alignItems: "center", gap: 12 },
   rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: "rgba(0,0,0,0.09)" },
-  rowPressed: { opacity: 0.6 },
   rowText: { flex: 1, minWidth: 0 },
-  pressed: { opacity: 0.75 },
-  pressedScale: { transform: [{ scale: 0.97 }] },
   disabled: { opacity: 0.5 },
   button: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingHorizontal: 18 },
   iconButton: { backgroundColor: colors.well, borderWidth: 1, borderColor: colors.wellBorder, alignItems: "center", justifyContent: "center" },

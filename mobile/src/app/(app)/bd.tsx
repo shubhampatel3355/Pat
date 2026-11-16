@@ -1,7 +1,7 @@
 import { MEETING_MODES, MEETING_TYPES, TEMPERATURE, TEMPERATURES } from "@shared/constants";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
-import { Alert, Linking, Pressable, StyleSheet, TextInput, View } from "react-native";
+import { Linking, StyleSheet, TextInput, View } from "react-native";
 import { errorText } from "@/api/client";
 import { runAction, useAction, useBd } from "@/api/queries";
 import type { LeadTemperature } from "@/api/prisma-enums";
@@ -9,10 +9,12 @@ import type { BdRow } from "@/api/types";
 import { Fab } from "@/components/fab";
 import { Field } from "@/components/ui/form";
 import { Icon } from "@/components/ui/icon";
+import { PressableScale } from "@/components/ui/motion";
 import { Avatar, Button, Chip, ChipRow, EmptyState, ErrorState, KeyValue, ListCard, ListRow, Loading, Pill, StatGrid } from "@/components/ui/primitives";
 import { Screen } from "@/components/ui/screen";
 import { Sheet } from "@/components/ui/sheet";
 import { T } from "@/components/ui/text";
+import { confirmAlert } from "@/lib/confirm";
 import { formatDate, plural } from "@/lib/format";
 import { colors, fonts } from "@/theme/tokens";
 
@@ -115,8 +117,10 @@ function MeetingSheet({ row, onClose }: { row: BdRow; onClose: () => void }) {
           </T>
           <View style={styles.temps}>
             {TEMPERATURES.map((t) => (
-              <Pressable
+              <PressableScale
                 key={t.value}
+                haptic="select"
+                scaleTo={0.94}
                 onPress={() => void runAction(setTemperature, { id: row.id, temperature: t.value })}
                 style={[styles.temp, { borderColor: t.color, backgroundColor: row.temperature === t.value ? t.color : "transparent" }]}
                 accessibilityRole="button"
@@ -125,7 +129,7 @@ function MeetingSheet({ row, onClose }: { row: BdRow; onClose: () => void }) {
                 <T variant="small" color={row.temperature === t.value ? colors.white : t.color}>
                   {t.label}
                 </T>
-              </Pressable>
+              </PressableScale>
             ))}
           </View>
           <Field label="Comments" value={comments} onChangeText={setComments} multiline />
@@ -155,7 +159,7 @@ function MeetingSheet({ row, onClose }: { row: BdRow; onClose: () => void }) {
           size="sm"
           style={{ marginTop: 16 }}
           onPress={() =>
-            Alert.alert("Delete this meeting?", row.tenantName, [
+            confirmAlert("Delete this meeting?", row.tenantName, [
               { text: "Cancel", style: "cancel" },
               {
                 text: "Delete",

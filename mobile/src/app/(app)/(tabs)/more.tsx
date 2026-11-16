@@ -1,14 +1,18 @@
 import { router } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
-import { Alert, View } from "react-native";
+import { useState } from "react";
+import { View } from "react-native";
 import { apiHost } from "@/api/config";
 import { useLive } from "@/api/queries";
 import { useMe, useSession } from "@/auth/session";
+import { Toggle } from "@/components/ui/form";
 import { Icon, iconForWeb, type IconName } from "@/components/ui/icon";
 import { Avatar, Button, GroupLabel, Hero, IconWell, ListCard, ListRow, Pill } from "@/components/ui/primitives";
 import { Screen } from "@/components/ui/screen";
 import { T } from "@/components/ui/text";
+import { confirmAlert } from "@/lib/confirm";
 import { ROLE_LABELS } from "@/lib/format";
+import { haptics, hapticsEnabled, hapticsSupported, setHapticsEnabled } from "@/lib/haptics";
 import { appRouteFor } from "@/lib/links";
 import { colors } from "@/theme/tokens";
 
@@ -63,6 +67,7 @@ export default function More() {
         {row("notifications", "Notifications", "bell", () => router.push("/notifications"), false, live.data?.unread ? <Pill label={`${live.data.unread} new`} color={colors.danger} /> : undefined)}
         {row("password", "Change password", "key", () => router.push("/password"), false)}
         {row("web", "Open on the web", "globe", () => void WebBrowser.openBrowserAsync(me.appUrl), false)}
+        {hapticsSupported ? <VibrationRow /> : null}
       </ListCard>
 
       <Button
@@ -72,7 +77,7 @@ export default function More() {
         size="lg"
         style={{ marginTop: 24 }}
         onPress={() =>
-          Alert.alert("Sign out?", "You'll need your password to sign in again.", [
+          confirmAlert("Sign out?", "You'll need your password to sign in again.", [
             { text: "Cancel", style: "cancel" },
             { text: "Sign out", style: "destructive", onPress: () => void signOut() },
           ])
@@ -82,5 +87,28 @@ export default function More() {
         {me.company.legalName} · {apiHost()}
       </T>
     </Screen>
+  );
+}
+
+/** Taps, ticks and confirmations you can feel; saved on this phone. */
+function VibrationRow() {
+  const [on, setOn] = useState(hapticsEnabled);
+  return (
+    <ListRow
+      left={<IconWell name="phone" />}
+      title="Vibration"
+      sub="Feel taps, ticks and confirmations"
+      right={
+        <Toggle
+          value={on}
+          label="Vibration"
+          onChange={(v) => {
+            setOn(v);
+            void setHapticsEnabled(v);
+            if (v) haptics.toggle(true); // the switch's own click was skipped while vibration was off
+          }}
+        />
+      }
+    />
   );
 }

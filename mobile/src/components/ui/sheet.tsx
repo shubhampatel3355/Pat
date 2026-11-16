@@ -1,35 +1,88 @@
-import { Modal, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { useEffect } from "react";
+import { Modal, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from "react-native";
+import { GestureDetector, GestureHandlerRootView, usePanGesture } from "react-native-gesture-handler";
+import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { scheduleOnRN } from "react-native-worklets";
+import { haptics } from "@/lib/haptics";
 import { colors } from "@/theme/tokens";
 import { Icon } from "./icon";
+import { motion, PressableScale } from "./motion";
 import { IconButton } from "./primitives";
 import { T } from "./text";
 
-/** The prototype's bottom sheet: dimmed navy scrim, frosted panel, grabber, title and close button. */
+/**
+ * The prototype's bottom sheet: dimmed navy scrim, frosted panel, grabber, title and close button. The scrim
+ * fades in while the panel springs up; drag the top of the panel down to close it.
+ */
 export function Sheet({ visible, onClose, title, sub, children }: { visible: boolean; onClose: () => void; title: string; sub?: string; children: React.ReactNode }) {
   const insets = useSafeAreaInsets();
+  const { height: screenHeight } = useWindowDimensions();
+  // The panel starts below the screen and springs to 0; `drag` is how far a finger has pulled it down.
+  const height = useSharedValue(screenHeight);
+  const enter = useSharedValue(0);
+  const drag = useSharedValue(0);
+
+  useEffect(() => {
+    if (visible) {
+      drag.set(0);
+      enter.set(withSpring(1, motion.sheet));
+    } else {
+      // Slides down while the Modal fades out, and starts from below next time.
+      enter.set(withTiming(0, { duration: 200 }));
+    }
+  }, [visible, enter, drag]);
+
+  const panel = useAnimatedStyle(() => ({ transform: [{ translateY: (1 - enter.get()) * height.get() + drag.get() }] }));
+
+  const dismiss = () => {
+    haptics.select();
+    onClose();
+  };
+  const pull = usePanGesture({
+    activeOffsetY: 6,
+    onUpdate: (e) => {
+      "worklet";
+      drag.set(Math.max(0, e.translationY));
+    },
+    onDeactivate: (e) => {
+      "worklet";
+      if (!e.canceled && (e.translationY > Math.min(140, height.get() * 0.3) || e.velocityY > 900)) {
+        drag.set(withTiming(height.get(), { duration: 180 }));
+        scheduleOnRN(dismiss);
+      } else {
+        drag.set(withSpring(0, motion.release));
+      }
+    },
+  });
+
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
-      <View style={styles.wrap}>
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>
+      {/* Gestures inside a Modal need their own root on Android. */}
+      <GestureHandlerRootView style={styles.wrap}>
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} accessibilityLabel="Close" />
-        <View style={[styles.panel, { paddingBottom: insets.bottom + 18 }]}>
-          <View style={styles.grabber} />
-          <View style={styles.head}>
-            <View style={{ flex: 1, minWidth: 0 }}>
-              <T variant="h2">{title}</T>
-              {sub ? (
-                <T variant="small" style={{ marginTop: 2 }} numberOfLines={2}>
-                  {sub}
-                </T>
-              ) : null}
+        <Animated.View onLayout={(e) => height.set(e.nativeEvent.layout.height)} style={[styles.panel, { paddingBottom: insets.bottom + 18 }, panel]}>
+          <GestureDetector gesture={pull}>
+            <View>
+              <View style={styles.grabber} />
+              <View style={styles.head}>
+                <View style={{ flex: 1, minWidth: 0 }}>
+                  <T variant="h2">{title}</T>
+                  {sub ? (
+                    <T variant="small" style={{ marginTop: 2 }} numberOfLines={2}>
+                      {sub}
+                    </T>
+                  ) : null}
+                </View>
+                <IconButton name="close" label="Close" onPress={onClose} />
+              </View>
             </View>
-            <IconButton name="close" label="Close" onPress={onClose} />
-          </View>
+          </GestureDetector>
           <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: 560 }}>
             {children}
           </ScrollView>
-        </View>
-      </View>
+        </Animated.View>
+      </GestureHandlerRootView>
     </Modal>
   );
 }
@@ -65,13 +118,16 @@ export function ChoiceSheet<V extends string>({
         {options.map((o, i) => {
           const current = o.value === value;
           return (
-            <Pressable
+            <PressableScale
               key={o.value}
+              haptic="select"
+              scaleTo={0.985}
+              pressedOpacity={0.6}
               onPress={() => {
                 onSelect(o.value);
                 onClose();
               }}
-              style={({ pressed }) => [styles.option, i > 0 && styles.optionBorder, pressed && { opacity: 0.6 }]}
+              style={[styles.option, i > 0 && styles.optionBorder]}
               accessibilityRole="button"
               accessibilityState={{ selected: current }}
             >
@@ -87,7 +143,7 @@ export function ChoiceSheet<V extends string>({
                 ) : null}
               </View>
               {current ? <Icon name="check" color={colors.navy} /> : null}
-            </Pressable>
+            </PressableScale>
           );
         })}
       </View>

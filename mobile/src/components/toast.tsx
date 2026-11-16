@@ -1,7 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { Animated, StyleSheet, Text, View } from "react-native";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { StyleSheet, Text, View } from "react-native";
+import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { haptics } from "@/lib/haptics";
 import { colors, fonts } from "@/theme/tokens";
 
 type Kind = "ok" | "error" | "info";
@@ -25,28 +27,25 @@ const ICON: Record<Kind, { name: keyof typeof Ionicons.glyphMap; color: string; 
   info: { name: "time-outline", color: colors.ice, bg: "rgba(177,201,239,0.2)" },
 };
 
-/** The prototype's navy pill toast, above the tab bar. */
+const SHOWN_MS = 2800;
+let lastId = 0;
+
+/** The prototype's navy pill toast, above the tab bar. It springs in, and success or failure is felt as well as seen. */
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toast, setToast] = useState<ToastState | null>(null);
-  const opacity = useRef(new Animated.Value(0)).current;
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const insets = useSafeAreaInsets();
 
   const show = useCallback((message: string, kind: Kind = "ok") => {
-    if (timer.current) clearTimeout(timer.current);
-    setToast({ id: Date.now(), message, kind });
+    if (kind === "ok") haptics.success();
+    else if (kind === "error") haptics.error();
+    setToast({ id: ++lastId, message, kind });
   }, []);
 
   useEffect(() => {
     if (!toast) return;
-    Animated.timing(opacity, { toValue: 1, duration: 200, useNativeDriver: true }).start();
-    timer.current = setTimeout(() => {
-      Animated.timing(opacity, { toValue: 0, duration: 220, useNativeDriver: true }).start(() => setToast(null));
-    }, 2800);
-    return () => {
-      if (timer.current) clearTimeout(timer.current);
-    };
-  }, [toast, opacity]);
+    const timer = setTimeout(() => setToast((t) => (t?.id === toast.id ? null : t)), SHOWN_MS);
+    return () => clearTimeout(timer);
+  }, [toast]);
 
   const value = useMemo(() => ({ show }), [show]);
   const icon = toast ? ICON[toast.kind] : null;
@@ -55,7 +54,13 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={value}>
       {children}
       {toast && icon ? (
-        <Animated.View pointerEvents="none" style={[styles.wrap, { bottom: insets.bottom + 104, opacity, transform: [{ translateY: opacity.interpolate({ inputRange: [0, 1], outputRange: [14, 0] }) }] }]}>
+        <Animated.View
+          key={toast.id}
+          entering={FadeInDown.springify().damping(18).stiffness(260)}
+          exiting={FadeOutDown.duration(180)}
+          pointerEvents="none"
+          style={[styles.wrap, { bottom: insets.bottom + 104 }]}
+        >
           <View style={styles.toast} accessibilityLiveRegion="polite" accessibilityRole="alert">
             <View style={[styles.icon, { backgroundColor: icon.bg }]}>
               <Ionicons name={icon.name} size={16} color={icon.color} />

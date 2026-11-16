@@ -2,7 +2,7 @@ import { CLOSED_REMARKS, WIP_REMARK, WIP_REMARKS } from "@shared/constants";
 import { areaLabel, rateLabel, rentLine } from "@shared/wip";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { Alert, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { errorText } from "@/api/client";
 import { runAction, useAction, useFollowUps, useWip } from "@/api/queries";
 import type { WipRemark } from "@/api/prisma-enums";
@@ -11,6 +11,7 @@ import { Avatar, Button, Card, EmptyState, ErrorState, KeyValue, ListCard, Loadi
 import { Screen } from "@/components/ui/screen";
 import { ChoiceSheet } from "@/components/ui/sheet";
 import { T } from "@/components/ui/text";
+import { confirmAlert } from "@/lib/confirm";
 import { formatCompactINR, formatDate } from "@/lib/format";
 import { colors } from "@/theme/tokens";
 
@@ -154,7 +155,7 @@ export default function LeadDetail() {
           kind="ghost"
           style={{ marginTop: 26 }}
           onPress={() =>
-            Alert.alert(`Remove ${row.tenantName}?`, "The row leaves WIP for everyone. The audit log keeps a record.", [
+            confirmAlert(`Remove ${row.tenantName}?`, "The row leaves WIP for everyone. The audit log keeps a record.", [
               { text: "Cancel", style: "cancel" },
               {
                 text: "Remove",

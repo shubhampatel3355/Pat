@@ -1,6 +1,6 @@
 import { WIP_REMARK } from "@shared/constants";
 import { router } from "expo-router";
-import { Pressable, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { errorText } from "@/api/client";
 import { downloadAndShare } from "@/api/files";
 import { runAction, useAction, useDashboard, useLive } from "@/api/queries";
@@ -9,7 +9,8 @@ import { useMe } from "@/auth/session";
 import { TopActions } from "@/components/top-actions";
 import { useToast } from "@/components/toast";
 import { Icon } from "@/components/ui/icon";
-import { Card, Chip, ChipRow, ErrorState, Hero, IconWell, ListCard, ListRow, Loading, Pill, ProgressBar, Section } from "@/components/ui/primitives";
+import { MotionList, MotionRow, PressableScale } from "@/components/ui/motion";
+import { Card, CheckCircle, Chip, ChipRow, ErrorState, Hero, IconWell, ListCard, ListRow, Loading, Pill, ProgressBar, Section } from "@/components/ui/primitives";
 import { Screen } from "@/components/ui/screen";
 import { T } from "@/components/ui/text";
 import { ago, formatCompactINR, formatDate, formatINR, formatTime12, percent, relativeDayLabel } from "@/lib/format";
@@ -272,8 +273,9 @@ function EmployeeCards({ d }: { d: DashboardData }) {
             </T>
           ) : null}
           {e.pay.latestPayslip ? (
-            <Pressable
+            <PressableScale
               style={styles.payslip}
+              scaleTo={0.97}
               accessibilityRole="button"
               onPress={() => downloadAndShare(e.pay.latestPayslip!.url, `Payslip ${e.pay.latestPayslip!.label}.pdf`, "application/pdf").catch((err) => toast.show(errorText(err), "error"))}
             >
@@ -281,7 +283,7 @@ function EmployeeCards({ d }: { d: DashboardData }) {
               <T variant="strong" color={colors.navy}>
                 Payslip · {e.pay.latestPayslip.label}
               </T>
-            </Pressable>
+            </PressableScale>
           ) : null}
         </Card>
       </Section>
@@ -297,25 +299,24 @@ function Todos({ todos, today }: { todos: TodoDto[]; today: string }) {
     <Section title="My to-dos" action="Add" onAction={() => router.push("/todo-form")}>
       {todos.length ? (
         <ListCard>
-          {[...open, ...done].map((t, i) => (
-            <ListRow
-              key={t.id}
-              first={i === 0}
-              onPress={() => router.push({ pathname: "/todo-form", params: { id: t.id } })}
-              leftAction={
-                <Pressable onPress={() => void runAction(update, { id: t.id, patch: { done: !t.done } })} hitSlop={10} accessibilityRole="checkbox" accessibilityState={{ checked: t.done }} accessibilityLabel={t.text}>
-                  <Icon name={t.done ? "checkCircle" : "circle"} size={24} color={t.done ? colors.success : colors.muted} />
-                </Pressable>
-              }
-              title={
-                <T variant="strong" style={t.done ? { textDecorationLine: "line-through", color: colors.muted } : undefined} numberOfLines={2}>
-                  {t.text}
-                </T>
-              }
-              sub={t.dueDate ? `${relativeDayLabel(t.dueDate, today)}${t.dueTime ? ` · ${formatTime12(t.dueTime)}` : ""}` : undefined}
-              right={t.important ? <Icon name="star" size={16} color={colors.warning} /> : null}
-            />
-          ))}
+          <MotionList>
+            {[...open, ...done].map((t, i) => (
+              <MotionRow key={t.id}>
+                <ListRow
+                  first={i === 0}
+                  onPress={() => router.push({ pathname: "/todo-form", params: { id: t.id } })}
+                  leftAction={<CheckCircle checked={t.done} size={24} label={t.text} onToggle={(next) => runAction(update, { id: t.id, patch: { done: next } })} />}
+                  title={
+                    <T variant="strong" style={t.done ? { textDecorationLine: "line-through", color: colors.muted } : undefined} numberOfLines={2}>
+                      {t.text}
+                    </T>
+                  }
+                  sub={t.dueDate ? `${relativeDayLabel(t.dueDate, today)}${t.dueTime ? ` · ${formatTime12(t.dueTime)}` : ""}` : undefined}
+                  right={t.important ? <Icon name="star" size={16} color={colors.warning} /> : null}
+                />
+              </MotionRow>
+            ))}
+          </MotionList>
         </ListCard>
       ) : (
         <Card>

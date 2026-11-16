@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { Alert, StyleSheet, TextInput, View } from "react-native";
+import { StyleSheet, TextInput, View } from "react-native";
 import { errorText } from "@/api/client";
 import { deleteStoredFile, formatBytes, openStoredFile, pickDocuments, uploadDocuments } from "@/api/files";
 import { useVaultFolder } from "@/api/queries";
@@ -13,6 +13,7 @@ import { Button, EmptyState, ErrorState, IconWell, ListCard, ListRow, Loading } 
 import { Screen } from "@/components/ui/screen";
 import { Sheet } from "@/components/ui/sheet";
 import { T } from "@/components/ui/text";
+import { confirmAlert } from "@/lib/confirm";
 import { formatDate, plural } from "@/lib/format";
 import { colors, fonts } from "@/theme/tokens";
 
@@ -115,7 +116,7 @@ export default function VaultFolder() {
               kind="ghost"
               style={{ marginTop: 10 }}
               onPress={() =>
-                Alert.alert(`Delete ${selected.name}?`, "It is removed from the vault for everyone.", [
+                confirmAlert(`Delete ${selected.name}?`, "It is removed from the vault for everyone.", [
                   { text: "Cancel", style: "cancel" },
                   {
                     text: "Delete",

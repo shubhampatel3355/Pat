@@ -45,6 +45,7 @@
   },
   "scripts": {
     "start": "expo start",
+    "start:fast": "expo start --no-dev --minify",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "typecheck": "tsc --noEmit",

@@ -2,13 +2,15 @@ import { FOLLOW_UP_TYPES, TASK_PRIORITY } from "@shared/constants";
 import { dueTone, followUpTab, instantLabel, rescheduleOptions } from "@shared/tasks";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Alert, Pressable, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { runAction, useAction } from "@/api/queries";
 import type { FollowUpDto, TaskDto } from "@/api/types";
+import { confirmAlert } from "@/lib/confirm";
 import { colors } from "@/theme/tokens";
 import { DateField, TimeField } from "./ui/form";
 import { Icon, type IconName } from "./ui/icon";
-import { Button, IconWell, ListRow, Pill } from "./ui/primitives";
+import { PressableScale } from "./ui/motion";
+import { Button, CheckCircle, IconWell, ListRow, Pill } from "./ui/primitives";
 import { Sheet } from "./ui/sheet";
 import { T } from "./ui/text";
 
@@ -62,7 +64,9 @@ export function FollowUpItem({ f, now, today, first, showLead = true }: { f: Fol
           </T>
         ) : null}
         {f.lead ? (
-          <Pressable
+          <PressableScale
+            haptic="select"
+            scaleTo={0.97}
             onPress={() => {
               setOpen(false);
               router.push(`/lead/${f.lead!.id}`);
@@ -73,7 +77,7 @@ export function FollowUpItem({ f, now, today, first, showLead = true }: { f: Fol
             <T variant="strong" color={colors.navy}>
               {f.lead.name}
             </T>
-          </Pressable>
+          </PressableScale>
         ) : null}
         {f.canEdit ? (
           <>
@@ -119,7 +123,7 @@ export function FollowUpItem({ f, now, today, first, showLead = true }: { f: Fol
                 kind="ghost"
                 size="sm"
                 onPress={() =>
-                  Alert.alert("Delete this follow-up?", `${f.contactName} · ${instantLabel(f.dueAt, today)}`, [
+                  confirmAlert("Delete this follow-up?", `${f.contactName} · ${instantLabel(f.dueAt, today)}`, [
                     { text: "Cancel", style: "cancel" },
                     {
                       text: "Delete",
@@ -152,18 +156,7 @@ export function TaskItem({ t, now, today, first }: { t: TaskDto; now: string; to
     <ListRow
       first={first}
       onPress={() => router.push(`/task/${t.id}`)}
-      leftAction={
-        <Pressable
-          disabled={!t.canEdit}
-          onPress={() => void runAction(setStatus, { id: t.id, status: done ? "TODO" : "DONE" })}
-          hitSlop={10}
-          accessibilityRole="checkbox"
-          accessibilityState={{ checked: done, disabled: !t.canEdit }}
-          accessibilityLabel={t.title}
-        >
-          <Icon name={done ? "checkCircle" : "circle"} size={26} color={done ? colors.success : colors.muted} />
-        </Pressable>
-      }
+      leftAction={<CheckCircle checked={done} disabled={!t.canEdit} label={t.title} onToggle={(next) => runAction(setStatus, { id: t.id, status: next ? "DONE" : "TODO" })} />}
       title={
         <T variant="strong" numberOfLines={2} style={done ? { textDecorationLine: "line-through", color: colors.muted } : undefined}>
           {t.title}
