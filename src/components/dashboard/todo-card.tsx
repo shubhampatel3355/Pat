@@ -1,6 +1,6 @@
 "use client";
 
-import { useOptimistic, useState, useTransition } from "react";
+import { useOptimistic, useRef, useState, useTransition } from "react";
 import { dateToBucket, DUE_BUCKETS, DUE_LABEL, whenLabel, bucketToDate, type DueBucket } from "@/lib/todo";
 import { createTodoAction, deleteTodoAction, updateTodoAction } from "@/server/actions/todo";
 import type { TodoDto } from "@/server/services/dashboard";
@@ -36,6 +36,7 @@ export function TodoCard({ todos, today }: { todos: TodoDto[]; today: string }) 
   const [time, setTime] = useState("10:00");
   const [star, setStar] = useState(false);
   const [remind, setRemind] = useState(true);
+  const input = useRef<HTMLInputElement>(null);
 
   const match: Record<Filter, (t: TodoDto) => boolean> = {
     day: (t) => t.dueDate === today,
@@ -59,7 +60,12 @@ export function TodoCard({ todos, today }: { todos: TodoDto[]; today: string }) 
 
   const add = () => {
     const text = draft.trim();
-    if (!text) return;
+    if (!text) {
+      // + with nothing typed: the box doesn't look like a text box, so lead the person into it.
+      input.current?.focus();
+      show("Type the task in “Add a task”, then press + or Enter");
+      return;
+    }
     const date = bucketToDate(due, today);
     const temp: TodoDto = { id: `tmp-${Date.now()}`, text, dueDate: date, dueTime: date ? time : null, important: star, remind: remind && Boolean(date), note: "", done: false };
     setDraft("");
@@ -111,6 +117,7 @@ export function TodoCard({ todos, today }: { todos: TodoDto[]; today: string }) 
       <div className="flex flex-col gap-1.5 rounded-row bg-field p-2 shadow-inset">
         <div className="flex gap-1.5">
           <input
+            ref={input}
             aria-label="Add a task"
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
