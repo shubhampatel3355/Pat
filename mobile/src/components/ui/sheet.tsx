@@ -78,7 +78,7 @@ export function Sheet({ visible, onClose, title, sub, children }: { visible: boo
               </View>
             </View>
           </GestureDetector>
-          <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: 560 }}>
+          <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} style={{ maxHeight: 560 }}>
             {children}
           </ScrollView>
         </Animated.View>

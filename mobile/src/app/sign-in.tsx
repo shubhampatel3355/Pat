@@ -64,7 +64,7 @@ export default function SignIn() {
   return (
     <LinearGradient colors={[heroGradient[2], heroGradient[1], heroGradient[0]]} style={{ flex: 1 }}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
-        <ScrollView contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 40, paddingBottom: insets.bottom + 16 }]} keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 40, paddingBottom: insets.bottom + 16 }]} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           <View style={styles.brand}>
             <Image source={require("@/assets/images/pat-michaels-logo.png")} style={styles.logo} contentFit="contain" accessibilityLabel="Pat Michaels" />
             <T variant="caption" color={colors.mist} style={styles.tagline}>

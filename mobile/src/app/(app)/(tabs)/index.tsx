@@ -127,7 +127,7 @@ function TargetHero({ d }: { d: DashboardData }) {
               Achieved {formatCompactINR(achievedPaise)}
             </T>
             <T variant="caption" color={colors.white}>
-              {achievedPaise >= amountPaise ? "Target reached" : `Remaining ${formatCompactINR(amountPaise - achievedPaise)}`}
+              {amountPaise > 0 && achievedPaise >= amountPaise ? "Target reached" : `Remaining ${formatCompactINR(Math.max(0, amountPaise - achievedPaise))}`}
             </T>
           </View>
         </>

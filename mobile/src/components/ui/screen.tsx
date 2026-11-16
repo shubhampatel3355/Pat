@@ -96,6 +96,7 @@ export function Screen({
         {scroll ? (
           <ScrollView
             contentContainerStyle={[styles.content, { paddingBottom: bottom }, contentStyle]}
+            showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
             refreshControl={query ? refreshControl(query) : undefined}
           >
@@ -161,6 +162,7 @@ export function ScreenList<Row>({
           }
           ListEmptyComponent={<>{empty}</>}
           contentContainerStyle={[styles.content, { paddingBottom: tabs ? TAB_BAR_SPACE + insets.bottom : 36 + insets.bottom }]}
+          showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
           refreshControl={query ? refreshControl(query) : undefined}
@@ -208,7 +210,7 @@ export function FormScreen({
         </View>
         <IconButton name="close" label="Close" onPress={() => router.back()} />
       </View>
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: 30 }]} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: 30 }]} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         {children}
       </ScrollView>
       <View style={[styles.footer, styles.formFooter, { paddingBottom: insets.bottom + 12 }]}>
